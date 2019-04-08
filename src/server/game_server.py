@@ -1,9 +1,25 @@
 #Game server
 
-import socket
-import sys
-from _thread import *
-#from threading import Thread
+import socket								#For networkingn sockets
+import sys									#For system exit
+from _thread import start_new_thread		#For threading a client connection
+
+#Fucntion for client connection
+def client_thread(connection):
+	verification_message = "Established connection with server\n"
+	connection.send(verification_message.encode())
+
+	while True:
+		#Receive one kB of data
+		data = connection.recv(1024)
+		reply = data.decode()
+		if not data:
+			break
+		print(reply)
+		connection.send("Recieved data".encode())
+	
+	#Close connection
+	connection.close()
 
 #Check for correct number of arguments
 if len(sys.argv) < 2:
@@ -29,22 +45,6 @@ except socket.error:
 server.listen(2)
 print("Server listening on " + host + ":" + str(port))
 
-def client_thread(connection):
-	verification_message = "Established connection with server\n"
-	connection.send(verification_message.encode())
-
-	while True:
-		#Receive one kB of data
-		data = connection.recv(1024)
-		reply = data.decode()
-		if not data:
-			break
-		print(reply)
-		connection.send("Recieved data".encode())
-	
-	#Close connection
-	connection.close()
-
 #Main server loop
 while True:
 	connection, address = server.accept()
@@ -52,6 +52,5 @@ while True:
 	print("Established connection with " + address[0] + ":" + str(address[1]))
 	#Establish new threaded client connection
 	start_new_thread(client_thread, (connection,))
-	#t = Thread(target = client_thread, args = (connection, )).start())
 	
 server.close()

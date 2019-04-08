@@ -1,3 +1,5 @@
+#Client networking class
+
 import socket
 import sys
 
@@ -8,7 +10,7 @@ class Network(object):
 		self.host = host
 		self.port = port
 		self.addr = (self.host, self.port)
-		self.id = self.connect()
+		self.connect()
 
 	def connect(self):
 		self.client.connect(self.addr)
