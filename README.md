@@ -34,6 +34,14 @@ Before you can contribute, you need to have a local copy of the code on your mac
 
 3. **Commit** your changes each time you add a new feature using `git commit -m 'Short description of change'`.
 
+#### Keep up to date with this repository
+Your fork will not automatically be updated when others make changs to this main repo. You need to pull changes from this main repository before you begin making changes to your local copy.
+
+1. Add original repository as remote: `git remote add upstream git://github.com/charliethomasdavis/sfasu-strategy-game.git`
+
+2. Fetch the changes from upstream: `get fetch upstream`
+
+3. Update your local code with changes from upstream: `git pull upstream master`
 
 #### Merge your changes with this repository
 
@@ -41,9 +49,9 @@ Before you can contribute, you need to have a local copy of the code on your mac
     
 2. On github, navigate to [my repository](https://github.com/charliethomasdavis/sfasu-strategy-game/).
 
-3. Create a pull request by [following the instructions here.](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork
+3. Create a pull request by [following the instructions here.](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork)
 
-#### Style Guide
+### Style Guide
 
 Keep commenting short and simple; only comment if code is unclear, but prefer to make code more clear.
 
