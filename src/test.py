@@ -1,5 +1,8 @@
-from game_client import Network
+#file for testing
+
+from src.client.network import Network
 import sys
+
 
 if len(sys.argv) < 3:
 	print("Usage: python3 test.py <host> <port>")
