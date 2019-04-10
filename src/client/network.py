@@ -2,7 +2,7 @@
 
 import socket
 import sys
-from src.encryption import encrypt, decrypt
+from encryption import encrypt, decrypt
 
 class Network(object):
 	

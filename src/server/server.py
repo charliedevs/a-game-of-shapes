@@ -2,8 +2,8 @@
 
 import socket								#For networkingn sockets
 import sys									#For system exit
-from _thread import start_new_thread		#For threading a client connection
-from src.encryption import encrypt, decrypt
+from encryption import encrypt, decrypt
+import threading
 
 #Fucntion for client connection
 def client_thread(connection):
@@ -62,6 +62,10 @@ while True:
 	#address = (ip, port)
 	print("Established connection with " + address[0] + ":" + str(address[1]))
 	#Establish new threaded client connection
-	start_new_thread(client_thread, (connection,))
+	#start_new_thread(client_thread, (connection,))
+
+	#NOTE update to threading instead of _thread
+	t = threading.Thread(target= client_thread, args= (connection,))
+	t.start()
 	
 server.close()
