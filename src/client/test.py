@@ -1,4 +1,5 @@
 #file for testing
+#!/usr/bin/env python
 
 '''
 import pygame
@@ -56,8 +57,16 @@ if len(sys.argv) < 3:
 host = sys.argv[1]
 port = int(sys.argv[2])
 
-client_one = Network(host, port)
+client = Network(host, port)
+client.connect()
 
+reply = ""
 while True: 
+	if reply == "quit":
+		break
 	message = input("Enter a message to send to server: ")
-	client_one.send(message)
+	client.send(message)
+	reply = client.receive()
+	print(reply)
+
+client.close()
