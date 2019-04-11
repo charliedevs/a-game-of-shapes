@@ -1,6 +1,6 @@
-from game import Game
+from src import game
 def main():
-    Game()
+    game.Game()
     return 0
 
 

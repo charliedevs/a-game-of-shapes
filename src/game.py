@@ -12,7 +12,7 @@ Created by: Fernando Rodriguez, Charles Davis, Paul Rogers
 import sys
 import pygame
 
-from gamestate import GameState
+from src.gamestate import GameState
 
 # Window Size
 WINDOW_WIDTH = 255
