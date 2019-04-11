@@ -2,7 +2,8 @@
 
 import socket
 import sys
-from src.encryption import encrypt, decrypt
+from encryption import encrypt, decrypt
+import json
 
 class Network(object):
 	
@@ -12,22 +13,39 @@ class Network(object):
 		self.host = host
 		self.port = port
 		self.addr = (self.host, self.port)
-		self.connect()
-
-	#Connect to server
-	def connect(self):
-		self.client.connect(self.addr)
-		decyrpted_verification = decrypt(self.client.recv(1024))
-		verification = decyrpted_verification.decode()
-		print(verification)
 
 	#Send data to server
 	def send(self, data):
 		try:
 			encrypted_data = encrypt(data.encode())
 			self.client.sendall(encrypted_data)
+		except socket.error as e:
+			print(str(e))
+
+	#Send dictionary
+	def send_dictionary(self, dictionary):
+		data = json.dumps(dictionary)
+		try:
+			encrypted_data = encrypt(data.encode())
+			self.client.sendall(encrypted_data)
+		except socket.error as e:
+			print(str(e))
+
+	#Receive data from server
+	def receive(self):
+		try:
 			decrypted_reply = decrypt(self.client.recv(1024))
 			reply = decrypted_reply.decode()
-			print(reply)
+			return reply
 		except socket.error as e:
-			return str(e)
+			print(str(e))
+			return e
+
+	#Connect to server
+	def connect(self):
+		self.client.connect(self.addr)
+		reply = self.receive()
+		print(reply)
+
+	def close(self):
+		self.client.close()

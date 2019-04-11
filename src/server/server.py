@@ -1,30 +1,54 @@
 #Game server
+#!/usr/bin/env python
 
 import socket								#For networkingn sockets
 import sys									#For system exit
-from _thread import start_new_thread		#For threading a client connection
-from src.encryption import encrypt, decrypt
+from encryption import encrypt, decrypt
+import threading
+
+def send(data, connection):
+		try:
+			encrypted_data = encrypt(data.encode())
+			connection.sendall(encrypted_data)
+		except socket.error as e:
+			print(str(e))
+
+#Receive data from server
+def receive(connection):
+	try:
+		decrypted_reply = decrypt(connection.recv(1024))
+		reply = decrypted_reply.decode()
+		return reply
+	except socket.error as e:
+		print(str(e))
+		return e
 
 #Fucntion for client connection
 def client_thread(connection):
 	verification_message = "Established connection with server"
 	encrypted_verification = encrypt(verification_message.encode())
 	connection.sendall(encrypted_verification)
+	threads_num = threading.active_count()
+	print("Active threads:", threads_num)
 
 	while True:
 		#Receive one kB of data
-		decrypted_data = decrypt(connection.recv(1024))
-		data = decrypted_data.decode()
-		if not data:
+		data = receive(connection)
+		if data == "quit":
+			send("quit", connection)
 			break
-		################################################
-		print(data)
-		reply = "Recieved data"
-		encrypted_reply = encrypt(reply.encode())
-		connection.sendall(encrypted_reply)
-		################################################
-	
+		elif data == "looking":
+			#Wait loop for two active threads
+			while True:
+				if threading.active_count() == 3:
+					send("start", connection)
+					break
+		#TODO implement dictionary(game state) elif
+
+		print("Recieved", data)
+		send("Message received", connection)
 	#Close connection
+	print("Closing connection")
 	connection.close()
 
 #Check for correct number of arguments
@@ -62,6 +86,7 @@ while True:
 	#address = (ip, port)
 	print("Established connection with " + address[0] + ":" + str(address[1]))
 	#Establish new threaded client connection
-	start_new_thread(client_thread, (connection,))
+	t = threading.Thread(target= client_thread, args= (connection,))
+	t.start()
 	
 server.close()
