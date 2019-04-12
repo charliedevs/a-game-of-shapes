@@ -1,4 +1,5 @@
 from src import game
+
 def main():
     game.Game()
     return 0

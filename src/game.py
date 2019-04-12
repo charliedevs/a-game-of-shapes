@@ -5,18 +5,20 @@ Created by: Fernando Rodriguez, Charles Davis, Paul Rogers
 
 """
 
-#TODO: Create Map class that will draw the grid and hold tiles
 #TODO: Create Unit class for unit actions and data
 #TODO: Move code from here into relevant classes
+#TODO: Create window class for display surface with functions that return size, center, etc.
 
 import sys
 import pygame
 
 from src.gamestate import GameState
+from src.map import Map
 
 # Window Size
-WINDOW_WIDTH = 255
-WINDOW_HEIGHT = 255
+WINDOW_WIDTH = 700
+WINDOW_HEIGHT = 500
+WINDOW_CENTER = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 
 #DEBUG: grid size
 GRID_WIDTH = 23
@@ -30,6 +32,7 @@ TILE_COLS = 10
 # Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+GRAY = (30, 30, 30)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 
@@ -48,10 +51,8 @@ class Game:
         self.screen = pygame.display.set_mode(self.screen_res)
 
         #self.entities = pygame.sprite.Group()
-        self.rows = TILE_ROWS
-        self.cols = TILE_COLS
-        self.game_state = GameState()
-        self.grid = self.game_state.tiles
+        #TODO: continue moving grid stuff from here to map.py
+        self.map = Map(self.screen)
 
         self.clock.tick(30)
 
@@ -74,19 +75,21 @@ class Game:
                 sys.exit(0)
             # User clicks mouse
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if self.mousepos[0] not in range(GRID_WIDTH * (self.cols + 1)):
+                #TODO: Change grid clicking to be relative to map rather than display surface
+                mouse_x, mouse_y = self.mousepos
+                if mouse_x not in range(self.map.cell_w * (self.map.cols + 1)):
                     break
-                if self.mousepos[1] not in range(GRID_HEIGHT * (self.rows + 1)):
+                if mouse_y not in range(self.map.cell_h * (self.map.rows + 1)):
                     break
                 #DEBUG: print column and row of click
-                column = self.mousepos[0] // (GRID_WIDTH + GRID_MARGIN)
-                row = self.mousepos[1] // (GRID_HEIGHT + GRID_MARGIN)
-                if (self.grid[row][column] == 0):
-                    self.grid[row][column] = 1
-                elif (self.grid[row][column] == 1):
-                    self.grid[row][column] = 2
+                column = mouse_x // (GRID_WIDTH + GRID_MARGIN)
+                row = mouse_y // (GRID_HEIGHT + GRID_MARGIN)
+                if (self.map.checkTile(column, row) == 0):
+                    self.map.setTile(column, row, 1)
+                elif (self.map.checkTile(column, row) == 1):
+                    self.map.setTile(column, row, 2)
                 else:
-                    self.grid[row][column] = 0
+                    self.map.setTile(column, row, 0)
                 print("Click ", self.mousepos, "Grid coords: ", row, column)
                 
     
@@ -96,22 +99,12 @@ class Game:
         self.keys_pressed = pygame.key.get_pressed()
 
     def draw(self):
-        self.screen.fill(WHITE)
+        self.screen.fill(GRAY)
 
-        for row in range(self.rows):
-            for col in range(self.cols):
-                color = BLACK
-                if self.grid[row][col] == 1:
-                    color = GREEN
-                elif self.grid[row][col] == 2:
-                    color = RED
-                pygame.draw.rect(self.screen,
-                                 color,
-                                 [(GRID_MARGIN + GRID_WIDTH) * col + GRID_MARGIN,
-                                  (GRID_MARGIN + GRID_HEIGHT) * row + GRID_MARGIN,
-                                  GRID_WIDTH,
-                                  GRID_HEIGHT])
+        self.map.draw()
 
+        #TODO: Create function to place map correctly on display surface, using Surface.get_size
+        self.screen.blit(self.map.surface, (0, 0))
         pygame.display.update()
         #DEBUG: display grid here
 

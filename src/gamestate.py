@@ -10,20 +10,13 @@ class GameState:
 # contains the entire dictionary to be
 # sent across the network.
 
-    def __init__(self):
+    # Initialize 2D array holding Tile locations.
+    # Fill with blank tiles.
+    tiles = [[0 for j in range(TILE_COLS)] for i in range(TILE_ROWS)]
 
-        # Initialize 2D array holding Tile locations.
-        # Fill with blank tiles.
-        self.tiles = [[0 for j in range(TILE_COLS)] for i in range(TILE_ROWS)]
-
-        # Array holding locations of player1's
-        # three characters.
-
-        # Main data structure
-        # 
-        self.data = {
-            "tiles" : self.tiles,
-        }
+    data = {
+        "tiles" : tiles,
+    }
 
 # Enum for tiletypes
 # Access with Tiletype.typename
