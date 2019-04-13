@@ -43,7 +43,7 @@ def client_thread(connection):
 				if threading.active_count() == 3:
 					send("start", connection)
 					break
-		#TODO implement dictionary(game state) elif
+				#TODO: implement dictionary(game state) elif
 
 		print("Recieved", data)
 		send("Message received", connection)
