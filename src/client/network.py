@@ -41,6 +41,11 @@ class Network(object):
 			print(str(e))
 			return e
 
+	def receive_dictionary(self):
+		decrypted_data = decrypt(self.client.recv(1024))
+		dictionary = json.loads(decrypted_data.decode())
+		#TODO: return dictionary 
+
 	#Connect to server
 	def connect(self):
 		self.client.connect(self.addr)
