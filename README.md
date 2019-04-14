@@ -47,9 +47,7 @@ Your fork will not automatically be updated when others make changs to this main
 
 1. Add original repository as remote: `git remote add upstream git://github.com/charliethomasdavis/sfasu-strategy-game.git`
 
-2. Fetch the changes from upstream: `git fetch upstream`
-
-3. Update your local code with changes from upstream: `git merge`
+2. Fetch and merge the changes from upstream into your branch: `git pull upstream master`
 
 #### Merge your changes with this repository
 
