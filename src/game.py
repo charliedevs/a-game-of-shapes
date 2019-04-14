@@ -5,9 +5,9 @@ Created by: Fernando Rodriguez, Charles Davis, Paul Rogers
 
 """
 
-#TODO: Create Unit class for unit actions and data
-#TODO: Move code from here into relevant classes
-#TODO: Create window class for display surface with functions that return size, center, etc.
+# TODO: Create Unit class for unit actions and data
+# TODO: Move code from here into relevant classes
+# TODO: Create window class for display surface with functions that return size, center, etc.
 
 import sys
 import pygame
@@ -26,6 +26,7 @@ WHITE = (255, 255, 255)
 GRAY = (30, 30, 30)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+
 
 class Game:
 
@@ -77,5 +78,5 @@ class Game:
         pygame.display.update()
 
     def reset(self):
-        #self.entities.empty()
+        # self.entities.empty()
         print("reset")

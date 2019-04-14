@@ -1,5 +1,4 @@
-#file for testing
-#!/usr/bin/env python
+# file for testing
 
 '''
 import pygame
@@ -48,25 +47,27 @@ quit()
 
 '''
 import sys
-from network import Network
+from src.client.network import Network
 
+'''
 if len(sys.argv) < 3:
 	print("Usage: python3 test.py <host> <port>")
 	sys.exit()
+'''
 
-host = sys.argv[1]
-port = int(sys.argv[2])
+host = "169.254.180.9"
+port = 8888
 
 client = Network(host, port)
 client.connect()
 
-reply = ""
-while True: 
-	if reply == "quit":
-		break
-	message = input("Enter a message to send to server: ")
-	client.send(message)
-	reply = client.receive()
-	print(reply)
+game_state = {"player": 1, "health": 100, "position": (50, 50)}
+print(game_state)
+
+client.send("game")
+client.send_game_state(game_state)
+game_state2 = client.receive_game_state()
+print(game_state2)
+client.send("quit")
 
 client.close()

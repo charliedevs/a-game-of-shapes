@@ -5,3 +5,5 @@ src/server/__pycache__/game_client.cpython-37.pyc
 src/__pycache__/game.cpython-37.pyc
 src/client/__pycache__/network.cpython-37.pyc
 src/client/__pycache__/encryption.cpython-37.pyc
+src/__pycache__/gamestate.cpython-37.pyc
+src/__pycache__/map.cpython-37.pyc
