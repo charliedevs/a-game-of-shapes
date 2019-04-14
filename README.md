@@ -62,3 +62,17 @@ Name variables and function names using snake_case, all lowercase with underscor
 Name classes using CamelCase, start with uppercase and use uppercase for each word. Example: `ClassName`
 
 Name constant values using ALL_CAPS, with underscores between words. Example:  `CONSTANT_NAME`
+
+## Copyright Information
+
+Copyright (C) 2019  Charles Davis, Fernando Rodriguez, Paul Rogers
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
