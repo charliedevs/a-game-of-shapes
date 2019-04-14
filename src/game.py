@@ -12,9 +12,11 @@ Created by: Fernando Rodriguez, Charles Davis, Paul Rogers
 import sys
 import pygame
 
+#import src.pygame_input as pygame_input
 import src.colors as colors
 import src.gamestate as gamestate
 from src.map import Map
+from src.button import Button
 
 #########################################################################
 # CONSTANTS
@@ -54,17 +56,51 @@ class Game:
 
         # List of buttons currently on screen
         self.buttons = []
+        connect_button = Button(self.screen, (200, 300, 150, 30), action=lambda : print('Hi'), text="Connect")
+        self.buttons.append(connect_button)
+
+        # Textboxes
+        #ip_textbox = pygame_input.TextInput()
+        #port_textbox = pygame_input.TextInput
 
         # Not connected to another player at game start
-        self.player_connected = True
+        self.player_connected = False
 
         self.game_loop()
 
     def game_loop(self):
         while True:
-            self.event_loop()
+            if self.player_connected:
+                self.event_loop()
+            else:
+                self.intro_loop()
+
             self.tick()
             self.draw()
+
+    def intro_loop(self):
+        # Handles user input.
+        #
+        # Events include mouse clicks and
+        # keyboard presses.
+
+        events = pygame.event.get()
+        for event in events:
+            # Client closes window
+            if event.type == pygame.QUIT:
+                # TODO: Add code for terminating network connection
+                print("Exiting game...")
+                pygame.quit()
+                sys.exit(0)
+
+            # User clicks mouse
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in self.buttons:
+                    if button.get_rect().collidepoint(self.mousepos):
+                        if button.handle_click():
+                            self.player_connected = True
+
+                
 
     def event_loop(self):
         # Handles user input.
@@ -84,6 +120,12 @@ class Game:
 
             # User clicks mouse
             if event.type == pygame.MOUSEBUTTONDOWN:
+            
+                for button in self.buttons:
+
+                    if button.get_rect().collidepoint(self.mousepos):
+
+                        button.handle_click()
 
                 if self.player_connected:
 
@@ -110,7 +152,9 @@ class Game:
         if self.player_connected:
             self.map.draw()
         else:
-            pass # replace this line with logic
+            # Draw menu
+            for button in self.buttons:
+                button.draw()
 
         pygame.display.update()
 
