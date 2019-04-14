@@ -1,4 +1,11 @@
-# Encryption
+"""
+File: encryption.py
+Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
+
+
+Encrypts and decrypts binary data.
+
+"""
 from cryptography.fernet import Fernet
 
 key = b"REaIOWIUaGqGv7kvCgq24ilu0BNQhGiGF2Ahq-f1Hv8="
