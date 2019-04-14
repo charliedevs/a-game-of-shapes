@@ -10,9 +10,17 @@
 
 ## Description
 
-Put description here.
+Placeholder.
 
 ## Usage
+
+Start game by running `main.py`.
+
+**Requires** [Python 3](https://www.python.org/downloads/). 
+
+**Requires the following external modules:** 
+* [pygame](https://pypi.org/project/pygame/)
+* [cryptography](https://pypi.org/project/cryptography/)
 
 ### Development
 Contribute changes to this project by following these steps:
@@ -41,11 +49,11 @@ Your fork will not automatically be updated when others make changs to this main
 
 2. Fetch the changes from upstream: `git fetch upstream`
 
-3. Update your local code with changes from upstream: `git pull upstream master`
+3. Update your local code with changes from upstream: `git merge`
 
 #### Merge your changes with this repository
 
-1. Push your changes to your fork using `git push origin <branchname>`. <branchname> is master if you haven't created any branches.
+1. Push your changes to your fork using `git push origin <branchname>`. \<branchname\> is **master** if you haven't created any branches.
     
 2. On github, navigate to [my repository](https://github.com/charliethomasdavis/sfasu-strategy-game/).
 
