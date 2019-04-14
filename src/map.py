@@ -1,4 +1,4 @@
-""" 
+"""
 Strategy Game
 
 Created by: Fernando Rodriguez, Charles Davis, Paul Rogers
@@ -8,21 +8,21 @@ Created by: Fernando Rodriguez, Charles Davis, Paul Rogers
 import sys
 import pygame
 
-from src.gamestate import GameState
+import src.gamestate as gamestate
+
+# Tile size
+TILE_WIDTH = 23
+TILE_HEIGHT = 23
+TILE_MARGIN = 2
+
+# Grid size
+TILE_COLS = gamestate.get_tile_columns()
+TILE_ROWS = gamestate.get_tile_rows()
 
 # Physical Map Size
-MAP_WIDTH = 255
-MAP_HEIGHT = 255
+MAP_WIDTH = (TILE_COLS * (TILE_WIDTH + TILE_MARGIN)) + TILE_MARGIN
+MAP_HEIGHT = (TILE_ROWS * (TILE_HEIGHT + TILE_MARGIN)) + TILE_MARGIN
 MAP_SIZE = (MAP_WIDTH, MAP_HEIGHT)
-
-#DEBUG: grid size
-CELL_WIDTH = 23
-CELL_HEIGHT = 23
-CELL_MARGIN = 2
-
-# Constants
-TILE_ROWS = 10
-TILE_COLS = 10
 
 # Colors
 BLACK = (0, 0, 0)
@@ -34,16 +34,51 @@ class Map:
 
     def __init__(self, screen):
 
+        # Drawable surfaces
+        self.screen = screen
         self.map_size = MAP_SIZE
-        self.surface = pygame.Surface(self.map_size)
 
-        self.grid = GameState.tiles
-        self.rows = TILE_ROWS
+        # Determine placement of map within window
+        map_x = (self.screen.get_size()[0] // 2) - (self.map_size[0] // 2)
+        map_y = (self.screen.get_size()[1] // 2) - (self.map_size[1] // 2)
+        map_w = self.map_size[0]
+        map_h = self.map_size[1]
+        map_rect = pygame.Rect(map_x, map_y, map_w, map_h)
+
+        # Create map surface
+        self.surface = self.screen.subsurface(map_rect)
+
+        # Grid data structure and size
+        self.grid = gamestate.get_game_state().get("tiles")
         self.cols = TILE_COLS
+        self.rows = TILE_ROWS
 
-        self.cell_w = CELL_WIDTH
-        self.cell_h = CELL_HEIGHT
-        self.margin = CELL_MARGIN
+        # Cell size
+        self.tile_w = TILE_WIDTH
+        self.tile_h = TILE_HEIGHT
+        self.margin = TILE_MARGIN
+
+    def handle_click(self, mousepos):
+        # mousepos is a (x, y) point relative to window.
+        # To get it relative to map, we must subtract the
+        # offset from the mouse position. Dividing by the
+        # cell size gives us the clicked cell.
+        mouse_x, mouse_y = mousepos
+        offset_x = self.get_rect().x
+        offset_y = self.get_rect().y
+
+        column = (mouse_x - offset_x) // (self.tile_w + self.margin)
+        row = (mouse_y - offset_y) // (self.tile_h + self.margin)
+
+        # DEBUG: print column and row of click
+        print("Click ", mousepos, "Grid coords: ", column, row)
+
+        if (self.checkTile(column, row) == 0):
+            self.setTile(column, row, 1)
+        elif (self.checkTile(column, row) == 1):
+            self.setTile(column, row, 2)
+        else:
+            self.setTile(column, row)
 
     def draw(self):
         self.surface.fill(WHITE)
@@ -57,21 +92,31 @@ class Map:
                     color = RED
                 pygame.draw.rect(self.surface,
                                  color,
-                                 [(CELL_MARGIN + CELL_WIDTH) * col + CELL_MARGIN,
-                                  (CELL_MARGIN + CELL_HEIGHT) * row + CELL_MARGIN,
-                                  CELL_WIDTH,
-                                  CELL_HEIGHT])
-
-        #for e in self.entities:
-            #self.screen.blit(e.image, self.camera.apply(e))
+                                 [(self.margin + self.tile_w) * col + self.margin,
+                                  (self.margin + self.tile_h) *
+                                  row + self.margin,
+                                  self.tile_w,
+                                  self.tile_h])
 
     def setTile(self, column, row, tiletype=0):
-        self.grid[row][column] = tiletype
-        GameState.tiles = self.grid
-    
+        try:
+            self.grid[row][column] = tiletype
+            gamestate.set_tile(row, column, tiletype)
+        except IndexError as e:
+            print("[Error]:", e)
+
     def checkTile(self, column, row):
-        return self.grid[row][column]
-    
+        try:
+            return self.grid[row][column]
+        except IndexError as e:
+            print("[Error]:", e)
+
+    def get_rect(self):
+        # Returns a rect with (x, y) relative to window
+        x, y = self.surface.get_abs_offset()
+        w, h = self.map_size
+        return pygame.Rect(x, y, w, h)
+
     def reset(self):
-        #self.entities.empty()
+        # self.entities.empty()
         print("reset")
