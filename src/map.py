@@ -1,9 +1,10 @@
 """
-Created by: Fernando Rodriguez, Charles Davis, Paul Rogers
+File: map.py
+Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 """
-
 import pygame
 
+import src.colors as colors
 import src.gamestate as gamestate
 from src.gamestate import Tiletype
 
@@ -15,23 +16,13 @@ TILE_WIDTH = 23
 TILE_HEIGHT = 23
 TILE_MARGIN = 2
 
-# Colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-
 #########################################################################
 
 
 class Map:
     """Represents the game board.
 
-    Initializer takes the main display
-    surface as a parameter. The grid
-    data structure is a 2D array holding
-    the tiletype and player location.
-
+    screen -- pygame display surface
     """
 
     def __init__(self, screen):
@@ -80,7 +71,7 @@ class Map:
         row = (mouse_y - offset_y) // (self.tile_h + self.margin)
 
         # DEBUG: print column and row of click
-        print("[Debug]: Click ", mousepos, "Grid coords: ", column, row)
+        print("[Debug]: Click", mousepos, "Grid coords:", column, row)
 
         if self.get_tiletype(column, row) == Tiletype.blank:
             self.set_tiletype(column, row, Tiletype.health)
@@ -95,14 +86,14 @@ class Map:
         # Loops through the grid data structure
         # and determines color based on tiletype.
 
-        self.surface.fill(WHITE)
+        self.surface.fill(colors.white)
         for row in range(len(self.grid)):
             for (col, tiletype) in enumerate(self.grid[row]):
-                color = BLACK
+                color = colors.darkgray
                 if tiletype == Tiletype.health:
-                    color = GREEN
+                    color = colors.green
                 elif tiletype == Tiletype.harm:
-                    color = RED
+                    color = colors.red
                 pygame.draw.rect(self.surface,
                                  color,
                                  [(self.margin + self.tile_w) * col + self.margin,
@@ -135,7 +126,7 @@ class Map:
 
     def get_tiletype(self, column, row):
         # Returns tiletype at [column, row].
-        # If tile doesn't exist, returns None
+        # If tile doesn't exist, returns None.
 
         try:
             return self.grid[row][column]

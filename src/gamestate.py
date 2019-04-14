@@ -1,10 +1,14 @@
 """
- Represents the game board and state of
- each tile. The GameState.data attribute
- contains the entire dictionary to be
- sent across the network.
- """
+File: gamestate.py
+Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 
+
+Represents the game board and state of
+each tile. The GameState.data attribute
+contains the entire dictionary to be
+sent across the network.
+
+"""
 import enum
 
 #########################################################################
