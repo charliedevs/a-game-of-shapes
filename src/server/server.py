@@ -1,11 +1,18 @@
-# Game server
+"""
+File: SERVER.py
+Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
+
+
+Controls the connection between two clients.
+
+"""
 
 import socket  # For networkingn sockets
 import sys		# For system exit
-from src.encryption import encrypt, decrypt
 import threading
 import json
 
+from src.encryption import encrypt, decrypt
 
 def send(data, connection):
     try:
@@ -26,7 +33,7 @@ def send_game_state(dictionary, connection):
 
 
 def receive(connection):
-    # Receive data from server
+    # Receive data from SERVER
 
     try:
         decrypted_reply = decrypt(connection.recv(1024))
@@ -51,7 +58,7 @@ def receive_game_state(connection):
 def client_thread(connection):
     # Fucntion for client connection
 
-    verification_message = "Established connection with server"
+    verification_message = "Established connection with SERVER"
     encrypted_verification = encrypt(verification_message.encode())
     connection.sendall(encrypted_verification)
     threads_num = threading.active_count()
@@ -66,7 +73,7 @@ def client_thread(connection):
         elif command == "looking":
             # Wait loop for two active threads
             while True:
-                # 3 because server is treated as a thread?
+                # 3 because SERVER is treated as a thread?
                 if threading.active_count() == 3:
                     send("start", connection)
                     break  # exit waiting loop
@@ -89,38 +96,38 @@ def client_thread(connection):
 ################################################
 
 
-##################Server Start##################
+##################SERVER Start##################
 # Check for correct number of arguments
 if len(sys.argv) < 2:
-    print("Usage: Python3 game_server.py <port>")
+    print("Usage: Python3 game_SERVER.py <port>")
     sys.exit()
 
-# Server socket creation
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# SERVER socket creation
+SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Host ip and port
-host = socket.gethostbyname(socket.gethostname())
-port = int(sys.argv[1])
+HOST = socket.gethostbyname(socket.gethostname())
+PORT = int(sys.argv[1])
 
 # Attemp bind to (host, port) pair
 try:
-    server.bind((host, port))
+    SERVER.bind((HOST, PORT))
 except socket.error:
-    print("Binding to " + host + ":" + str(port) + "failed")
-    server.close()
+    print("Binding to " + HOST + ":" + str(PORT) + "failed")
+    SERVER.close()
     sys.exit()
 
 # Start listeing for connections, max of two
-server.listen(2)
-print("Server listening on " + host + ":" + str(port))
+SERVER.listen(2)
+print("SERVER listening on " + HOST + ":" + str(PORT))
 
-# Main server loop
+# Main SERVER loop
 while True:
     try:
-        connection, address = server.accept()
+        connection, address = SERVER.accept()
     except KeyboardInterrupt:
         print("\nProgram Terminated")
-        server.close()
+        SERVER.close()
         sys.exit()
     #address = (ip, port)
     print("Established connection with " + address[0] + ":" + str(address[1]))
@@ -128,4 +135,4 @@ while True:
     t = threading.Thread(target=client_thread, args=(connection,))
     t.start()
 
-server.close()
+SERVER.close()
