@@ -8,6 +8,23 @@ each tile. The GameState.data attribute
 contains the entire dictionary to be
 sent across the network.
 
+data.map is a 2D array made of tuples (t, u) where:
+
+    t -- tiletype
+         0 is blank
+         1 is health
+         2 is harm
+         3 is slowdown
+
+    u -- unit
+         0 is blank
+         1 is player1 unit1
+         2 is player1 unit2
+         3 is player1 unit3
+         4 is player2 unit1
+         5 is player2 unit2
+         6 is player2 unit3
+
 """
 import enum
 
@@ -20,41 +37,36 @@ TILE_ROWS = 10
 
 #########################################################################
 
+class GameState:
 
-class Tiletype(enum.Enum):
-    # Enum for tiletypes
-    # Access with Tiletype.typename
-    blank = 0
-    blocked = 1
-    harm = 2
-    health = 3
+    def __init__(self):
 
+        # Initialize 2D array holding Tile locations, and fill with blank tiles.
+        self.map = [[(0, 0) for j in range(TILE_COLS)] for i in range(TILE_ROWS)]
 
-# Initialize 2D array holding Tile locations, and fill with blank tiles.
-tiles = [[Tiletype.blank for j in range(TILE_COLS)] for i in range(TILE_ROWS)]
-
-# Main data structure (to be sent across network)
-data = {
-    "tiles": tiles,
-}
+        # Main data structure (to be sent across network)
+        self.data = {
+            "map": map,
+        }
 
 
-def get_game_state():
-    # Returns the entire game state.
-    #
-    # A dictionary holding all values
-    # in game to be sent thru network.
+    def get_game_state(self):
+        # Returns the entire game state.
+        #
+        # A dictionary holding all values
+        # in game to be sent thru network.
 
-    return data
-
-
-def get_tile_columns():
-    return TILE_COLS
+        return self.data
 
 
-def get_tile_rows():
-    return TILE_ROWS
+    def get_tile_columns(self):
+        return TILE_COLS
 
 
-def set_tiletype(row, col, tiletype):
-    data.get("tiles")[row][col] = tiletype
+    def get_tile_rows(self):
+        return TILE_ROWS
+
+
+    def set_tiletype(self, col, row, tiletype):
+        self.data.get("map")[row][col][0] = tiletype
+        print(data)
