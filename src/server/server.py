@@ -12,7 +12,7 @@ import sys		# For system exit
 import threading
 import json
 
-from src.encryption import encrypt, decrypt
+from encryption import encrypt, decrypt
 
 def send(data, connection):
     try:
@@ -22,7 +22,7 @@ def send(data, connection):
         print(str(e))
 
 
-def send_game_state(dictionary, connection):
+def send_gamestate(dictionary, connection):
     # Send dictionary
     data = json.dumps(dictionary)
     try:
@@ -44,7 +44,7 @@ def receive(connection):
         return e
 
 
-def receive_game_state(connection):
+def receive_gamestate(connection):
     try:
         decrypted_data = decrypt(connection.recv(1024))
         dictionary = json.loads(decrypted_data.decode())
@@ -79,11 +79,11 @@ def client_thread(connection):
                     break  # exit waiting loop
         elif command == "game":
             # recieve game state
-            game_state = receive_game_state(connection)
-            print(game_state)
+            gamestate = receive_gamestate(connection)
+            print(gamestate)
             # Do stuff to game state here. Maybe make a method to change sutff?
             # Send game state back to client
-            send_game_state(game_state, connection)
+            send_gamestate(gamestate, connection)
 		# TODO: add more commands here
 
         #print("Recieved", data)
@@ -122,17 +122,17 @@ SERVER.listen(2)
 print("SERVER listening on " + HOST + ":" + str(PORT))
 
 # Main SERVER loop
-while True:
-    try:
+try:
+    while True:
         connection, address = SERVER.accept()
-    except KeyboardInterrupt:
-        print("\nProgram Terminated")
-        SERVER.close()
-        sys.exit()
-    #address = (ip, port)
-    print("Established connection with " + address[0] + ":" + str(address[1]))
-    # Establish new threaded client connection
-    t = threading.Thread(target=client_thread, args=(connection,))
-    t.start()
+        #address = (ip, port)
+        print("Established connection with " + address[0] + ":" + str(address[1]))
+        # Establish new threaded client connection
+        t = threading.Thread(target=client_thread, args=(connection,))
+        t.start()
+except KeyboardInterrupt:
+    print("\nProgram Terminated")
+    SERVER.close()
+    sys.exit()
 
 SERVER.close()

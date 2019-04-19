@@ -35,7 +35,7 @@ class Network:
         except socket.error as e:
             print(str(e))
 
-    def send_game_state(self, dictionary):
+    def send_gamestate(self, dictionary):
         # Send dictionary
         data = json.dumps(dictionary)
         try:
@@ -54,7 +54,7 @@ class Network:
             print(str(e))
             return e
 
-    def receive_game_state(self):
+    def receive_gamestate(self):
         # Receive dictionary from server
         try:
             decrypted_data = decrypt(self.CLIENT.recv(1024))

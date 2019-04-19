@@ -15,6 +15,7 @@ import pygame
 #import src.pygame_input as pygame_input
 import src.colors as colors
 import src.gamestate as gamestate
+import src.client.network as network
 from src.map import Map
 from src.button import Button
 
@@ -30,7 +31,8 @@ WINDOW_CENTER = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 
 
 class Game:
-    """Starts the game loop.
+    """
+    Starts the game loop.
 
     The main game loop consists of an event
     loop, the tick loop (things updated every
@@ -38,21 +40,30 @@ class Game:
 
     """
 
-    def __init__(self):
+    def __init__(self, server_host, server_port, client_port):
         pygame.init()
-
-        # Window title and in-game font
-        pygame.display.set_caption('Strategy')
-        self.font = pygame.font.SysFont("Courier", 55)
 
         # Clock tracks time from beginning of game
         self.clock = pygame.time.Clock()
 
-        # Drawable surfaces
+        # Set up display window
+        pygame.display.set_caption('Strategy')
         screen_res = (WINDOW_WIDTH, WINDOW_HEIGHT)
         self.screen = pygame.display.set_mode(
             screen_res, flags=pygame.RESIZABLE)
-        self.map = Map(self.screen)
+
+        # Represents the state of game. Changes must be passed through here.
+        self.gamestate = gamestate.GameState()
+
+        # Set up gameplay map
+        grid = self.gamestate.get_grid()
+        cols = self.gamestate.get_tile_columns()
+        rows = self.gamestate.get_tile_rows()
+        self.map = Map(self.screen, grid, cols, rows)
+
+        # Network connection
+        self.connection = network.Network(server_host, server_port)
+        #self.connection.connect()
 
         # List of buttons currently on screen
         self.buttons = []
@@ -127,15 +138,10 @@ class Game:
 
                         button.handle_click()
 
-                if self.player_connected:
-
-                    # Mouse clicks on game board
-                    if self.map.get_rect().collidepoint(self.mousepos):
-                        self.map.handle_click(self.mousepos)
-                else:
-                    # Player is not connected
-                    # Handle connection screen input
-                    pass # replace this line with logic
+                # Mouse clicks on game board
+                if self.map.get_rect().collidepoint(self.mousepos):
+                    self.map.handle_click(self.mousepos)
+                    self.update_gamestate()
 
     def tick(self):
         # Updates variables that change every frame.
@@ -162,3 +168,8 @@ class Game:
         # Reset the game board.
 
         self.map.clear()
+
+    def update_gamestate(self):
+        self.gamestate.data["grid"] = self.map.grid
+        #self.connection.send("game")
+        #self.connection.send_gamestate(self.gamestate.data)

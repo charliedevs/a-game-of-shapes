@@ -5,8 +5,6 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 import pygame
 
 import src.colors as colors
-import src.gamestate as gamestate
-from src.gamestate import Tiletype
 
 #########################################################################
 # CONSTANTS
@@ -20,19 +18,20 @@ TILE_MARGIN = 2
 
 
 class Map:
-    """Represents the game board.
+    """
+    Represents the game board.
 
     screen -- pygame display surface
     """
 
-    def __init__(self, screen):
+    def __init__(self, screen, grid, cols, rows):
         # Main window surface
         self.screen = screen
 
         # Grid data structure
-        self.grid = gamestate.get_game_state().get("tiles")
-        cols = gamestate.get_tile_columns()
-        rows = gamestate.get_tile_rows()
+        self.grid = grid
+        cols = cols
+        rows = rows
 
         # Size of individual tiles
         self.tile_w = TILE_WIDTH
@@ -73,12 +72,12 @@ class Map:
         # DEBUG: print column and row of click
         print("[Debug]: Click", mousepos, "Grid coords:", column, row)
 
-        if self.get_tiletype(column, row) == Tiletype.blank:
-            self.set_tiletype(column, row, Tiletype.health)
-        elif self.get_tiletype(column, row) == Tiletype.health:
-            self.set_tiletype(column, row, Tiletype.harm)
+        if self.get_tiletype(column, row) == 0:
+            self.set_tiletype(column, row, 1)
+        elif self.get_tiletype(column, row) == 1:
+            self.set_tiletype(column, row, 2)
         else:
-            self.set_tiletype(column, row, Tiletype.blank)
+            self.set_tiletype(column, row, 0)
 
     def draw(self):
         # Draw tiles onto screen.
@@ -88,11 +87,12 @@ class Map:
 
         self.surface.fill(colors.white)
         for row in range(len(self.grid)):
-            for (col, tiletype) in enumerate(self.grid[row]):
+            for (col, tilecontents) in enumerate(self.grid[row]):
+                tiletype = tilecontents[0]
                 color = colors.darkgray
-                if tiletype == Tiletype.health:
+                if tiletype == 1:
                     color = colors.green
-                elif tiletype == Tiletype.harm:
+                elif tiletype == 2:
                     color = colors.red
                 pygame.draw.rect(self.surface,
                                  color,
@@ -108,17 +108,15 @@ class Map:
         w, h = self.map_size
         return pygame.Rect(x, y, w, h)
 
-    def set_tiletype(self, column, row, tiletype=Tiletype.blank):
+    def set_tiletype(self, column, row, tiletype=0):
         # Change the type of a tile.
         #
         # Tiletype is passed in as
         # parameter. If given tile exists,
         # sets its type to tyletype.
-        # Updates gamestate.
 
         try:
-            self.grid[row][column] = tiletype
-            gamestate.set_tiletype(row, column, tiletype)
+            self.grid[row][column][0] = tiletype
         except IndexError as e:
             print("[Error]: Tile at Column: {0} Row: {1} doesn't exist.".format(
                 column, row))
@@ -129,7 +127,7 @@ class Map:
         # If tile doesn't exist, returns None.
 
         try:
-            return self.grid[row][column]
+            return self.grid[row][column][0]
         except IndexError as e:
             print("[Error]: Tile at Column: {0} Row: {1} doesn't exist.".format(
                 column, row))
@@ -144,6 +142,6 @@ class Map:
 
         for row in range(len(self.grid)):
             for col in range(len(self.grid[row])):
-                self.set_tiletype(col, row, Tiletype.blank)
+                self.set_tiletype(col, row, 0)
 
         print("[Debug]: Map reset.")

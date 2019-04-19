@@ -61,13 +61,13 @@ port = 8888
 client = Network(host, port)
 client.connect()
 
-game_state = {"player": 1, "health": 100, "position": (50, 50)}
-print(game_state)
+gamestate = {"player": 1, "health": 100, "position": (50, 50)}
+print(gamestate)
 
 client.send("game")
-client.send_game_state(game_state)
-game_state2 = client.receive_game_state()
-print(game_state2)
+client.send_gamestate(gamestate)
+gamestate2 = client.receive_gamestate()
+print(gamestate2)
 client.send("quit")
 
 client.close()
