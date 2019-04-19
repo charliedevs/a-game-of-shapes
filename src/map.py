@@ -3,9 +3,10 @@ File: map.py
 Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 """
 import pygame
+
 import src.colors as colors
-from src.game import set_tiletype
-#from src.gamestate import Tiletype
+import src.gamestate as gamestate
+from src.gamestate import Tiletype
 
 #########################################################################
 # CONSTANTS
@@ -117,7 +118,7 @@ class Map:
 
         try:
             self.grid[row][column] = tiletype
-            set_tiletype(row, column, tiletype)
+            gamestate.set_tiletype(row, column, tiletype)
         except IndexError as e:
             print("[Error]: Tile at Column: {0} Row: {1} doesn't exist.".format(
                 column, row))

@@ -54,27 +54,22 @@ class Game:
             screen_res, flags=pygame.RESIZABLE)
         self.map = Map(self.screen)
 
-        # Represents state of game. Changes must be passed through here
-        self.gamestate = gamestate.GameState()
-
         # List of buttons currently on screen
         self.buttons = []
-        #connect_button = Button(self.screen, (200, 300, 150, 30), action=lambda : print('Hi'), text="Connect")
-        #self.buttons.append(connect_button)
+        connect_button = Button(self.screen, (200, 300, 150, 30), action=lambda : print('Hi'), text="Connect")
+        self.buttons.append(connect_button)
 
         # Textboxes
         #ip_textbox = pygame_input.TextInput()
         #port_textbox = pygame_input.TextInput
 
         # Not connected to another player at game start
-        self.player_connected = True
+        self.player_connected = False
 
         self.game_loop()
 
     def game_loop(self):
-
         while True:
-
             if self.player_connected:
                 self.event_loop()
             else:
@@ -167,6 +162,3 @@ class Game:
         # Reset the game board.
 
         self.map.clear()
-
-    def set_tiletype(self, column, row, tiletype):
-        self.gamestate.set_tiletype(column, row, tiletype)
