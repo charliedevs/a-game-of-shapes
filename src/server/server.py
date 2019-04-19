@@ -144,11 +144,7 @@ while True:
             # Establish new threaded client connection
             t = threading.Thread(target=client_thread, args=(connection,))
             client_threads.append(t)
-        else:
-            # Start threads if they're alive
-            for thread in client_threads:
-                if not thread.is_alive():
-                    thread.start()
+            t.start()
     except (SystemExit, KeyboardInterrupt):
         print("\nProgram Terminated")
         for thread in client_threads:
