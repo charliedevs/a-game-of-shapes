@@ -8,7 +8,7 @@ each tile. The GameState.data attribute
 contains the entire dictionary to be
 sent across the network.
 
-    t -- tiletype
+    t -- tile_type
         0 is blank
         1 is health
         2 is harm
@@ -44,7 +44,8 @@ class GameState:
         # Main data structure (to be sent across network)
         self.data = {
             "grid": self.grid,
-            "client_addr": None
+            "client_addr": None,
+            "player_num": 0
         }
 
 
@@ -62,5 +63,14 @@ class GameState:
     def get_tile_rows(self):
         return TILE_ROWS
 
-    def set_tiletype(self, col, row, tiletype):
-        self.data["grid"][row][col][0] = tiletype
+    def get_player_num(self):
+        return self.data["player_num"]
+
+    def set_player_num(self, player_num):
+        self.data["player_num"] = player_num
+
+    def set_tile_type(self, col, row, tile_type):
+        self.data["grid"][row][col][0] = tile_type
+    
+    def set_unit(self, col, row, unit_type):
+        self.data["grid"][row][col][1] = unit_type

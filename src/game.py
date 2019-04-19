@@ -55,15 +55,40 @@ class Game:
         # Represents the state of game. Changes must be passed through here.
         self.gamestate = gamestate.GameState()
 
+        #TODO: Move network stuff into appropriate location. Otherwise game freezes until connection established
+        # Network connection
+        self.connection = network.Network(server_host, server_port)
+        self.connection.connect()
+
+        ###################################################################
+        # This is messy.
+        # Set player num. If no players,
+        # gamestate_net player_num will be 0
+        # if no client has connected
+        # TODO: change to special starting command separate from "game"
+        self.connection.send("game")
+        self.connection.send_gamestate(self.gamestate.data)
+        gamestate_net = self.connection.receive_gamestate()
+        if gamestate_net["player_num"] == 0:
+            self.player_num = 1
+        else:
+            self.player_num = 2
+        self.gamestate.set_player_num(gamestate_net["player_num"])
+        #self.connection.send("looking")
+
+        #self.player_num = int(self.connection.receive())
+        print(self.player_num)
+
+        ###################################################################
+
+        # Not connected to another player at game start
+        self.player_connected = False
+
         # Set up gameplay map
         grid = self.gamestate.get_grid()
         cols = self.gamestate.get_tile_columns()
         rows = self.gamestate.get_tile_rows()
-        self.map = Map(self.screen, grid, cols, rows)
-
-        # Network connection
-        self.connection = network.Network(server_host, server_port)
-        #self.connection.connect()
+        self.map = Map(self.screen, grid, cols, rows, self.player_num)
 
         # List of buttons currently on screen
         self.buttons = []
@@ -73,9 +98,6 @@ class Game:
         # Textboxes
         #ip_textbox = pygame_input.TextInput()
         #port_textbox = pygame_input.TextInput
-
-        # Not connected to another player at game start
-        self.player_connected = False
 
         self.game_loop()
 
@@ -99,7 +121,7 @@ class Game:
         for event in events:
             # Client closes window
             if event.type == pygame.QUIT:
-                # TODO: Add code for terminating network connection
+                #self.connection.close()
                 print("Exiting game...")
                 pygame.quit()
                 sys.exit(0)
@@ -124,8 +146,8 @@ class Game:
         for event in events:
             # Client closes window
             if event.type == pygame.QUIT:
-                # TODO: Add code for terminating network connection
                 print("Exiting game...")
+                #self.connection.close()
                 pygame.quit()
                 sys.exit(0)
 
@@ -141,7 +163,9 @@ class Game:
                 # Mouse clicks on game board
                 if self.map.get_rect().collidepoint(self.mousepos):
                     self.map.handle_click(self.mousepos)
-                    self.update_gamestate()
+
+        # Apply changes to gamestate object
+        self.update_gamestate()
 
     def tick(self):
         # Updates variables that change every frame.
@@ -166,8 +190,8 @@ class Game:
 
     def reset(self):
         # Reset the game board.
-
         self.map.clear()
+        self.update_gamestate()
 
     def update_gamestate(self):
         self.gamestate.data["grid"] = self.map.grid
