@@ -15,6 +15,10 @@ TILE_WIDTH = 23
 TILE_HEIGHT = 23
 TILE_MARGIN = 2
 
+# Grid size
+GRID_COLUMNS = 14
+GRID_ROWS = 10
+
 # Units per player
 MAX_UNITS = 3
 
@@ -23,19 +27,51 @@ MAX_UNITS = 3
 
 class Map:
     """
-    Represents the game board.
+    Represents the game board and state
+    of each tile.
+    
+    Every tile contains a list of two
+    values: [tile_type, unit_type]
 
-    screen -- pygame display surface
+    tile_type {int} --
+        0 is blank
+        1 is health
+        2 is harm
+        3 is slowdown
+
+    unit_type {int} --
+        0 is empty
+        1 is player1, unit1
+        2 is player1, unit2
+        3 is player1, unit3
+        4 is player2, unit1
+        5 is player2, unit2
+        6 is player2, unit3
     """
 
-    def __init__(self, screen, grid, cols, rows, player_num):
-        # Main window surface
-        self.screen = screen
+    def __init__(self, screen, player_num):
+        """
+        Set up tile grid and units.
 
-        # Grid data structure
-        self.grid = grid
-        cols = cols
-        rows = rows
+        
+        Arguments:
+            screen {pygame.Surface} -- The main display window
+            player_num {int} -- The player identifier; 1 or 2
+        """
+
+        self.screen = screen
+        player_num = player_num
+
+        # Create grid data structure.
+        # Each element of the grid contains
+        # two values: [tile_type, unit_type].
+        # Both are ints; [0, 0] means the tile
+        # is blank and no unit is present.
+        cols = GRID_COLUMNS
+        rows = GRID_COLUMNS
+        self.grid = [[[0, 0] for j in range(cols)] for i in range(rows)]
+
+        # TODO: create function to return a tile, and one to get tile based on mousepos
 
         # Size of individual tiles
         self.tile_w = TILE_WIDTH
@@ -47,7 +83,7 @@ class Map:
         map_h = (rows * (self.tile_h + self.margin)) + self.margin
         self.map_size = (map_w, map_h)
 
-        # Determine placement of map within window
+        # Determine placement of map within display window
         map_x = (self.screen.get_size()[0] // 2) - (self.map_size[0] // 2)
         map_y = (self.screen.get_size()[1] // 2) - (self.map_size[1] // 2)
         map_rect = pygame.Rect(map_x, map_y, map_w, map_h)

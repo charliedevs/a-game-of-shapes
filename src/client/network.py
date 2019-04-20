@@ -3,7 +3,7 @@ File: network.py
 Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 
 
-Contains the Network class which adds connectivity to a CLIENT.
+Contains the Network class which adds connectivity to a client.
 
 """
 
@@ -14,10 +14,8 @@ from src.encryption import encrypt, decrypt
 
 class Network:
     """
-    Adds network functionality to a CLIENT or game.
-    Allows to send and recieve strings and dictionaries.
-    Incorporates encryption and decryption to sent information. 
-
+    Adds network functionality to the game.
+    Allows sending and receiving encrypted data.
     """
 
     # Initilization
@@ -26,6 +24,7 @@ class Network:
         self.HOST = host
         self.PORT = port
         self.ADDR = (self.HOST, self.PORT)
+        self.id = self.connect()
 
     def send(self, data):
         # Send data to server
@@ -67,7 +66,7 @@ class Network:
          # Connect to server
         self.CLIENT.connect(self.ADDR)
         reply = self.receive()
-        print(reply)
+        return reply
 
     def close(self):
         # Close CLIENT socket

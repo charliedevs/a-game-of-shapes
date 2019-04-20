@@ -60,29 +60,8 @@ class Game:
         self.connection = network.Network(server_host, server_port)
         self.connection.connect()
 
-        ###################################################################
-        # This is messy.
-        # Set player num. If no players,
-        # gamestate_net player_num will be 0
-        # if no client has connected
-        # TODO: change to special starting command separate from "game"
-        self.connection.send("game")
-        self.connection.send_gamestate(self.gamestate.data)
-        gamestate_net = self.connection.receive_gamestate()
-        if gamestate_net["player_num"] == 0:
-            self.player_num = 1
-        else:
-            self.player_num = 2
-        self.gamestate.set_player_num(gamestate_net["player_num"])
-        #self.connection.send("looking")
-
         #self.player_num = int(self.connection.receive())
         print(self.player_num)
-
-        ###################################################################
-
-        # Not connected to another player at game start
-        self.player_connected = False
 
         # Set up gameplay map
         grid = self.gamestate.get_grid()
@@ -103,46 +82,19 @@ class Game:
 
     def game_loop(self):
         while True:
-            if self.player_connected:
-                self.event_loop()
-            else:
-                self.intro_loop()
-
+            self.event_loop()
             self.tick()
             self.draw()
 
-    def intro_loop(self):
-        # Handles user input.
-        #
-        # Events include mouse clicks and
-        # keyboard presses.
-
-        events = pygame.event.get()
-        for event in events:
-            # Client closes window
-            if event.type == pygame.QUIT:
-                #self.connection.close()
-                print("Exiting game...")
-                pygame.quit()
-                sys.exit(0)
-
-            # User clicks mouse
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                for button in self.buttons:
-                    if button.get_rect().collidepoint(self.mousepos):
-                        if button.handle_click():
-                            self.player_connected = True
-
-                
 
     def event_loop(self):
-        # Handles user input.
-        #
-        # Events include mouse clicks and
-        # keyboard presses.
+        """
+        Handles user input.
 
+        Events include mouse clicks
+        and keyboard presses.
+        """
         events = pygame.event.get()
-        # TODO: if is_player_turn
         for event in events:
             # Client closes window
             if event.type == pygame.QUIT:
@@ -194,6 +146,7 @@ class Game:
         self.update_gamestate()
 
     def update_gamestate(self):
-        self.gamestate.data["grid"] = self.map.grid
+        pass
+        #self.gamestate.data["grid"] = self.map.grid
         #self.connection.send("game")
         #self.connection.send_gamestate(self.gamestate.data)

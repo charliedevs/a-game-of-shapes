@@ -7,16 +7,86 @@ Controls the connection between two clients.
 
 """
 
-#TODO: make server a class and everything an attribute
-
-import socket  # For networkingn sockets
-import sys		# For system exit
+import socket
+import sys
 import threading
 import json
 
+from gamestate import GameState
 from encryption import encrypt, decrypt
 
-gamestate = {"player_num" : 0}
+connected = set()
+
+# Number of clients connected
+client_count = 0
+
+# Global gamestate object holding
+# positions of player units and
+# other game information.
+gamestate = None
+
+def start_server():
+    """
+    Sets up server and begins listening for
+    client connections.
+    """
+
+    # Use the global variable gamestate
+    global gamestate
+
+    # Create a socket object
+    SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Use localhost and grab port from commandline arg
+    HOST = socket.gethostbyname(socket.gethostname())
+    PORT = int(sys.argv[1])
+
+    # Attempt bind to (host, port) pair
+    try:
+        SERVER.bind((HOST, PORT))
+    except socket.error:
+        print("Binding to " + HOST + ":" + str(PORT) + "failed.")
+        SERVER.close()
+        sys.exit()
+
+    # Start listeing for connections, max of two
+    SERVER.listen(2)
+    print("SERVER listening on " + HOST + ":" + str(PORT))
+
+    # Main server loop
+    while True:
+        # Try block to allow keyboard interrupt
+        try:
+            if client_count < 2:
+                # Accept incoming connection
+                print("Waiting for client {}...".format(client_count + 1))
+                connection, address = SERVER.accept()
+                print("Established connection with " + address[0] + ":" + str(address[1]))
+
+                # Increment global client counter
+                client_count += 1
+
+                # Keep track of whose turn it is
+                player_num = 1
+
+                if client_count == 0:
+                    # Create new gamestate object
+                    gamestate = GameState()
+                else:
+                    # One client already connected so
+                    # this connection will be player 2
+                    gamestate.ready = True
+                    player_num = 2
+
+                # Create thread to handle client
+                t = threading.Thread(target=client_thread, args=(connection, player_num))
+                t.start()
+        except KeyboardInterrupt:
+            # Exit server loop
+            break
+
+    print("\nServer closing...")
+    SERVER.close()
 
 def send(data, connection):
     try:
@@ -56,13 +126,17 @@ def receive_gamestate(connection):
     except socket.error as e:
         print(str(e))
 
-##################Client Loop##################
 
+##############   Client Loop   #################
 
-def client_thread(connection):
-    # Fucntion for client connection
+def client_thread(connection, player_num):
+    # Procedure for client connection
 
-    verification_message = "Established connection with SERVER"
+    # Access global variables
+    global client_count
+    global gamestate
+
+    verification_message = "1"
     encrypted_verification = encrypt(verification_message.encode())
     connection.sendall(encrypted_verification)
     thread_num = threading.active_count()
@@ -71,6 +145,8 @@ def client_thread(connection):
     while True:
         # Receive one kB of data
         command = receive(connection)
+
+        if 
         if command == "quit":
             send("quit", connection)
             break  # exit main client loop to close connection
@@ -79,7 +155,7 @@ def client_thread(connection):
             while True:
                 # 3 because SERVER is treated as a thread?
                 if thread_num == 3:
-                    player_turn = (threading.get_ident() % 1) + 1
+                    player_turn = threading.get_ident() 
                     send(player_turn, connection)
                     break  # exit waiting loop
         elif command == "game":
@@ -87,11 +163,6 @@ def client_thread(connection):
             temp_gamestate = receive_gamestate(connection)
             print(temp_gamestate)
 
-            # Set up player order
-            if temp_gamestate["player_num"] == 0:
-                if gamestate["player_num"] == 0:
-                    gamestate["player_num"] = 1
-                send_gamestate(temp_gamestate)
             # Do stuff to game state here. Maybe make a method to change sutff?
             # Send game state back to client
             send_gamestate(gamestate, connection)
@@ -101,55 +172,21 @@ def client_thread(connection):
         #send("Message received", connection)
 
     # Close connection
-    print("Closing connection")
+    print("Closing connection with player", player_num)
+    client_count -= 1
+    if client_count == 0:
+        # Delete gamestate object
+        gamestate = None
+        print("All clients disconnected.")
     connection.close()
 
 ################################################
 
 
-##################SERVER Start##################
-# Check for correct number of arguments
-if len(sys.argv) < 2:
-    print("Usage: python server.py <port>")
-    sys.exit()
-
-# SERVER socket creation
-SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Host ip and port
-HOST = socket.gethostbyname(socket.gethostname())
-PORT = int(sys.argv[1])
-
-# Attempt bind to (host, port) pair
-try:
-    SERVER.bind((HOST, PORT))
-except socket.error:
-    print("Binding to " + HOST + ":" + str(PORT) + "failed")
-    SERVER.close()
-    sys.exit()
-
-# List of processes, so they can be terminated
-client_threads = []
-
-# Start listeing for connections, max of two
-SERVER.listen(2)
-print("SERVER listening on " + HOST + ":" + str(PORT))
-
-# Main SERVER loop
-while True:
-    try:
-        if len(client_threads) < 2:
-            connection, address = SERVER.accept()
-            print("Established connection with " + address[0] + ":" + str(address[1]))
-            # Establish new threaded client connection
-            t = threading.Thread(target=client_thread, args=(connection,))
-            client_threads.append(t)
-            t.start()
-    except (SystemExit, KeyboardInterrupt):
-        print("\nProgram Terminated")
-        for thread in client_threads:
-            thread.terminate()
-        SERVER.close()
+if __name__ == "__main__":
+    # Check for correct number of arguments
+    if len(sys.argv) < 2:
+        print("Usage: python server.py <port>")
         sys.exit()
-
-SERVER.close()
+    # Enter server loop
+    start_server()
