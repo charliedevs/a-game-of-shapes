@@ -15,7 +15,7 @@ import pygame
 #import src.pygame_input as pygame_input
 import src.colors as colors
 import src.gamestate as gamestate
-import src.client.network as network
+from src.client.network import Network
 from src.map import Map
 from src.button import Button
 
@@ -40,7 +40,14 @@ class Game:
 
     """
 
-    def __init__(self, server_host, server_port, client_port):
+    def __init__(self, network):
+        """
+        Set up display and game map
+        
+        Arguments:
+            network {Network} -- Connection to server
+        """
+
         pygame.init()
 
         # Clock tracks time from beginning of game
@@ -52,22 +59,15 @@ class Game:
         self.screen = pygame.display.set_mode(
             screen_res, flags=pygame.RESIZABLE)
 
-        # Represents the state of game. Changes must be passed through here.
+        # Represents the state of game
         self.gamestate = gamestate.GameState()
 
-        #TODO: Move network stuff into appropriate location. Otherwise game freezes until connection established
-        # Network connection
-        self.connection = network.Network(server_host, server_port)
-        self.connection.connect()
-
-        #self.player_num = int(self.connection.receive())
-        print(self.player_num)
+        # Connection to the server
+        self.network = network
+        self.player_num = self.network.get_player_num()
 
         # Set up gameplay map
-        grid = self.gamestate.get_grid()
-        cols = self.gamestate.get_tile_columns()
-        rows = self.gamestate.get_tile_rows()
-        self.map = Map(self.screen, grid, cols, rows, self.player_num)
+        self.map = Map(self.screen, self.player_num)
 
         # List of buttons currently on screen
         self.buttons = []

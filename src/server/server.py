@@ -90,25 +90,27 @@ def start_server():
 
 def send(data, connection):
     try:
-        encrypted_data = encrypt(data.encode())
+        encrypted_data = encrypt(str(data).encode())
         connection.sendall(encrypted_data)
     except socket.error as e:
+        print("[Error]: Socket cannot be used to send data.")
         print(str(e))
+    except TypeError:
+        print("[Error]: Data cannot be converted to string to be sent.")
 
 
-def send_gamestate(dictionary, connection):
-    # Send dictionary
-    data = json.dumps(dictionary)
+def send_gamestate(gamestate, connection):
+    # Send gamestate as serialized json object
+    gamestate_json = json.dumps(gamestate)
     try:
-        encrypted_data = encrypt(data.encode())
+        encrypted_data = encrypt(gamestate_json.encode())
         connection.sendall(encrypted_data)
     except socket.error as e:
         print(str(e))
 
 
 def receive(connection):
-    # Receive data from SERVER
-
+    # Receive data from client
     try:
         decrypted_reply = decrypt(connection.recv(1024))
         reply = decrypted_reply.decode()
@@ -118,58 +120,55 @@ def receive(connection):
         return e
 
 
-def receive_gamestate(connection):
-    try:
-        decrypted_data = decrypt(connection.recv(1024))
-        dictionary = json.loads(decrypted_data.decode())
-        return dictionary
-    except socket.error as e:
-        print(str(e))
+#TODO: maybe remove this
+def get_gamestate_from_json(gamestate_json):
+    # TODO: add try/except for json conversion
+    gamestate = json.loads(gamestate_json)
+    return gamestate
 
 
 ##############   Client Loop   #################
 
 def client_thread(connection, player_num):
-    # Procedure for client connection
+    """
+    Handles connection to clients.
+
+    Arguments:
+        connection {socket} -- Used to access network
+        player_num {[type]} -- Defines player order
+    """
 
     # Access global variables
     global client_count
     global gamestate
 
-    verification_message = "1"
-    encrypted_verification = encrypt(verification_message.encode())
-    connection.sendall(encrypted_verification)
-    thread_num = threading.active_count()
-    print("Active threads:", thread_num)
+    # Send player's number to client
+    send(player_num, connection)
+    encrypted_num = encrypt(str(player_num).encode())
+    connection.sendall(encrypted_num)
+
+    # Number of active threads
+    thread_count = threading.active_count()
+    print("[Debug]: Active threads:", thread_count)
 
     while True:
         # Receive one kB of data
-        command = receive(connection)
+        data = receive(connection)
 
-        if 
-        if command == "quit":
-            send("quit", connection)
-            break  # exit main client loop to close connection
-        elif command == "looking":
-            # Wait loop for two active threads
-            while True:
-                # 3 because SERVER is treated as a thread?
-                if thread_num == 3:
-                    player_turn = threading.get_ident() 
-                    send(player_turn, connection)
-                    break  # exit waiting loop
-        elif command == "game":
-            # recieve game state
-            temp_gamestate = receive_gamestate(connection)
-            print(temp_gamestate)
-
-            # Do stuff to game state here. Maybe make a method to change sutff?
-            # Send game state back to client
-            send_gamestate(gamestate, connection)
-		# TODO: add more commands here
-
-        #print("Recieved", data)
-        #send("Message received", connection)
+        if data:
+            # Single commands, no json
+            if data == "reset":
+                gamestate.reset()
+            elif data == "quit":
+                #TODO: fix this command
+                send("quit", connection)
+                break  # exit main client loop to close connection
+            else:
+                # Client sent a move
+                # or an attack
+        else:
+            # Data wasn't received; exit loop
+            break
 
     # Close connection
     print("Closing connection with player", player_num)

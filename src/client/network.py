@@ -19,12 +19,12 @@ class Network:
     """
 
     # Initilization
-    def __init__(self, host, port):
+    def __init__(self, server_host, server_port):
         self.CLIENT = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.HOST = host
-        self.PORT = port
+        self.HOST = server_host
+        self.PORT = server_port
         self.ADDR = (self.HOST, self.PORT)
-        self.id = self.connect()
+        self.player_num = None
 
     def send(self, data):
         # Send data to server
@@ -65,8 +65,11 @@ class Network:
     def connect(self):
          # Connect to server
         self.CLIENT.connect(self.ADDR)
-        reply = self.receive()
-        return reply
+        self.player_num = self.receive()
+        print("Connected to server:", self.HOST)
+
+    def get_player_num(self):
+        return self.player_num
 
     def close(self):
         # Close CLIENT socket
