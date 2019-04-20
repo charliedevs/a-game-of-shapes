@@ -2,24 +2,6 @@
 File: gamestate.py
 Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 
-Represents the game board and state of
-each tile. The GameState object is
-sent to the server and passed to the
-other client. 
-
-    t -- tile_type
-        0 is blank
-        1 is health
-        2 is harm
-        3 is slowdown
-    u -- unit_type
-        0 is blank
-        1 is player1, unit1
-        2 is player1, unit2
-        3 is player1, unit3
-        4 is player2, unit1
-        5 is player2, unit2
-        6 is player2, unit3
 
 """
 import enum
