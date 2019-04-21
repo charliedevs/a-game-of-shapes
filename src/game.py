@@ -70,6 +70,8 @@ class Game:
         # Clock tracks time from beginning of game
         self.clock = pygame.time.Clock()
 
+        self.mousepos = pygame.mouse.get_pos()
+
         # Show waiting screen until other player connects
         self.waiting_screen()
         # Start the game
@@ -106,7 +108,7 @@ class Game:
 
             # User hovers over tile
             if event.type == pygame.MOUSEMOTION:
-                if self.map.getrect().collidepoint(self.mousepos):
+                if self.map.get_rect().collidepoint(self.mousepos):
                     self.map.handle_hover(self.mousepos)
 
             # Only process clicks if it's this player's turn
@@ -135,7 +137,7 @@ class Game:
         new_gamestate = self.network.get_gamestate()
 
         # Update map with any moved units
-        for unit_type, location in new_gamestate.locations:
+        for unit_type, location in new_gamestate.locations.items():
             if location != self.gamestate.locations[unit_type]:
                 col, row = location
                 self.map.move(unit_type, col, row)

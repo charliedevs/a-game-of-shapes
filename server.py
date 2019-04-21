@@ -120,8 +120,8 @@ def client_thread(connection, player_num):
             elif data == "move":
                 send_data("ok", connection)
                 move = receive_pickle(connection)
+                print("Player {} move: {}".format(player_num, move))
                 gamestate.move(move)
-                print(move)
             elif data == "attack":
                 attack = receive_pickle(connection)
                 print(attack)
