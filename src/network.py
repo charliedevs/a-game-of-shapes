@@ -30,10 +30,10 @@ class Network:
         gamestate = GameState()
 
     def get_gamestate(self):
-        self.send("get")
-        return self.receive()
+        self.send_command("get")
+        return self.receive_pickle()
 
-    def send(self, data):
+    def send_command(self, data):
         # Send data to server
         try:
             encrypted_data = encrypt(data.encode())
@@ -41,12 +41,30 @@ class Network:
         except socket.error as e:
             print(str(e))
 
-    def receive(self):
+    def send_pickle(self, data):
+        # Send move or attack to server
+        data_pickle = pickle.dumps(data)
+        try:
+            encrypted_data = encrypt(data_pickle)
+            self.CLIENT.sendall(encrypted_data)
+        except socket.error as e:
+            print(str(e))
+
+    def send_move(self, move):
+        self.send_command("move")
+        self.receive() #TODO: Seeing if we need to receive before sending again
+        self.send_pickle(move)
+
+    def send_attack(self, attack):
+        self.send_command("attack")
+        self.send_pickle(attack)
+
+    def receive_pickle(self):
         """
-        Retrieve gamestate from server.
+        Retrieve pickle from server.
         
         Returns:
-            {GameState} -- Represents state of game
+            {object} -- An object loaded from pickle
         """
         try:
             decrypted_data = decrypt(self.CLIENT.recv(1024))
@@ -55,12 +73,20 @@ class Network:
             print(str(e))
             return None
 
-    def receive_player_num(self):
+    def receive(self):
         try:
             decrypted_data = decrypt(self.CLIENT.recv(2014))
-            player_num = int(decrypted_data.decode())
-            return player_num
+            data = decrypted_data.decode()
+            return data
         except socket.error as e:
+            print(str(e))
+            return None
+
+    def receive_player_num(self):
+        try:
+            player_num = int(self.receive())
+            return player_num
+        except ValueError as e:
             print(str(e))
             return None
 

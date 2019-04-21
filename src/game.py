@@ -30,7 +30,7 @@ class Game:
     Starts the game loop.
 
     The main game loop consists of an event
-    loop, the tick loop (things updated every
+    loop, the update loop (things updated every
     frame), and the draw loop.
 
     """
@@ -60,7 +60,7 @@ class Game:
             screen_res, flags=pygame.RESIZABLE)
 
         # Set up gameplay map
-        self.map = Map(self.screen, self.player_num)
+        self.map = Map(self.screen, self.network, self.player_num)
 
         # List of buttons currently on screen
         self.buttons = []
@@ -81,7 +81,7 @@ class Game:
         """
         while True:
             self.event_loop()
-            self.tick()
+            self.update()
             self.draw()
 
 
@@ -92,6 +92,9 @@ class Game:
         Events include mouse clicks
         and keyboard presses.
         """
+        # finish_turn is true when current player's turn ends
+        finish_turn = False
+
         events = pygame.event.get()
         for event in events:
             # Client closes window
@@ -101,23 +104,43 @@ class Game:
                 pygame.quit()
                 sys.exit(0)
 
-            # User clicks mouse
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                for button in self.buttons:
-                    # Mouse clicks button
-                    if button.get_rect().collidepoint(self.mousepos):
-                        button.handle_click(self.network)
-                # Mouse clicks on game board
-                if self.map.get_rect().collidepoint(self.mousepos):
-                    self.map.handle_click(self.mousepos, self.network)
+            # User hovers over tile
+            if event.type == pygame.MOUSEMOTION:
+                if self.map.getrect().collidepoint(self.mousepos):
+                    self.map.handle_hover(self.mousepos)
 
-    def tick(self):
+            # Only process clicks if it's this player's turn
+            if self.gamestate.is_players_turn(self.player_num):
+                # User clicks mouse
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    for button in self.buttons:
+                        # Mouse clicks button
+                        if button.get_rect().collidepoint(self.mousepos):
+                            button.handle_click(self.network)
+                    # Mouse clicks on game board
+                    if self.map.get_rect().collidepoint(self.mousepos):
+                        finish_turn = self.map.handle_click(self.mousepos, self.network)
+            else: # Other player's turn
+                pass
+
+        if finish_turn:
+            self.network.send_command("end_turn")
+
+    def update(self):
         """
         Update variables that change every frame.
         """
         self.ttime = self.clock.tick(30)
         self.mousepos = pygame.mouse.get_pos()
-        self.keys_pressed = pygame.key.get_pressed()
+        new_gamestate = self.network.get_gamestate()
+
+        # Update map with any moved units
+        for unit_type, location in new_gamestate.locations:
+            if location != self.gamestate.locations[unit_type]:
+                col, row = location
+                self.map.move(unit_type, col, row)
+
+        self.gamestate = new_gamestate
 
     def draw(self):
         """

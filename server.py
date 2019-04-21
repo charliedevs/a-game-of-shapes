@@ -54,34 +54,32 @@ def start_server():
 
     # Main server loop
     while True:
-        # Try block to allow keyboard interrupt
-        try:
-            if client_count < 2:
-                # Accept incoming connection
-                print("Waiting for client {}...".format(client_count + 1))
-                connection, address = SERVER.accept()
-                print("Established connection with " + address[0] + ":" + str(address[1]))
+        if client_count < 2:
+            # Accept incoming connection
+            print("Waiting for client {}...".format(client_count + 1))
+            connection, address = SERVER.accept()
+            print("Established connection with " + address[0] + ":" + str(address[1]))
 
-                # Increment global client counter
-                client_count += 1
+            # Increment global client counter
+            client_count += 1
+            # Keep track of whose turn it is
+            player_num = 1
 
-                # Keep track of whose turn it is
-                player_num = 1
+            if client_count == 1:
+                # Create new gamestate object
+                gamestate = GameState()
+            else:
+                # One client already connected so
+                # this connection will be player 2
+                gamestate.ready = True
+                player_num = 2
 
-                if client_count == 1:
-                    # Create new gamestate object
-                    gamestate = GameState()
-                else:
-                    # One client already connected so
-                    # this connection will be player 2
-                    gamestate.ready = True
-                    player_num = 2
+            # Create thread to handle client
+            t = threading.Thread(target=client_thread, args=(connection, player_num))
+            t.start()
 
-                # Create thread to handle client
-                t = threading.Thread(target=client_thread, args=(connection, player_num))
-                t.start()
-        except KeyboardInterrupt:
-            # Exit server loop
+        if client_count < 2 and gamestate.connected():
+            # Game over, exit loop
             break
 
     print("\nServer closing...")
@@ -93,6 +91,10 @@ def client_thread(connection, player_num):
     """
     Handles connection to clients.
 
+    Sends player_num to client and then
+    enters a loop where commands are 
+    received from client and processed.
+
     Arguments:
         connection {socket} -- Used to access network
         player_num {int} -- Defines player order
@@ -103,29 +105,36 @@ def client_thread(connection, player_num):
     global gamestate
 
     # Send player's number to client
-    send(player_num, connection)
+    send_data(player_num, connection)
 
     # Track number of active threads
     thread_count = threading.active_count()
     print("[Debug]: Active threads:", thread_count)
 
     while True:
-        # Receive one kB of data
+        # Receive one kB of data from client
         data = receive(connection)
-
         if data:
             if data == "get":
                 send_gamestate(gamestate, connection)
+            elif data == "move":
+                send_data("ok", connection)
+                move = receive_pickle(connection)
+                gamestate.move(move)
+                print(move)
+            elif data == "attack":
+                attack = receive_pickle(connection)
+                print(attack)
             elif data == "reset":
                 gamestate.reset()
+            elif data == "end_turn":
+                gamestate.change_turns()
             elif data == "quit":
                 #TODO: fix this command
-                send("quit", connection)
-                break  # exit main client loop to close connection
+                send_data("quit", connection)
+                break  # Exit main client loop to close connection
             else:
-                # Client sent a move
-                # or an attack
-                pass
+                print("Received invalid command from player", player_num)
         else:
             # Data wasn't received; exit loop
             break
@@ -141,10 +150,10 @@ def client_thread(connection, player_num):
 
 ################################################
 
-def send(data, connection):
+def send_data(data, connection):
     try:
         encrypted_data = encrypt(str(data).encode())
-        connection.send(encrypted_data)
+        connection.sendall(encrypted_data)
     except socket.error as e:
         print("[Error]: Socket cannot be used to send data.")
         print(str(e))
@@ -168,8 +177,21 @@ def receive(connection):
         return reply
     except socket.error as e:
         print(str(e))
-        return e
+        return None
+    except UnicodeDecodeError as e:
+        print("[Error]: Unable to decode message from client.")
+        print(str(e))
+        return None
 
+def receive_pickle(connection):
+    # Receive pickle object
+    try:
+        decrypted_reply = decrypt(connection.recv(1024))
+        reply = pickle.loads(decrypted_reply)
+        return reply
+    except socket.error as e:
+        print(str(e))
+        return None
 
 if __name__ == "__main__":
     # Check for correct number of arguments

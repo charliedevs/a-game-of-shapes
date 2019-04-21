@@ -11,18 +11,37 @@ class GameState:
         # Set to true if two clients are connected
         self.ready = False
 
-        # Holds the current moves made by each player
-        self.moves = {1 : None, 2 :  None}
+        # Keeps track of player turn
+        self.turn = {1 : True, 2 : False}
 
-        # TODO: this is unnecessary since moves are asynchronous; maybe a flag?
-        # Keeps track of if turns are completed for a round
-        self.turn_completed = {1 : False, 2 : False}
+        # Holds unit locations
+        # 1-3 are player 1's, 4-6 are player 2's
+        self.locations = {
+            1 : None,
+            2 : None,
+            3 : None,
+            4 : None,
+            5 : None,
+            6 : None
+        }
 
     def connected(self):
         return self.ready
 
-    def both_players_moved(self):
-        return self.turn_completed[1] and self.turn_completed[2]
+    def is_players_turn(self, player_num):
+        return self.turn[player_num]
+    
+    def change_turns(self):
+        for player, is_turn in turn.items():
+            if is_turn:
+                turn[player] = False
+            else:
+                turn[player] = True
+
+    def move(self, move):
+        # move is {unit_type : [col, row]}
+        unit_type, pos = move.popitem()
+        self.locations[unit_type] = pos
 
     def winner(self):
         pass

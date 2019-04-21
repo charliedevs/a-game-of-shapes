@@ -22,12 +22,12 @@ class Unit:
 
         # Determine unit attributes
         health, attack_power, speed = 0, 0, 0
-        if self.unit_type == 1:
+        if self.unit_type == 1 or self.unit_type == 4:
             # Low health, low attack, low speed
             health = 5
             attack_power = 1
             speed = 2
-        elif self.unit_type == 2:
+        elif self.unit_type == 2 or self.unit_type == 5:
             # Low health, low attack, low speed
             health = 8
             attack_power = 2
@@ -42,7 +42,6 @@ class Unit:
         self.health_max = health + 1
         self.attack_power = attack_power
         self.speed = speed
-
         self.is_alive = True
 
     def reduce_health(self, amount):

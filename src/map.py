@@ -5,7 +5,7 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 import pygame
 
 import src.colors as colors
-import src.unit as unit
+from src.unit import Unit
 
 #########################################################################
 # CONSTANTS
@@ -49,18 +49,20 @@ class Map:
         6 is player2, unit3
     """
 
-    def __init__(self, screen, player_num):
+    def __init__(self, screen, network, player_num):
         """
         Set up tile grid and units.
 
         
         Arguments:
             screen {pygame.Surface} -- The main display window
+            network {Network} -- Connection to the server
             player_num {int} -- The player identifier; 1 or 2
         """
 
         self.screen = screen
-        player_num = player_num
+        self.network = network
+        self.player_num = player_num
 
         # Create grid data structure.
         # Each element of the grid contains
@@ -92,19 +94,34 @@ class Map:
         self.surface = self.screen.subsurface(map_rect)
 
         # Initialize player units
+        unit_offset = 0
+        if player_num == 2: # units are numbered 4-6
+            unit_offset = 3
         self.player_units = []
         for unit_type in range(1, MAX_UNITS + 1):
-            player_unit = unit.Unit(unit_type)
+            player_unit = Unit(unit_type + unit_offset)
             self.player_units.append(player_unit)
 
-        # Place units on grid
-        if player_num == 1:
+        # Place units on grid.
+        # Calculate column and row based
+        # on player_num and unit_type.
+        if self.player_num == 1:
             col = 0
         else:
             col = cols - 1
-        self.grid[0][col][1] = self.player_units[0].unit_type
-        self.grid[rows // 2][col][1] = self.player_units[1].unit_type
-        self.grid[rows-1][col][1] = self.player_units[2].unit_type
+        row = 0
+        for unit in self.player_units:
+            self.move(unit.unit_type, col, row)
+            # Send move to server
+            network_move = {unit.unit_type : [col, row]}
+            print("[Debug]:", network_move)
+            self.network.send_move(network_move)
+            row += (rows // 2) - 1
+
+
+    def handle_hover(self, mousepos):
+        # highlights tile hovered over
+        pass
 
     def handle_click(self, mousepos, network):
         """
@@ -115,8 +132,8 @@ class Map:
 
         Arguments:
             mousepos {(float, float)} -- The (x, y) position of mouse on window
+            network {Network} -- Used to send commands to server
         """
-
         mouse_x, mouse_y = mousepos
 
         # To get position relative to map, we must subtract the
@@ -132,34 +149,27 @@ class Map:
         # DEBUG: print column and row of click
         print("[Debug]: Click", mousepos, "Grid coords:", column, row)
 
+        # Set to True if turn ends
+        finish_turn = False
         # TODO: Handle moves and send to network
+
+        # if clicked on unit:
+        #     change color of tiles around unit to matching speed
+
+
+
+        ########################################################
+        # Changes color on click
         if self.get_tile_type(column, row) == 0:
             self.set_tile_type(column, row, 1)
         elif self.get_tile_type(column, row) == 1:
             self.set_tile_type(column, row, 2)
         else:
             self.set_tile_type(column, row, 0)
+        ########################################################
 
-    def place_unit(self, col, row, unit):
-        """
-        Move unit to given location if possible.
-
-        Arguments:
-            col {int}   -- A column on the grid
-            row {int}   -- A row on the grid
-            unit {Unit} -- The unit to place
-
-        Returns:
-            bool -- whether the move was sucessful or not
-        """
-
-        success = False
-
-        if self.grid[row][col][1] == 0:
-            self.grid[row][col][1] = unit.unit_type
-            success = True
-
-        return success
+        # Turn is over
+        return finish_turn
 
     def draw(self):
         """
@@ -246,6 +256,30 @@ class Map:
         w, h = self.map_size
         return pygame.Rect(x, y, w, h)
 
+    def move(self, unit_type, col, row):
+        """
+        Move unit to given location if possible.
+
+        Arguments:
+            col {int}   -- A column on the grid
+            row {int}   -- A row on the grid
+            unit_type {int} -- The unit to place
+
+        Returns:
+            {unit_type : [x,y]} -- Dict representing move
+        """
+
+        move = None
+
+        if self.grid[row][col][1] == 0:
+            self.grid[row][col][1] = unit_type
+            move = {unit_type : [col, row]}
+
+        return move
+
+    def attack(self, col, row, unit):
+        pass
+
     def set_tile_type(self, column, row, tile_type=0):
         """
         Change the type of a given tile.
@@ -280,6 +314,26 @@ class Map:
 
         try:
             return self.grid[row][column][0]
+        except IndexError as e:
+            print("[Error]: Tile at Column: {0} Row: {1} doesn't exist.".format(
+                column, row))
+            print("       ", e)
+            return -1
+
+    def get_unit_type(self, col, row):
+        """
+        Returns the unit type at given column and row.
+
+        Arguments:
+            column {int} -- The column of the tile
+            row {int} -- The row of the tile
+
+        Returns:
+            int -- The unit_type at a given tile
+                   Will be -1 if tile doesn't exist
+        """
+        try:
+            return self.grid[row][column][1]
         except IndexError as e:
             print("[Error]: Tile at Column: {0} Row: {1} doesn't exist.".format(
                 column, row))
