@@ -10,12 +10,10 @@ Controls the connection between two clients.
 import socket
 import sys
 import threading
-import json
+import pickle
 
-from gamestate import GameState
-from encryption import encrypt, decrypt
-
-connected = set()
+from src.gamestate import GameState
+from src.encryption import encrypt, decrypt
 
 # Number of clients connected
 client_count = 0
@@ -31,8 +29,9 @@ def start_server():
     client connections.
     """
 
-    # Use the global variable gamestate
+    # Use the global variables
     global gamestate
+    global client_count
 
     # Create a socket object
     SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -69,7 +68,7 @@ def start_server():
                 # Keep track of whose turn it is
                 player_num = 1
 
-                if client_count == 0:
+                if client_count == 1:
                     # Create new gamestate object
                     gamestate = GameState()
                 else:
@@ -88,45 +87,6 @@ def start_server():
     print("\nServer closing...")
     SERVER.close()
 
-def send(data, connection):
-    try:
-        encrypted_data = encrypt(str(data).encode())
-        connection.sendall(encrypted_data)
-    except socket.error as e:
-        print("[Error]: Socket cannot be used to send data.")
-        print(str(e))
-    except TypeError:
-        print("[Error]: Data cannot be converted to string to be sent.")
-
-
-def send_gamestate(gamestate, connection):
-    # Send gamestate as serialized json object
-    gamestate_json = json.dumps(gamestate)
-    try:
-        encrypted_data = encrypt(gamestate_json.encode())
-        connection.sendall(encrypted_data)
-    except socket.error as e:
-        print(str(e))
-
-
-def receive(connection):
-    # Receive data from client
-    try:
-        decrypted_reply = decrypt(connection.recv(1024))
-        reply = decrypted_reply.decode()
-        return reply
-    except socket.error as e:
-        print(str(e))
-        return e
-
-
-#TODO: maybe remove this
-def get_gamestate_from_json(gamestate_json):
-    # TODO: add try/except for json conversion
-    gamestate = json.loads(gamestate_json)
-    return gamestate
-
-
 ##############   Client Loop   #################
 
 def client_thread(connection, player_num):
@@ -135,7 +95,7 @@ def client_thread(connection, player_num):
 
     Arguments:
         connection {socket} -- Used to access network
-        player_num {[type]} -- Defines player order
+        player_num {int} -- Defines player order
     """
 
     # Access global variables
@@ -144,10 +104,8 @@ def client_thread(connection, player_num):
 
     # Send player's number to client
     send(player_num, connection)
-    encrypted_num = encrypt(str(player_num).encode())
-    connection.sendall(encrypted_num)
 
-    # Number of active threads
+    # Track number of active threads
     thread_count = threading.active_count()
     print("[Debug]: Active threads:", thread_count)
 
@@ -156,8 +114,9 @@ def client_thread(connection, player_num):
         data = receive(connection)
 
         if data:
-            # Single commands, no json
-            if data == "reset":
+            if data == "get":
+                send_gamestate(gamestate, connection)
+            elif data == "reset":
                 gamestate.reset()
             elif data == "quit":
                 #TODO: fix this command
@@ -166,6 +125,7 @@ def client_thread(connection, player_num):
             else:
                 # Client sent a move
                 # or an attack
+                pass
         else:
             # Data wasn't received; exit loop
             break
@@ -180,6 +140,35 @@ def client_thread(connection, player_num):
     connection.close()
 
 ################################################
+
+def send(data, connection):
+    try:
+        encrypted_data = encrypt(str(data).encode())
+        connection.send(encrypted_data)
+    except socket.error as e:
+        print("[Error]: Socket cannot be used to send data.")
+        print(str(e))
+    except TypeError:
+        print("[Error]: Data cannot be converted to string to be sent.")
+
+def send_gamestate(gamestate, connection):
+    # Send gamestate as serialized pickle object
+    gamestate_pickle = pickle.dumps(gamestate)
+    try:
+        encrypted_data = encrypt(gamestate_pickle)
+        connection.sendall(encrypted_data)
+    except socket.error as e:
+        print(str(e))
+
+def receive(connection):
+    # Receive data from client
+    try:
+        decrypted_reply = decrypt(connection.recv(1024))
+        reply = decrypted_reply.decode()
+        return reply
+    except socket.error as e:
+        print(str(e))
+        return e
 
 
 if __name__ == "__main__":

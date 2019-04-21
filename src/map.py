@@ -101,12 +101,12 @@ class Map:
         if player_num == 1:
             col = 0
         else:
-            col = cols
-        grid[0][col] = self.player_units[0].unit_type
-        grid[rows // 2][col] = self.player_units[1].unit_type
-        grid[rows][col] = self.player_units[2].unit_type
+            col = cols - 1
+        self.grid[0][col][1] = self.player_units[0].unit_type
+        self.grid[rows // 2][col][1] = self.player_units[1].unit_type
+        self.grid[rows-1][col][1] = self.player_units[2].unit_type
 
-    def handle_click(self, mousepos):
+    def handle_click(self, mousepos, network):
         """
         Process user clicks on game tiles
 
@@ -132,6 +132,7 @@ class Map:
         # DEBUG: print column and row of click
         print("[Debug]: Click", mousepos, "Grid coords:", column, row)
 
+        # TODO: Handle moves and send to network
         if self.get_tile_type(column, row) == 0:
             self.set_tile_type(column, row, 1)
         elif self.get_tile_type(column, row) == 1:
@@ -169,7 +170,10 @@ class Map:
 
         # Loop through the grid data structure
         for row in range(len(self.grid)):
-            for (col, (tile_type, unit_type)) in enumerate(self.grid[row]):
+            for col in range(len(self.grid[row])):
+
+                tile_type = self.grid[row][col][0]
+                unit_type = self.grid[row][col][1]
 
                 # Determine color of tiles
                 tile_color = colors.darkgray
@@ -227,7 +231,7 @@ class Map:
                         self.surface,
                         unit_color,
                         pos,
-                        radius
+                        int(radius)
                     )
 
     def get_rect(self):

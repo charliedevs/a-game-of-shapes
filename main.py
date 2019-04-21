@@ -1,20 +1,101 @@
 import sys
-from src import game
+import tkinter
 
-USAGE = "\nUsage: python main.py <server_host> <server_port> <client_port>"
+from src.game import Game
+from src.network import Network
+
+#TODO: Change errors from printing to console to printing on GUI
 def main():
-    filename, server_host, server_port, client_port = sys.argv
-    try:
-        game.Game(server_host, int(server_port), int(client_port))
-    except ValueError:
-        print("[Error]: Port must be an integer")
-        print(USAGE)
+
+    # Get server info using tkinter GUI
+    network = get_connection()
+
+    if network:
+        # Start game
+        Game(network)
 
     return 0
 
+def get_connection():
+    """
+    Create a GUI window using tkinter
+    to get IP and port from user.
+
+    Loops until successful connection is made.
+    
+    Returns:
+        {Network} -- Used to send/receive data from server
+    """
+
+    # Hold network object in list
+    # If list is empty, no connection
+    connection = []
+
+    # Greate GUI
+    root = tkinter.Tk()
+    root.title("A Game")
+    root.geometry("500x500")
+
+    # Textbox to get server host
+    host_label = tkinter.Label(root, text="Host IP:")
+    host_label.pack()
+    host_textbox = tkinter.Entry(root, bd=5)
+    host_textbox.pack()
+
+    # Textbox for server port
+    port_label = tkinter.Label(root, text="Port:")
+    port_label.pack()
+    port_textbox = tkinter.Entry(root, bd=5)
+    port_textbox.pack()
+
+    def add_network():
+        """
+        Grabs IP and port from textboxes and
+        attempt to create a network connection.
+        """
+
+        host = host_textbox.get()
+        port = port_textbox.get()
+
+        # Create network object
+        network = None
+        try:
+            network = Network(host, int(port))
+        except:
+            print("[Error]: Invalid ip address or port number")
+
+        connection.append(network)
+
+        attempt_connection()
+    
+    def attempt_connection():
+        """
+        Connect using given address.
+        If successful, closes window
+        and returns network object.
+
+        Returns:
+            {Network} -- Represents connection to server
+        """
+        network = connection.pop()
+
+        if network is not None:
+            try:
+                network.connect()
+                connection.append(network)
+                root.destroy()
+            except:
+                print("[Error]: Unable to connect to given address")
+        
+    button = tkinter.Button(root, text="Connect", command=add_network)
+    button.pack()
+
+    root.mainloop()
+
+    if connection:
+        network = connection.pop()
+        return network
+    return None
 
 if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print(USAGE)
-        sys.exit(1)
     main()

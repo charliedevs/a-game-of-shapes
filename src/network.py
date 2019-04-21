@@ -8,9 +8,10 @@ Contains the Network class which adds connectivity to a client.
 """
 
 import socket
-import json
+import pickle
 
 from src.encryption import encrypt, decrypt
+from src.gamestate import GameState
 
 class Network:
     """
@@ -26,6 +27,12 @@ class Network:
         self.ADDR = (self.HOST, self.PORT)
         self.player_num = None
 
+        gamestate = GameState()
+
+    def get_gamestate(self):
+        self.send("get")
+        return self.receive()
+
     def send(self, data):
         # Send data to server
         try:
@@ -34,38 +41,33 @@ class Network:
         except socket.error as e:
             print(str(e))
 
-    def send_gamestate(self, dictionary):
-        # Send dictionary
-        data = json.dumps(dictionary)
-        try:
-            encrypted_data = encrypt(data.encode())
-            self.CLIENT.sendall(encrypted_data)
-        except socket.error as e:
-            print(str(e))
-
     def receive(self):
-        # Receive data from server
-        try:
-            decrypted_reply = decrypt(self.CLIENT.recv(1024))
-            reply = decrypted_reply.decode()
-            return reply
-        except socket.error as e:
-            print(str(e))
-            return e
-
-    def receive_gamestate(self):
-        # Receive dictionary from server
+        """
+        Retrieve gamestate from server.
+        
+        Returns:
+            {GameState} -- Represents state of game
+        """
         try:
             decrypted_data = decrypt(self.CLIENT.recv(1024))
-            dictionary = json.loads(decrypted_data.decode())
-            return dictionary
+            return pickle.loads(decrypted_data)
         except socket.error as e:
             print(str(e))
+            return None
+
+    def receive_player_num(self):
+        try:
+            decrypted_data = decrypt(self.CLIENT.recv(2014))
+            player_num = int(decrypted_data.decode())
+            return player_num
+        except socket.error as e:
+            print(str(e))
+            return None
 
     def connect(self):
          # Connect to server
         self.CLIENT.connect(self.ADDR)
-        self.player_num = self.receive()
+        self.player_num = self.receive_player_num()
         print("Connected to server:", self.HOST)
 
     def get_player_num(self):

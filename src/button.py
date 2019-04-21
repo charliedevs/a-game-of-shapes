@@ -34,7 +34,7 @@ class Button:
 
         self.surface = self.screen.subsurface(self.rect)
         
-    def handle_click(self):
+    def handle_click(self, network):
         if self.action is not None:
             self.action()
             return True

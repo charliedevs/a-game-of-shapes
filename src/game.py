@@ -5,17 +5,12 @@ Created by: Fernando Rodriguez, Charles Davis, Paul Rogers
 
 """
 
-# TODO: Create Unit class for unit actions and data
-# TODO: Move code from here into relevant classes
-# TODO: Create window class for display surface with functions that return size, center, etc.
-
 import sys
 import pygame
 
-#import src.pygame_input as pygame_input
 import src.colors as colors
-import src.gamestate as gamestate
-from src.client.network import Network
+from src.gamestate import GameState
+from src.network import Network
 from src.map import Map
 from src.button import Button
 
@@ -47,11 +42,16 @@ class Game:
         Arguments:
             network {Network} -- Connection to server
         """
-
         pygame.init()
 
-        # Clock tracks time from beginning of game
-        self.clock = pygame.time.Clock()
+        # Connection to the server
+        self.network = network
+        self.player_num = self.network.get_player_num()
+        print("You are player", self.player_num)
+
+        # Represents the state of game
+        # Created by server and sent to clients
+        self.gamestate = None
 
         # Set up display window
         pygame.display.set_caption('Strategy')
@@ -59,28 +59,26 @@ class Game:
         self.screen = pygame.display.set_mode(
             screen_res, flags=pygame.RESIZABLE)
 
-        # Represents the state of game
-        self.gamestate = gamestate.GameState()
-
-        # Connection to the server
-        self.network = network
-        self.player_num = self.network.get_player_num()
-
         # Set up gameplay map
         self.map = Map(self.screen, self.player_num)
 
         # List of buttons currently on screen
         self.buttons = []
-        connect_button = Button(self.screen, (200, 300, 150, 30), action=lambda : print('Hi'), text="Connect")
-        self.buttons.append(connect_button)
+        # connect_button = Button(self.screen, (200, 300, 150, 30), action=lambda : print('Hi'), text="Connect")
+        # self.buttons.append(connect_button)
 
-        # Textboxes
-        #ip_textbox = pygame_input.TextInput()
-        #port_textbox = pygame_input.TextInput
+        # Clock tracks time from beginning of game
+        self.clock = pygame.time.Clock()
 
+        # Show waiting screen until other player connects
+        self.waiting_screen()
+        # Start the game
         self.game_loop()
 
     def game_loop(self):
+        """
+        Loops until window is closed.
+        """
         while True:
             self.event_loop()
             self.tick()
@@ -99,54 +97,62 @@ class Game:
             # Client closes window
             if event.type == pygame.QUIT:
                 print("Exiting game...")
-                #self.connection.close()
+                self.network.close()
                 pygame.quit()
                 sys.exit(0)
 
             # User clicks mouse
             if event.type == pygame.MOUSEBUTTONDOWN:
-            
                 for button in self.buttons:
-
+                    # Mouse clicks button
                     if button.get_rect().collidepoint(self.mousepos):
-
-                        button.handle_click()
-
+                        button.handle_click(self.network)
                 # Mouse clicks on game board
                 if self.map.get_rect().collidepoint(self.mousepos):
-                    self.map.handle_click(self.mousepos)
-
-        # Apply changes to gamestate object
-        self.update_gamestate()
+                    self.map.handle_click(self.mousepos, self.network)
 
     def tick(self):
-        # Updates variables that change every frame.
-
+        """
+        Update variables that change every frame.
+        """
         self.ttime = self.clock.tick(30)
         self.mousepos = pygame.mouse.get_pos()
         self.keys_pressed = pygame.key.get_pressed()
 
     def draw(self):
-        # Draw graphics and display on screen.
-
+        """
+        Draw graphics and display on screen.
+        """
         self.screen.fill(colors.lightgray)
 
-        if self.player_connected:
-            self.map.draw()
-        else:
-            # Draw menu
-            for button in self.buttons:
-                button.draw()
+        # Display game board
+        self.map.draw()
+
+        # Show buttons
+        for button in self.buttons:
+            button.draw()
+        
+        # TODO: Draw other lables
 
         pygame.display.update()
 
-    def reset(self):
-        # Reset the game board.
-        self.map.clear()
-        self.update_gamestate()
+    def waiting_screen(self):
+        """
+        Displays a waiting message until
+        other client connects.
+        """
+        self.gamestate = self.network.get_gamestate()
+        while not self.gamestate.connected():
+            events = pygame.event.get()
 
-    def update_gamestate(self):
-        pass
-        #self.gamestate.data["grid"] = self.map.grid
-        #self.connection.send("game")
-        #self.connection.send_gamestate(self.gamestate.data)
+            for event in events:
+                if event.type == pygame.QUIT:
+                    print("Exiting game...")
+                    self.network.close()
+                    pygame.quit()
+                    sys.exit(0)
+
+            self.screen.fill(colors.purple)
+            #TODO: Add text "waiting"
+            self.gamestate = self.network.get_gamestate()
+            pygame.display.update()

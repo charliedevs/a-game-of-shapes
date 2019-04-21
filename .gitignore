@@ -1,4 +1,4 @@
-.vscode/settings.json
+.vscode/settings.pickle
 src/server/test.py
 src/__pycache__/*
 src/server/__pycache__/*
