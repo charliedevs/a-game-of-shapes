@@ -43,6 +43,7 @@ class Unit:
         self.attack_power = attack_power
         self.speed = speed
         self.is_alive = True
+        self.pos = [None, None]
 
     def reduce_health(self, amount):
         """
@@ -67,3 +68,62 @@ class Unit:
 
         if self.health > self.health_max:
             self.health = self.health_max
+
+    def get_move_range(self, max_col, max_row):
+        # TODO: Add for loops to grab everything within range
+        #       Currently grabs tiles equidistant from the origin based on speed
+        """
+        Returns a list of tiles the unit can move to
+
+        Arguments:
+            max_col {int} -- Number of columns
+            max_row {int} -- Number of rows
+
+        """
+        # Create list of tiles
+        # Unit pos is [col, row]
+        range_list = []
+
+        # Add speed to col i.e. right
+        possible_pos = [self.pos[0] + self.speed, self.pos[1]]
+        if not possible_pos[0] >= max_col:
+            range_list.append(possible_pos)
+
+        # Subtract speed from col i.e. left
+        possible_pos = [self.pos[0] - self.speed, self.pos[1]]
+        if not possible_pos[0] < 0:
+            range_list.append(possible_pos)
+
+        # Add speed to row i.e. down
+        possible_pos = [self.pos[0], self.pos[1] + self.speed]
+        if not possible_pos[1] >= max_row:
+            range_list.append(possible_pos)
+
+        # Subtract speed from row i.e. up
+        possible_pos = [self.pos[0], self.pos[1] - self.speed]
+        if not possible_pos[1] < 0:
+            range_list.append(possible_pos)
+
+        # Add speed to col and row i.e. bottom right
+        possible_pos = [self.pos[0] + self.speed, self.pos[1] + self.speed]
+        if not (possible_pos[0] >= max_col or possible_pos[1] >= max_row):
+            range_list.append(possible_pos)
+
+        # Subtract speed to col and row i.e. top left
+        possible_pos = [self.pos[0] - self.speed, self.pos[1] - self.speed]
+        if not (possible_pos[0] < 0 or possible_pos[1] < 0):
+            range_list.append(possible_pos)
+        
+        # i.e. top right
+        possible_pos = [self.pos[0] + self.speed, self.pos[1] - self.speed]
+        if not (possible_pos[0] >= max_col or possible_pos[1] < 0):
+            range_list.append(possible_pos)
+        
+         # i.e. bottom left
+        possible_pos = [self.pos[0] - self.speed, self.pos[1] + self.speed]
+        if not (possible_pos[0] < 0 or possible_pos[1] <= max_row):
+            range_list.append(possible_pos)
+
+        return range_list
+
+
