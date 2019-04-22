@@ -204,7 +204,7 @@ class Map:
                 # using tile's rect as reference
                 unit_color = colors.white
                 pointlist = None
-                if unit_type == 1:
+                if unit_type == 1 or unit_type == 4:
                     # Green triangle
                     unit_color = colors.darkgreen
                     pointlist = [
@@ -212,7 +212,7 @@ class Map:
                         rect.bottomleft,
                         rect.bottomright
                     ]
-                elif unit_type == 2:
+                elif unit_type == 2 or unit_type == 5:
                     # Red diamond
                     unit_color = colors.darkred
                     pointlist = [
@@ -221,7 +221,7 @@ class Map:
                         rect.midbottom,
                         rect.midright
                     ]
-                elif unit_type == 3:
+                elif unit_type == 3 or unit_type == 6:
                     # Blue circle
                     unit_color = colors.darkblue
                     pos = rect.center
@@ -271,6 +271,7 @@ class Map:
 
         move = None
 
+        # If no unit is on desired space
         if self.grid[row][col][1] == 0:
             self.grid[row][col][1] = unit_type
             move = {unit_type : [col, row]}
