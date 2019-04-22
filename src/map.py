@@ -70,7 +70,7 @@ class Map:
         # Both are ints; [0, 0] means the tile
         # is blank and no unit is present.
         cols = GRID_COLUMNS
-        rows = GRID_COLUMNS
+        rows = GRID_ROWS
         self.grid = [[[0, 0] for j in range(cols)] for i in range(rows)]
 
         # TODO: create function to return a tile, and one to get tile based on mousepos
