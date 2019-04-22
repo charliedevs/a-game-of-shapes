@@ -114,6 +114,7 @@ class Map:
             self.move(unit.unit_type, col, row)
             # Send move to server
             network_move = {unit.unit_type : [col, row]}
+            unit.pos = [col, row]
             print("[Debug]:", network_move)
             self.network.send_move(network_move)
             row += (rows // 2) - 1
@@ -334,10 +335,10 @@ class Map:
                    Will be -1 if tile doesn't exist
         """
         try:
-            return self.grid[row][column][1]
+            return self.grid[row][col][1]
         except IndexError as e:
             print("[Error]: Tile at Column: {0} Row: {1} doesn't exist.".format(
-                column, row))
+                col, row))
             print("       ", e)
             return -1
 
@@ -352,3 +353,5 @@ class Map:
                 self.set_tile_type(col, row, 0)
 
         print("[Debug]: Map reset.")
+
+    
