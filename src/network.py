@@ -52,8 +52,8 @@ class Network:
 
     def send_move(self, move):
         self.send_command("move")
-        self.receive() #TODO: Seeing if we need to receive before sending again
-        self.send_pickle(move)
+        if self.receive() == "ok":
+            self.send_pickle(move)
 
     def send_attack(self, attack):
         self.send_command("attack")

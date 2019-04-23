@@ -73,7 +73,7 @@ class Unit:
         # TODO: Add for loops to grab everything within range
         #       Currently grabs tiles equidistant from the origin based on speed
         """
-        Returns a list of tiles the unit can move to
+        Returns a list of tiles the unit can move to.
 
         Arguments:
             max_col {int} -- Number of columns
