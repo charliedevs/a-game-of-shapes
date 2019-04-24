@@ -6,6 +6,7 @@ import pygame
 
 import src.colors as colors
 from src.unit import Unit
+from src.grid import Grid
 
 #########################################################################
 # CONSTANTS
@@ -15,10 +16,6 @@ TILE_WIDTH = 23
 TILE_HEIGHT = 23
 TILE_MARGIN = 2
 
-# Grid size
-GRID_COLUMNS = 14
-GRID_ROWS = 12
-
 # Units per player
 MAX_UNITS = 3
 
@@ -27,26 +24,12 @@ MAX_UNITS = 3
 
 class Map:
     """
-    Represents the game board and state
-    of each tile.
+    The surface on which gameplay occurs.
     
-    Every tile contains a list of two
-    values: [tile_type, unit_type]
+    Comprised of a grid of tiles, where each tile
+    has a tile_type and a unit_type. Units move
+    across tiles and are affected by tile_type.
 
-    tile_type {int} --
-        0 is blank
-        1 is health
-        2 is harm
-        3 is slowdown
-
-    unit_type {int} --
-        0 is empty
-        1 is player1, unit1
-        2 is player1, unit2
-        3 is player1, unit3
-        4 is player2, unit1
-        5 is player2, unit2
-        6 is player2, unit3
     """
 
     def __init__(self, screen, network, player_num):
@@ -65,13 +48,9 @@ class Map:
         self.player_num = player_num
 
         # Create grid data structure.
-        # Each element of the grid contains
-        # two values: [tile_type, unit_type].
-        # Both are ints; [0, 0] means the tile
-        # is blank and no unit is present.
-        cols = GRID_COLUMNS
-        rows = GRID_ROWS
-        self.grid = [[[0, 0] for j in range(cols)] for i in range(rows)]
+        self.grid = Grid()
+        cols = self.grid.cols
+        rows = self.grid.rows
 
         # TODO: create function to return a tile, and one to get tile based on mousepos
 
@@ -140,12 +119,12 @@ class Map:
 
         ########################################################
         # Changes color on click
-        if self.get_tile_type(column, row) == 0:
-            self.set_tile_type(column, row, 1)
-        elif self.get_tile_type(column, row) == 1:
-            self.set_tile_type(column, row, 2)
+        if self.grid.get_tile_type(column, row) == 0:
+            self.grid.set_tile_type(column, row, 1)
+        elif self.grid.get_tile_type(column, row) == 1:
+            self.grid.set_tile_type(column, row, 2)
         else:
-            self.set_tile_type(column, row, 0)
+            self.grid.set_tile_type(column, row, 0)
         ########################################################
 
         # Turn is over
@@ -159,11 +138,11 @@ class Map:
         self.surface.fill(colors.white)
 
         # Loop through the grid data structure
-        for row in range(len(self.grid)):
-            for col in range(len(self.grid[row])):
+        for row in range(self.grid.rows):
+            for col in range(self.grid.cols):
 
-                tile_type = self.get_tile_type(col, row)
-                unit_type = self.get_unit_type(col, row)
+                tile_type = self.grid.get_tile_type(col, row)
+                unit_type = self.grid.get_unit_type(col, row)
 
                 # Determine color of tiles
                 tile_color = colors.darkgray
@@ -251,8 +230,8 @@ class Map:
 
         move = None
 
-        if self.get_unit_type(col, row) == 0:
-            self.set_unit_type(col, row, unit_type)
+        if self.grid.get_unit_type(col, row) == 0:
+            self.grid.set_unit_type(col, row, unit_type)
             move = {unit_type : [col, row]}
 
             # Update pos attribute of unit object
@@ -264,83 +243,6 @@ class Map:
 
     def attack(self, col, row, unit):
         pass
-
-    def set_tile_type(self, col, row, tile_type=0):
-        """
-        Change the type of a given tile.
-
-        Arguments:
-            col {int} -- The column of the tile to change
-            row {int} -- The row of the tile to change
-
-        Keyword Arguments:
-            tile_type {int} -- 0=blank, 1=health, 2=harm (default: {0})
-        """
-
-        try:
-            self.grid[row][col][0] = tile_type
-        except IndexError as e:
-            print("[Error]: Tile at Column: {0} Row: {1} doesn't exist.".format(
-                col, row))
-            print("       ", e)
-
-    def get_tile_type(self, col, row):
-        """
-        Returns the type of tile at given column and row.
-
-        Arguments:
-            col {int} -- The column of the tile
-            row {int} -- The row of the tile
-
-        Returns:
-            int -- The tile_type of given tile
-                   Will be -1 if tile doesn't exist
-        """
-
-        try:
-            return self.grid[row][col][0]
-        except IndexError as e:
-            print("[Error]: Tile at Column: {0} Row: {1} doesn't exist.".format(
-                col, row))
-            print("       ", e)
-            return -1
-
-    def get_unit_type(self, col, row):
-        """
-        Returns the unit type at given column and row.
-
-        Arguments:
-            column {int} -- The column of the tile
-            row {int} -- The row of the tile
-
-        Returns:
-            int -- The unit_type at a given tile
-                   Will be -1 if tile doesn't exist
-        """
-        try:
-            return self.grid[row][col][1]
-        except IndexError as e:
-            print("[Error]: Tile at Column: {0} Row: {1} doesn't exist.".format(
-                col, row))
-            print("       ", e)
-            return -1
-
-    def set_unit_type(self, col, row, unit_type):
-        """
-        Change the unit_type on a given grid tile.
-
-        Arguments:
-            col {int} -- The column of the tile
-            row {int} -- The row of the tile
-            unit_type {int} -- 0=blank, 1-3=player1, 4-6=player2
-        """
-
-        try:
-            self.grid[row][col][1] = unit_type
-        except IndexError as e:
-            print("[Error]: Tile at Column: {0} Row: {1} doesn't exist.".format(
-                col, row))
-            print("       ", e)
 
 
     def initialize_units(self):
@@ -359,11 +261,11 @@ class Map:
         for unit in self.player_units:
             if unit.unit_type == 4:
                 # Place player 2's units (4-6) on rhs
-                col = GRID_COLUMNS - 1
+                col = self.grid.cols - 1
                 row = 0
             self.move(unit.unit_type, col, row)
             # Place units on separate rows
-            row += (GRID_ROWS // 2) - 1
+            row += (self.grid.rows // 2) - 1
 
     def clear(self):
         # Resets the map.
@@ -371,8 +273,10 @@ class Map:
         # Removes special tile_types and
         # TODO: resets unit positions.
 
-        for row in range(len(self.grid)):
-            for col in range(len(self.grid[row])):
-                self.set_tile_type(col, row, 0)
+        for row in range(self.grid.rows):
+            for col in range(self.grid.cols):
+                self.grid.set_tile_type(col, row, 0)
+
+        self.initialize_units()
 
         print("[Debug]: Map reset.")
