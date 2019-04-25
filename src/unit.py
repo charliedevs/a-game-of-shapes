@@ -4,6 +4,23 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 """
 #import pygame
 
+
+
+#########################################################################
+# CONSTANTS
+
+NO_UNIT = 0
+
+P1_TRIANGLE = 1
+P1_DIAMOND = 2
+P1_CIRCLE = 3
+
+P2_TRIANGLE = 4
+P2_DIAMOND = 5
+P2_CIRCLE = 6
+
+#########################################################################
+
 class Unit:
     """
     A player's unit on the gameboard.
@@ -16,27 +33,25 @@ class Unit:
         Sets up player unit.
 
         Arguments:
-            unit_type -- an integer; 1, 2, or 3
+            unit_type -- Determines player number and unit attributes
         """
         self.unit_type = unit_type
 
         # Determine unit attributes
         health, attack_power, speed = 0, 0, 0
-        if self.unit_type == 1 or self.unit_type == 4:
-            # Low health, low attack, low speed
-            health = 5
-            attack_power = 1
-            speed = 2
-        elif self.unit_type == 2 or self.unit_type == 5:
-            # Low health, low attack, low speed
+
+        if self.is_triangle():
             health = 8
-            attack_power = 2
-            speed = 3
-        else:
-            # High health, high attack, high speed
-            health = 10
-            attack_power = 4
+            attack_power = 1
             speed = 5
+        elif self.is_diamond():
+            health = 10
+            attack_power = 3
+            speed = 2
+        elif self.is_circle():
+            health = 6
+            attack_power = 4
+            speed = 3
 
         self.health = health
         self.health_max = health + 1
@@ -127,3 +142,13 @@ class Unit:
                     range_list.append(possible_pos)
 
         return range_list
+
+
+    def is_triangle(self):
+        return self.unit_type == P1_TRIANGLE or self.unit_type == P2_TRIANGLE
+
+    def is_diamond(self):
+        return self.unit_type == P1_DIAMOND or self.unit_type == P2_DIAMOND
+
+    def is_circle(self):
+        return self.unit_type == P1_CIRCLE or self.unit_type == P2_CIRCLE

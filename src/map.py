@@ -7,6 +7,7 @@ import pygame
 import src.colors as colors
 from src.unit import Unit
 from src.grid import Grid
+from src.unit import Unit
 
 #########################################################################
 # CONSTANTS
@@ -47,14 +48,14 @@ class Map:
         self.network = network
         self.player_num = player_num
 
-        # Create grid data structure.
+        # The grid is a 2D array with columns and rows
         self.grid = Grid()
         cols = self.grid.cols
         rows = self.grid.rows
 
-        # TODO: create function to return a tile, and one to get tile based on mousepos
+        # TODO: create function to return a tile, and one to get tile based on mouse_position
 
-        # Size of individual tiles
+        # The dimensions of each tile
         self.tile_w = TILE_WIDTH
         self.tile_h = TILE_HEIGHT
         self.margin = TILE_MARGIN
@@ -78,35 +79,20 @@ class Map:
 
 
 
-    def handle_hover(self, mousepos):
+    def handle_hover(self, mouse_position):
         # highlights tile hovered over
         pass
 
-    def handle_click(self, mousepos, network):
+    def handle_click(self, mouse_position):
         """
-        Process user clicks on game tiles
-
-        Determines tile user clicked using mousepos.
-        mousepos is a (x, y) point relative to window.
+        Process user clicks on game tiles.
 
         Arguments:
-            mousepos {(float, float)} -- The (x, y) position of mouse on window
-            network {Network} -- Used to send commands to server
+            mouse_position {(float, float)} -- The (x, y) position of mouse on window
         """
-        mouse_x, mouse_y = mousepos
 
-        # To get position relative to map, we must subtract the
-        # offset from the mouse position. Dividing by the tile
-        # size gives us the clicked tile.
-
-        offset_x, offset_y = self.get_rect().topleft
-
-        # Column and row of tile clicked by user
-        column = (mouse_x - offset_x) // (self.tile_w + self.margin)
-        row = (mouse_y - offset_y) // (self.tile_h + self.margin)
-
-        # DEBUG: print column and row of click
-        print("[Debug]: Click", mousepos, "Grid coords:", column, row)
+        column, row = self.determine_tile_from_mouse_position(mouse_position)
+        print("[Debug]: Click", mouse_position, "Grid coords:", column, row)
 
         # Set to True if turn ends
         finish_turn = False
@@ -114,8 +100,6 @@ class Map:
 
         # if clicked on unit:
         #     change color of tiles around unit to matching speed
-
-
 
         ########################################################
         # Changes color on click
@@ -127,8 +111,29 @@ class Map:
             self.grid.set_tile_type(column, row, 0)
         ########################################################
 
+        finish_turn = True
         # Turn is over
         return finish_turn
+
+    def determine_tile_from_mouse_position(self, mouse_position):
+        """
+        To get position relative to map, we must subtract the
+        offset from the mouse position. Dividing by the tile
+        size gives us the clicked tile.
+        
+        Arguments:
+            mouse_position {(float, float)} -- Position (x, y) of mouse on game window in pixels
+
+        Returns:
+            tile_position {(int, int)} -- Column and row of tile on grid
+        """
+        mouse_x, mouse_y = mouse_position
+        offset_x, offset_y = self.get_rect().topleft
+
+        col = (mouse_x - offset_x) // (self.tile_w + self.margin)
+        row = (mouse_y - offset_y) // (self.tile_h + self.margin)
+
+        return (col, row)
 
     def draw(self):
         """
@@ -141,8 +146,9 @@ class Map:
         for row in range(self.grid.rows):
             for col in range(self.grid.cols):
 
-                tile_type = self.grid.get_tile_type(col, row)
                 unit_type = self.grid.get_unit_type(col, row)
+                unit = self.get_unit_by_type(unit_type)
+                tile_type = self.grid.get_tile_type(col, row)
 
                 # Determine color of tiles
                 tile_color = colors.darkgray
@@ -163,45 +169,46 @@ class Map:
                 # using tile's rect as reference
                 unit_color = colors.white
                 pointlist = None
-                if unit_type == 1 or unit_type == 4:
-                    # Green triangle
-                    unit_color = colors.darkgreen
-                    pointlist = [
-                        rect.midtop,
-                        rect.bottomleft,
-                        rect.bottomright
-                    ]
-                elif unit_type == 2 or unit_type == 5:
-                    # Red diamond
-                    unit_color = colors.darkred
-                    pointlist = [
-                        rect.midtop,
-                        rect.midleft,
-                        rect.midbottom,
-                        rect.midright
-                    ]
-                elif unit_type == 3 or unit_type == 6:
-                    # Blue circle
-                    unit_color = colors.darkblue
-                    pos = rect.center
-                    radius = rect.width / 2
+                if unit is not None:
+                    if unit.is_triangle():
+                        # Green triangle
+                        unit_color = colors.darkgreen
+                        pointlist = [
+                            rect.midtop,
+                            rect.bottomleft,
+                            rect.bottomright
+                        ]
+                    elif unit.is_diamond():
+                        # Red diamond
+                        unit_color = colors.darkred
+                        pointlist = [
+                            rect.midtop,
+                            rect.midleft,
+                            rect.midbottom,
+                            rect.midright
+                        ]
+                    elif unit.is_circle():
+                        # Blue circle
+                        unit_color = colors.darkblue
+                        pos = rect.center
+                        radius = rect.width / 2
 
-                # Draw unit
-                if unit_color == colors.white:
-                    continue # No unit in this tile
-                if pointlist is not None:
-                    pygame.draw.polygon(
-                        self.surface,
-                        unit_color,
-                        pointlist
-                    )
-                else:
-                    pygame.draw.circle(
-                        self.surface,
-                        unit_color,
-                        pos,
-                        int(radius)
-                    )
+                    # Draw unit
+                    if unit_color == colors.white:
+                        continue # No unit in this tile
+                    if pointlist is not None:
+                        pygame.draw.polygon(
+                            self.surface,
+                            unit_color,
+                            pointlist
+                        )
+                    else:
+                        pygame.draw.circle(
+                            self.surface,
+                            unit_color,
+                            pos,
+                            int(radius)
+                        )
 
     def get_rect(self):
         """
@@ -223,27 +230,27 @@ class Map:
             col {int}   -- A column on the grid
             row {int}   -- A row on the grid
             unit_type {int} -- The unit to place
-
-        Returns:
-            {unit_type : [x,y]} -- Dict representing move
         """
-
-        move = None
+        unit = self.get_unit_by_type(unit_type)
 
         if self.grid.get_unit_type(col, row) == 0:
             self.grid.set_unit_type(col, row, unit_type)
+            unit.pos = [col, row]
             move = {unit_type : [col, row]}
-
-            # Update pos attribute of unit object
-            for unit in self.player_units:
-                if unit.unit_type == unit_type:
-                    unit.pos = [col, row]
-
-        return move
+            self.network.send_move(move)
 
     def attack(self, col, row, unit):
         pass
 
+
+    def get_unit_by_type(self, unit_type):
+        target_unit = None
+        for unit in self.player_units:
+            if unit.unit_type == unit_type:
+                target_unit = unit
+                break
+
+        return target_unit
 
     def initialize_units(self):
         """

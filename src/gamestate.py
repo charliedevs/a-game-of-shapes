@@ -32,11 +32,11 @@ class GameState:
         return self.turn[player_num]
     
     def change_turns(self):
-        for player, is_turn in turn.items():
+        for player, is_turn in self.turn.items():
             if is_turn:
-                turn[player] = False
+                self.turn[player] = False
             else:
-                turn[player] = True
+                self.turn[player] = True
 
     def move(self, move):
         # move is {unit_type : [col, row]}
