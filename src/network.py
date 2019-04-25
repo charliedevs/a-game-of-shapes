@@ -67,7 +67,7 @@ class Network:
             {object} -- An object loaded from pickle
         """
         try:
-            decrypted_data = decrypt(self.CLIENT.recv(1024))
+            decrypted_data = decrypt(self.CLIENT.recv(2048))
             return pickle.loads(decrypted_data)
         except socket.error as e:
             print(str(e))
@@ -75,7 +75,7 @@ class Network:
 
     def receive(self):
         try:
-            decrypted_data = decrypt(self.CLIENT.recv(2014))
+            decrypted_data = decrypt(self.CLIENT.recv(2048))
             data = decrypted_data.decode()
             return data
         except socket.error as e:

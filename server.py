@@ -172,7 +172,7 @@ def send_gamestate(gamestate, connection):
 def receive(connection):
     # Receive data from client
     try:
-        decrypted_reply = decrypt(connection.recv(1024))
+        decrypted_reply = decrypt(connection.recv(2048))
         reply = decrypted_reply.decode()
         return reply
     except socket.error as e:
@@ -186,7 +186,7 @@ def receive(connection):
 def receive_pickle(connection):
     # Receive pickle object
     try:
-        decrypted_reply = decrypt(connection.recv(1024))
+        decrypted_reply = decrypt(connection.recv(2048))
         reply = pickle.loads(decrypted_reply)
         return reply
     except socket.error as e:

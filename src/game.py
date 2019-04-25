@@ -49,10 +49,6 @@ class Game:
         self.player_num = self.network.get_player_num()
         print("You are player", self.player_num)
 
-        # Represents the state of game
-        # Created by server and sent to clients
-        self.gamestate = None
-
         # Set up display window
         pygame.display.set_caption('Strategy')
         screen_res = (WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -62,6 +58,10 @@ class Game:
         # Set up gameplay map
         self.map = Map(self.screen, self.network, self.player_num)
 
+        # Represents the state of game
+        # Modified by server and sent to clients
+        self.gamestate = self.network.get_gamestate()
+
         # List of buttons currently on screen
         self.buttons = []
         # connect_button = Button(self.screen, (200, 300, 150, 30), action=lambda : print('Hi'), text="Connect")
@@ -70,7 +70,7 @@ class Game:
         # Clock tracks time from beginning of game
         self.clock = pygame.time.Clock()
 
-        self.mousepos = pygame.mouse.get_pos()
+        self.mouse_position = pygame.mouse.get_pos()
 
         # Show waiting screen until other player connects
         self.waiting_screen()
@@ -108,8 +108,8 @@ class Game:
 
             # User hovers over tile
             if event.type == pygame.MOUSEMOTION:
-                if self.map.get_rect().collidepoint(self.mousepos):
-                    self.map.handle_hover(self.mousepos)
+                if self.map.get_rect().collidepoint(self.mouse_position):
+                    self.map.handle_hover(self.mouse_position)
 
             # Only process clicks if it's this player's turn
             if self.gamestate.is_players_turn(self.player_num):
@@ -117,32 +117,37 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for button in self.buttons:
                         # Mouse clicks button
-                        if button.get_rect().collidepoint(self.mousepos):
+                        if button.get_rect().collidepoint(self.mouse_position):
                             button.handle_click(self.network)
                     # Mouse clicks on game board
-                    if self.map.get_rect().collidepoint(self.mousepos):
-                        finish_turn = self.map.handle_click(self.mousepos, self.network)
+                    if self.map.get_rect().collidepoint(self.mouse_position):
+                        finish_turn = self.map.handle_click(self.mouse_position)
             else: # Other player's turn
-                pass
+                self.update_gamestate()
 
         if finish_turn:
             self.network.send_command("end_turn")
+            self.gamestate.change_turns()
 
     def update(self):
         """
         Update variables that change every frame.
         """
         self.ttime = self.clock.tick(30)
-        self.mousepos = pygame.mouse.get_pos()
+        self.mouse_position = pygame.mouse.get_pos()
+
+
+    def update_gamestate(self):
         new_gamestate = self.network.get_gamestate()
 
-        # Update map with any moved units
-        for unit_type, location in new_gamestate.locations.items():
-            if location != self.gamestate.locations[unit_type]:
-                col, row = location
-                self.map.move(unit_type, col, row)
+        if new_gamestate is not None and new_gamestate != self.gamestate:
+            self.gamestate = new_gamestate
+            # TODO: Move to separate function
+            # Update map with any moved units
+            for unit_type, location in self.gamestate.locations.items():
+                    col, row = location
+                    self.map.move(unit_type, col, row)
 
-        self.gamestate = new_gamestate
 
     def draw(self):
         """
