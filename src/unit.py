@@ -85,8 +85,6 @@ class Unit:
             self.health = self.health_max
 
     def get_move_range(self, max_col, max_row):
-        # TODO: Add for loops to grab everything within range
-        #       Currently grabs tiles equidistant from the origin based on speed
         """
         Returns a list of tiles the unit can move to.
 
@@ -99,47 +97,52 @@ class Unit:
         # Unit pos is [col, row]
         range_list = []
 
-        # Add speed to col i.e. right
-        possible_pos = [self.pos[0] + self.speed, self.pos[1]]
-        if not possible_pos[0] >= max_col:
-            range_list.append(possible_pos)
+        # Loop for range of points within speed
+        for s in range(1, self.speed + 1):
+            # Add speed to col i.e. right
+            possible_pos = [self.pos[0] + s, self.pos[1]]
+            if not possible_pos[0] >= max_col:
+                range_list.append(possible_pos)
 
-        # Subtract speed from col i.e. left
-        possible_pos = [self.pos[0] - self.speed, self.pos[1]]
-        if not possible_pos[0] < 0:
-            range_list.append(possible_pos)
+            # Subtract speed from col i.e. left
+            possible_pos = [self.pos[0] - s, self.pos[1]]
+            if not possible_pos[0] < 0:
+                range_list.append(possible_pos)
 
-        # Add speed to row i.e. down
-        possible_pos = [self.pos[0], self.pos[1] + self.speed]
-        if not possible_pos[1] >= max_row:
-            range_list.append(possible_pos)
+            # Add speed to row i.e. down
+            possible_pos = [self.pos[0], self.pos[1] + s]
+            if not possible_pos[1] >= max_row:
+                range_list.append(possible_pos)
 
-        # Subtract speed from row i.e. up
-        possible_pos = [self.pos[0], self.pos[1] - self.speed]
-        if not possible_pos[1] < 0:
-            range_list.append(possible_pos)
+            # Subtract speed from row i.e. up
+            possible_pos = [self.pos[0], self.pos[1] - s]
+            if not possible_pos[1] < 0:
+                range_list.append(possible_pos)
 
-        # Add speed to col and row i.e. bottom right
-        possible_pos = [self.pos[0] + self.speed, self.pos[1] + self.speed]
-        if not (possible_pos[0] >= max_col or possible_pos[1] >= max_row):
-            range_list.append(possible_pos)
+            # Loop for corners and inbetweens
+            for i in range(1, self.speed + 1):
+                # Add speed to col and row i.e. bottom right
+                possible_pos = [self.pos[0] + s, self.pos[1] + i]
+                if not (possible_pos[0] >= max_col or possible_pos[1] >= max_row):
+                    range_list.append(possible_pos)
 
-        # Subtract speed to col and row i.e. top left
-        possible_pos = [self.pos[0] - self.speed, self.pos[1] - self.speed]
-        if not (possible_pos[0] < 0 or possible_pos[1] < 0):
-            range_list.append(possible_pos)
-        
-        # i.e. top right
-        possible_pos = [self.pos[0] + self.speed, self.pos[1] - self.speed]
-        if not (possible_pos[0] >= max_col or possible_pos[1] < 0):
-            range_list.append(possible_pos)
-        
-         # i.e. bottom left
-        possible_pos = [self.pos[0] - self.speed, self.pos[1] + self.speed]
-        if not (possible_pos[0] < 0 or possible_pos[1] <= max_row):
-            range_list.append(possible_pos)
+                # Subtract speed to col and row i.e. top left
+                possible_pos = [self.pos[0] - s, self.pos[1] - i]
+                if not (possible_pos[0] < 0 or possible_pos[1] < 0):
+                    range_list.append(possible_pos)
+                
+                # i.e. top right
+                possible_pos = [self.pos[0] + s, self.pos[1] - i]
+                if not (possible_pos[0] >= max_col or possible_pos[1] < 0):
+                    range_list.append(possible_pos)
+                
+                # i.e. bottom left
+                possible_pos = [self.pos[0] - s, self.pos[1] + i]
+                if not (possible_pos[0] < 0 or possible_pos[1] >= max_row):
+                    range_list.append(possible_pos)
 
         return range_list
+
 
     def is_triangle(self):
         return self.unit_type == P1_TRIANGLE or self.unit_type == P2_TRIANGLE
