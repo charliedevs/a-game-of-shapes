@@ -18,6 +18,8 @@ from src.encryption import encrypt, decrypt
 # Number of clients connected
 client_count = 0
 
+lock = threading.Lock()
+
 # Global gamestate object holding
 # positions of player units and
 # other game information.
@@ -71,14 +73,13 @@ def start_server():
             else:
                 # One client already connected so
                 # this connection will be player 2
-                gamestate.ready = True
                 player_num = 2
 
             # Create thread to handle client
             t = threading.Thread(target=client_thread, args=(connection, player_num))
             t.start()
 
-        if client_count < 2 and gamestate.connected():
+        if client_count < 2 and gamestate.ready():
             # Game over, exit loop
             break
 
@@ -122,9 +123,20 @@ def client_thread(connection, player_num):
                 move = receive_pickle(connection)
                 print("Player {} move: {}".format(player_num, move))
                 gamestate.move(move)
+            elif data == "movelist":
+                send_data("ok", connection)
+                movelist = receive_pickle(connection)
+                for move in movelist:
+                    print("Player {} move: {}".format(player_num, move))
+                    gamestate.move(move)
             elif data == "attack":
                 attack = receive_pickle(connection)
                 print(attack)
+            elif data == "request_turn":
+                turn = gamestate.get_turn()
+                send_data(turn, connection)
+            elif data == "start":
+                gamestate.set_ready(player_num)
             elif data == "reset":
                 gamestate.reset()
             elif data == "end_turn":

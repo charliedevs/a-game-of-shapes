@@ -74,7 +74,8 @@ class Map:
         self.surface = self.screen.subsurface(map_rect)
 
         # Set up player units
-        self.player_units = []
+        self.all_units = []
+        self.players_units = []
         self.initialize_units()
 
 
@@ -245,8 +246,8 @@ class Map:
 
     def get_unit_by_type(self, unit_type):
         target_unit = None
-        for unit in self.player_units:
-            if unit.unit_type == unit_type:
+        for unit in self.all_units:
+            if unit.type == unit_type:
                 target_unit = unit
                 break
 
@@ -259,20 +260,36 @@ class Map:
         # Create Unit objects and add to list
         total_units = (2 * MAX_UNITS)
         for unit_type in range(1, total_units + 1):
-            player_unit = Unit(unit_type)
-            self.player_units.append(player_unit)
+            unit = Unit(unit_type)
+            self.all_units.append(unit)
+
+        # Determine this player's units
+        for unit in self.all_units:
+            if unit.is_players_unit(self.player_num):
+                self.players_units.append(unit)
 
         # Place units on grid
-        col = 0
-        row = 0
-        for unit in self.player_units:
-            if unit.unit_type == 4:
-                # Place player 2's units (4-6) on rhs
-                col = self.grid.cols - 1
-                row = 0
-            self.move(unit.unit_type, col, row)
-            # Place units on separate rows
-            row += (self.grid.rows // 2) - 1
+        left_column = 0
+        right_column = self.grid.cols -1
+        top_row = 0
+        middle_row = self.grid.rows // 2
+        bottom_row = self.grid.rows - 1
+        positions = {
+            1 : (left_column, top_row),
+            2 : (left_column, middle_row),
+            3 : (left_column, bottom_row),
+            4 : (right_column, top_row),
+            5 : (right_column, middle_row),
+            6 : (right_column, bottom_row)
+        }
+        movelist = []
+        for unit in self.all_units:
+            col, row = positions[unit.type]
+            unit.pos = [col, row]
+            self.grid.set_unit_type(col, row, unit.type)
+            movelist.append({unit_type : [col, row]})
+
+        self.network.send_movelist(movelist)
 
     def clear(self):
         # Resets the map.

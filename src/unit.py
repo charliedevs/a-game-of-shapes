@@ -35,7 +35,7 @@ class Unit:
         Arguments:
             unit_type -- Determines player number and unit attributes
         """
-        self.unit_type = unit_type
+        self.type = unit_type
 
         # Determine unit attributes
         health, attack_power, speed = 0, 0, 0
@@ -142,10 +142,18 @@ class Unit:
         return range_list
 
     def is_triangle(self):
-        return self.unit_type == P1_TRIANGLE or self.unit_type == P2_TRIANGLE
+        return self.type == P1_TRIANGLE or self.type == P2_TRIANGLE
 
     def is_diamond(self):
-        return self.unit_type == P1_DIAMOND or self.unit_type == P2_DIAMOND
+        return self.type == P1_DIAMOND or self.type == P2_DIAMOND
 
     def is_circle(self):
-        return self.unit_type == P1_CIRCLE or self.unit_type == P2_CIRCLE
+        return self.type == P1_CIRCLE or self.type == P2_CIRCLE
+
+    def is_players_unit(self, player_num):
+        if self.type in range(1, 4) and player_num == 1:
+            return True
+        if self.type in range(4, 7) and player_num == 2:
+            return True
+
+        return False

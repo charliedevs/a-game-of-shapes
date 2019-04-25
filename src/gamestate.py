@@ -9,7 +9,7 @@ class GameState:
 
     def __init__(self):
         # Set to true if two clients are connected
-        self.ready = False
+        self.ready_state = {1 : False, 2 : False}
 
         # Keeps track of player turn
         self.turn = {1 : True, 2 : False}
@@ -25,11 +25,15 @@ class GameState:
             6 : None
         }
 
-    def connected(self):
-        return self.ready
-
     def is_players_turn(self, player_num):
         return self.turn[player_num]
+
+    def get_turn(self):
+        players_turn = 0
+        for player, is_turn in self.turn.items():
+            if is_turn:
+                players_turn = player
+        return players_turn
     
     def change_turns(self):
         for player, is_turn in self.turn.items():
@@ -42,6 +46,13 @@ class GameState:
         # move is {unit_type : [col, row]}
         unit_type, pos = move.popitem()
         self.locations[unit_type] = pos
+
+    def set_ready(self, player_num):
+        self.ready_state[player_num] = True
+
+    def ready(self):
+        return all(ready for ready in self.ready_state.values())
+            
 
     def winner(self):
         pass

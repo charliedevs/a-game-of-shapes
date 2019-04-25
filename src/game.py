@@ -123,7 +123,9 @@ class Game:
                     if self.map.get_rect().collidepoint(self.mouse_position):
                         finish_turn = self.map.handle_click(self.mouse_position)
             else: # Other player's turn
-                self.update_gamestate()
+                players_turn = self.network.request_turn()
+                if players_turn == self.player_num:
+                    self.update_gamestate()
 
         if finish_turn:
             self.network.send_command("end_turn")
@@ -139,9 +141,8 @@ class Game:
 
     def update_gamestate(self):
         new_gamestate = self.network.get_gamestate()
-
-        if new_gamestate is not None and new_gamestate != self.gamestate:
-            self.gamestate = new_gamestate
+        self.gamestate = new_gamestate
+        if new_gamestate.locations != self.gamestate.locations:
             # TODO: Move to separate function
             # Update map with any moved units
             for unit_type, location in self.gamestate.locations.items():
@@ -171,8 +172,9 @@ class Game:
         Displays a waiting message until
         other client connects.
         """
+        self.network.send_command("start")
         self.gamestate = self.network.get_gamestate()
-        while not self.gamestate.connected():
+        while not self.gamestate.ready():
             events = pygame.event.get()
 
             for event in events:

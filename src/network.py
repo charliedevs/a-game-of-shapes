@@ -33,6 +33,25 @@ class Network:
         self.send_command("get")
         return self.receive_pickle()
 
+    def send_move(self, move):
+        self.send_command("move")
+        reply = self.receive()
+        self.send_pickle(move)
+
+    def send_movelist(self, movelist):
+        self.send_command("movelist")
+        reply = self.receive() # Check for reply?
+        self.send_pickle(movelist)
+
+    def send_attack(self, attack):
+        self.send_command("attack")
+        self.send_pickle(attack)
+
+    def request_turn(self):
+        self.send_command("request_turn")
+        turn = self.receive_integer()
+        return turn
+
     def send_command(self, data):
         # Send data to server
         try:
@@ -49,15 +68,6 @@ class Network:
             self.CLIENT.sendall(encrypted_data)
         except socket.error as e:
             print(str(e))
-
-    def send_move(self, move):
-        self.send_command("move")
-        if self.receive() == "ok":
-            self.send_pickle(move)
-
-    def send_attack(self, attack):
-        self.send_command("attack")
-        self.send_pickle(attack)
 
     def receive_pickle(self):
         """
@@ -82,7 +92,7 @@ class Network:
             print(str(e))
             return None
 
-    def receive_player_num(self):
+    def receive_integer(self):
         try:
             player_num = int(self.receive())
             return player_num
@@ -93,7 +103,7 @@ class Network:
     def connect(self):
          # Connect to server
         self.CLIENT.connect(self.ADDR)
-        self.player_num = self.receive_player_num()
+        self.player_num = self.receive_integer()
         print("Connected to server:", self.HOST)
 
     def get_player_num(self):
