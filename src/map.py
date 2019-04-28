@@ -84,13 +84,27 @@ class Map:
         # highlights tile hovered over
         pass
 
-    def handle_click(self, mouse_position):
+    def handle_move()
+    def handle_click(self, mouse_position, turn):
         """
         Process user clicks on game tiles.
 
         Arguments:
             mouse_position {(float, float)} -- The (x, y) position of mouse on window
+            turn {dict} -- Contains keys move and attack. Both are lists: [unit_type, col, row]
         """
+
+        if not self.get_rect().collidepoint(mouse_position):
+            return turn
+
+        # If player hasn't moved yet
+        if turn[move] is None:
+            # handle moving
+        elif turn[attack] is None:
+            # handle attacking
+
+
+
 
         column, row = self.determine_tile_from_mouse_position(mouse_position)
         print("[Debug]: Click", mouse_position, "Grid coords:", column, row)
@@ -303,6 +317,12 @@ class Map:
             movelist.append({unit_type : [col, row]})
 
         self.network.send_movelist(movelist)
+
+    def mouse_position_inside_map(mouse_position):
+        """
+        Returns true if mouse is positioned over map.
+        """
+        return self.get_rect().collidepoint(mouse_position)
 
     def clear(self):
         # Resets the map.

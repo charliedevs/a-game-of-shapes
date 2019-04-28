@@ -62,6 +62,13 @@ class Game:
         # Modified by server and sent to clients
         self.gamestate = self.network.get_gamestate()
 
+        # Effects of turn that are sent across network
+        # If None, no move/attack was made
+        self.turn = {
+            move : None,
+            attack : None
+        }
+
         # List of buttons currently on screen
         self.buttons = []
         # connect_button = Button(self.screen, (200, 300, 150, 30), action=lambda : print('Hi'), text="Connect")
@@ -111,17 +118,16 @@ class Game:
                 if self.map.get_rect().collidepoint(self.mouse_position):
                     self.map.handle_hover(self.mouse_position)
 
+            #TODO: just send click into map and check inside there
             # Only process clicks if it's this player's turn
             if self.gamestate.is_players_turn(self.player_num):
-                # User clicks mouse
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for button in self.buttons:
                         # Mouse clicks button
                         if button.get_rect().collidepoint(self.mouse_position):
                             button.handle_click(self.network)
                     # Mouse clicks on game board
-                    if self.map.get_rect().collidepoint(self.mouse_position):
-                        finish_turn = self.map.handle_click(self.mouse_position)
+                    self.turn = self.map.handle_click(self.mouse_position, self.turn)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         #TODO: end turn on space key press
@@ -132,6 +138,7 @@ class Game:
                     self.update_gamestate()
 
         if finish_turn:
+            # self.network.send_turn(self.turn)
             self.network.send_command("end_turn")
             self.gamestate.change_turns()
 
