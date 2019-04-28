@@ -100,9 +100,19 @@ class Map:
         # TODO: Handle moves and send to network
 
         # if clicked on unit:
+        for unit in self.players_units:
+            if unit.pos == [column, row]:
+                tile_list = unit.get_move_range(self.grid.cols, self.grid.rows)
+                print(tile_list)
+                for tile in tile_list:
+                    col = tile[0]
+                    row = tile[1]
+                    self.grid.set_tile_type(col, row, 2)
+                    
         #     change color of tiles around unit to matching speed
 
         ########################################################
+        '''
         # Changes color on click
         if self.grid.get_tile_type(column, row) == 0:
             self.grid.set_tile_type(column, row, 1)
@@ -110,6 +120,7 @@ class Map:
             self.grid.set_tile_type(column, row, 2)
         else:
             self.grid.set_tile_type(column, row, 0)
+        '''
         ########################################################
 
         finish_turn = True
@@ -157,6 +168,8 @@ class Map:
                     tile_color = colors.green
                 elif tile_type == 2:
                     tile_color = colors.red
+                elif tile_color == 3:
+                    tile_color == colors.yellow
 
                 # Display tiles
                 rect = pygame.draw.rect(self.surface,

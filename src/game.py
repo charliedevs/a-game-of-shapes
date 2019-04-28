@@ -73,7 +73,7 @@ class Game:
         self.mouse_position = pygame.mouse.get_pos()
 
         # Show waiting screen until other player connects
-        self.waiting_screen()
+        #self.waiting_screen()
         # Start the game
         self.game_loop()
 
@@ -122,6 +122,10 @@ class Game:
                     # Mouse clicks on game board
                     if self.map.get_rect().collidepoint(self.mouse_position):
                         finish_turn = self.map.handle_click(self.mouse_position)
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        #TODO: end turn on space key press
+                        pass
             else: # Other player's turn
                 players_turn = self.network.request_turn()
                 if players_turn == self.player_num:
