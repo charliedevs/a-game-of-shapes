@@ -73,7 +73,6 @@ class Game:
         is_turn = self.gamestate.is_players_turn(self.player_num)
 
         # Effects of turn that are sent across network
-        # If None, no move/attack was made
         self.turn = {
             "move" : None,
             "attack" : None,
@@ -82,11 +81,6 @@ class Game:
 
         if is_turn:
             self.turn["phase"] = SHOW_MOVE_RANGE
-
-        # List of buttons currently on screen
-        self.buttons = []
-        # connect_button = Button(self.screen, (200, 300, 150, 30), action=lambda : print('Hi'), text="Connect")
-        # self.buttons.append(connect_button)
 
         # Clock tracks time from beginning of game
         self.clock = pygame.time.Clock()
@@ -115,9 +109,6 @@ class Game:
         Events include mouse clicks
         and keyboard presses.
         """
-        # finish_turn is true when current player's turn ends
-        finish_turn = False
-
         events = pygame.event.get()
         for event in events:
             # Client closes window
