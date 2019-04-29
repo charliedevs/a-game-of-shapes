@@ -41,23 +41,23 @@ class Unit:
         health, attack_power, speed, attack_range = 0, 0, 0, 0
 
         if self.is_triangle():
-            health = 8
+            max_health = 8
             attack_power = 1
             attack_range = 3
             speed = 5
         elif self.is_diamond():
-            health = 10
+            max_health = 10
             attack_power = 3
             attack_range = 1
             speed = 2
         elif self.is_circle():
-            health = 6
+            max_health = 6
             attack_power = 4
             attack_range = 1
             speed = 3
 
-        self.health = health
-        self.health_max = health + 1
+        self.max_health = max_health
+        self.health = max_health
         self.attack_power = attack_power
         self.attack_range = attack_range
         self.speed = speed
