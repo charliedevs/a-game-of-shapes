@@ -20,6 +20,13 @@ TILE_MARGIN = 2
 # Units per player
 MAX_UNITS = 3
 
+# Move phases
+NOT_TURN = 0
+SHOW_MOVE_RANGE = 1
+MOVING = 2
+ATTACKING = 3
+END_TURN = 4
+
 #########################################################################
 
 
@@ -33,19 +40,17 @@ class Map:
 
     """
 
-    def __init__(self, screen, network, player_num):
+    def __init__(self, screen, player_num):
         """
         Set up tile grid and units.
 
         
         Arguments:
             screen {pygame.Surface} -- The main display window
-            network {Network} -- Connection to the server
             player_num {int} -- The player identifier; 1 or 2
         """
 
         self.screen = screen
-        self.network = network
         self.player_num = player_num
 
         # The grid is a 2D array with columns and rows
@@ -84,7 +89,17 @@ class Map:
         # highlights tile hovered over
         pass
 
-    def handle_move()
+    def highlight_tiles(self, column, row, tile_type):
+        # if clicked on unit:
+        for unit in self.players_units:
+            if unit.pos == [column, row]:
+                movable_list = unit.get_range("move", self.grid.cols, self.grid.rows)
+                print(movable_list)
+                for position in movable_list:
+                    col = position[0]
+                    row = position[1]
+                    self.grid.set_tile_type(col, row, tile_type)
+
     def handle_click(self, mouse_position, turn):
         """
         Process user clicks on game tiles.
@@ -94,52 +109,37 @@ class Map:
             turn {dict} -- Contains keys move and attack. Both are lists: [unit_type, col, row]
         """
 
-        if not self.get_rect().collidepoint(mouse_position):
+        if not self.mouse_position_inside_map(mouse_position):
             return turn
-
-        # If player hasn't moved yet
-        if turn[move] is None:
-            # handle moving
-        elif turn[attack] is None:
-            # handle attacking
-
-
-
 
         column, row = self.determine_tile_from_mouse_position(mouse_position)
         print("[Debug]: Click", mouse_position, "Grid coords:", column, row)
 
-        # Set to True if turn ends
-        finish_turn = False
-        # TODO: Handle moves and send to network
+        # If player hasn't moved yet
+        if turn["phase"] == SHOW_MOVE_RANGE:
+            self.highlight_tiles(column, row, 3)
+            turn["phase"] == MOVING
+            # handle moving
+        elif turn["phase"] == MOVING:
+            #TODO: once click on unit, this unit has to be moved. might need to change in future if possible
+            # process clicks as moves
+            if self.grid.get_tile_type(column, row) == 3:# 3 == movable
+                movable_unit = self.get_movable_unit()
+                if movable_unit.pos == [column, row]:
+                    turn["phase"] = SHOW_MOVE_RANGE
+                else:
+                    move = self.move(movable_unit, column, row)
+                    turn["move"] = move
+                    turn["phase"] = ATTACKING
+                # remove highlight coloring
+                self.highlight_tiles(column, row, 0)
 
-        # if clicked on unit:
-        for unit in self.players_units:
-            if unit.pos == [column, row]:
-                tile_list = unit.get_move_range(self.grid.cols, self.grid.rows)
-                print(tile_list)
-                for tile in tile_list:
-                    col = tile[0]
-                    row = tile[1]
-                    self.grid.set_tile_type(col, row, 2)
-                    
-        #     change color of tiles around unit to matching speed
+        elif turn["phase"] == ATTACKING:
+            # show attackable range
+            # if enemy in attackable range, process click in range as attack on enemy
+            turn["phase"] = END_TURN
 
-        ########################################################
-        '''
-        # Changes color on click
-        if self.grid.get_tile_type(column, row) == 0:
-            self.grid.set_tile_type(column, row, 1)
-        elif self.grid.get_tile_type(column, row) == 1:
-            self.grid.set_tile_type(column, row, 2)
-        else:
-            self.grid.set_tile_type(column, row, 0)
-        '''
-        ########################################################
-
-        finish_turn = True
-        # Turn is over
-        return finish_turn
+        return turn
 
     def determine_tile_from_mouse_position(self, mouse_position):
         """
@@ -160,6 +160,16 @@ class Map:
         row = (mouse_y - offset_y) // (self.tile_h + self.margin)
 
         return (col, row)
+
+    def get_movable_unit(self):
+        movable_unit = None
+        for unit in self.players_units:
+            # if tile of unit is in movable range
+            if self.grid.get_tile_type(unit.pos[0], unit.pos[1]) == 3:
+                movable_unit = unit
+
+        return movable_unit
+
 
     def draw(self):
         """
@@ -182,8 +192,8 @@ class Map:
                     tile_color = colors.green
                 elif tile_type == 2:
                     tile_color = colors.red
-                elif tile_color == 3:
-                    tile_color == colors.yellow
+                elif tile_type == 3:
+                    tile_color = colors.yellow
 
                 # Display tiles
                 rect = pygame.draw.rect(self.surface,
@@ -250,22 +260,21 @@ class Map:
         w, h = self.map_size
         return pygame.Rect(x, y, w, h)
 
-    def move(self, unit_type, col, row):
+    def move(self, unit, col, row):
         """
         Move unit to given location if possible.
 
         Arguments:
+            unit {Unit} -- The unit to move
             col {int}   -- A column on the grid
             row {int}   -- A row on the grid
-            unit_type {int} -- The unit to place
         """
-        unit = self.get_unit_by_type(unit_type)
-
         if self.grid.get_unit_type(col, row) == 0:
-            self.grid.set_unit_type(col, row, unit_type)
+            self.grid.set_unit_type(col, row, unit.type)
             unit.pos = [col, row]
-            move = {unit_type : [col, row]}
-            self.network.send_move(move)
+            move = [unit.type, col, row]
+
+        return move
 
     def attack(self, col, row, unit):
         pass
@@ -309,16 +318,12 @@ class Map:
             5 : (right_column, middle_row),
             6 : (right_column, bottom_row)
         }
-        movelist = []
         for unit in self.all_units:
             col, row = positions[unit.type]
             unit.pos = [col, row]
             self.grid.set_unit_type(col, row, unit.type)
-            movelist.append({unit_type : [col, row]})
 
-        self.network.send_movelist(movelist)
-
-    def mouse_position_inside_map(mouse_position):
+    def mouse_position_inside_map(self, mouse_position):
         """
         Returns true if mouse is positioned over map.
         """

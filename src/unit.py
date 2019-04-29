@@ -38,7 +38,7 @@ class Unit:
         self.type = unit_type
 
         # Determine unit attributes
-        health, attack_power, speed, attack_range = 0, 0, 0
+        health, attack_power, speed, attack_range = 0, 0, 0, 0
 
         if self.is_triangle():
             health = 8

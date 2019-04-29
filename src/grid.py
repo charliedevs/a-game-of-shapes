@@ -32,7 +32,7 @@ class Grid:
         0 is blank
         1 is health
         2 is harm
-        3 is slowdown
+        3 is movable
 
     unit_type {int} --
         0 is empty

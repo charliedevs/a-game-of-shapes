@@ -42,17 +42,19 @@ class GameState:
             else:
                 self.turn[player] = True
 
-    def move(self, move):
-        # move is {unit_type : [col, row]}
-        unit_type, pos = move.popitem()
-        self.locations[unit_type] = pos
+    def move_unit(self, move):
+        # move is [unit_type, col, row]
+        unit_type, col, row = move
+        self.locations[unit_type] = [col, row]
+
+    def attack_unit(self, attack):
+        pass
 
     def set_ready(self, player_num):
         self.ready_state[player_num] = True
 
     def ready(self):
         return all(ready for ready in self.ready_state.values())
-            
 
     def winner(self):
         pass

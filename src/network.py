@@ -33,19 +33,15 @@ class Network:
         self.send_command("get")
         return self.receive_pickle()
 
-    def send_move(self, move):
-        self.send_command("move")
-        reply = self.receive()
-        self.send_pickle(move)
-
     def send_movelist(self, movelist):
         self.send_command("movelist")
         reply = self.receive() # Check for reply?
         self.send_pickle(movelist)
 
-    def send_attack(self, attack):
-        self.send_command("attack")
-        self.send_pickle(attack)
+    def send_turn(self, turn):
+        self.send_command("turn")
+        reply = self.receive() # Check for reply?
+        self.send_pickle(turn)
 
     def request_turn(self):
         self.send_command("request_turn")
@@ -59,7 +55,6 @@ class Network:
             self.CLIENT.sendall(encrypted_data)
         except socket.error as e:
             print(str(e))
-
     def send_pickle(self, data):
         # Send move or attack to server
         data_pickle = pickle.dumps(data)
