@@ -59,10 +59,14 @@ class Game:
         print("You are player", self.player_num)
 
         # Set up display window
-        pygame.display.set_caption('Strategy')
+        pygame.display.set_caption("Strategy Game")     # NOTE: Display player num here?
         screen_res = (WINDOW_WIDTH, WINDOW_HEIGHT)
         self.screen = pygame.display.set_mode(
             screen_res, flags=pygame.RESIZABLE)
+        
+        # Set up font
+        pygame.font.init()
+        self.game_font = pygame.font.SysFont("Comic Sans MS", 60)
 
         # Set up gameplay map
         self.map = Map(self.screen, self.player_num)
@@ -184,6 +188,11 @@ class Game:
         """
         self.screen.fill(colors.lightgray)
 
+        # TODO: Player display/statistics
+        font = pygame.font.SysFont("Comic Sans MS", 25)
+        textsurface = font.render("Player: " + str(self.player_num), False, colors.white)
+        self.screen.blit(textsurface, (0, 0))
+
         # Display game board
         self.map.draw()
 
@@ -214,6 +223,11 @@ class Game:
                     sys.exit(0)
 
             self.screen.fill(colors.purple)
-            #TODO: Add text "waiting"
+
+            # Add text "waiting"
+            textsurface = self.game_font.render("Waiting...", False, colors.white)
+            text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
+            self.screen.blit(textsurface, text_rect)
+
             self.gamestate = self.network.get_gamestate()
             pygame.display.update()

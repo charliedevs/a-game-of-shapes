@@ -33,7 +33,7 @@ def get_connection():
 
     # Greate GUI
     root = tkinter.Tk()
-    root.title("A Game")
+    root.title("Strategy Game")
     root.geometry("500x500")
 
     # Textbox to get server host
