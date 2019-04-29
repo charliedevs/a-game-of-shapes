@@ -36,11 +36,8 @@ class GameState:
         return players_turn
     
     def change_turns(self):
-        for player, is_turn in self.turn.items():
-            if is_turn:
-                self.turn[player] = False
-            else:
-                self.turn[player] = True
+        self.turn[1] = not self.turn[1]
+        self.turn[2] = not self.turn[2]
 
     def move_unit(self, move):
         # move is [unit_type, col, row]

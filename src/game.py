@@ -175,14 +175,16 @@ class Game:
 
     def update_gamestate(self):
         new_gamestate = self.network.get_gamestate()
-        self.gamestate = new_gamestate
+
         if new_gamestate.locations != self.gamestate.locations:
-            # TODO: Move to separate function
             # Update map with any moved units
-            for unit_type, location in self.gamestate.locations.items():
+            for unit_type, location in new_gamestate.locations.items():
+                if location:
                     col, row = location
                     unit = self.map.get_unit_by_type(unit_type)
                     self.map.move(unit, col, row)
+
+        self.gamestate = new_gamestate
 
 
     def draw(self):

@@ -29,7 +29,6 @@ END_TURN = 4
 
 #########################################################################
 
-
 class Map:
     """
     The surface on which gameplay occurs.
@@ -141,12 +140,16 @@ class Map:
             if self.grid.get_tile_type(column, row) == 3:# 3 == movable
                 movable_unit = self.selected_unit
                 if movable_unit.pos == [column, row]:
+                    # Clicked on self
                     turn["phase"] = SHOW_MOVE_RANGE
                 else:
                     move = self.move(movable_unit, column, row)
                     if move:
                         turn["move"] = move
                         turn["phase"] = ATTACKING
+                    else:
+                        # move is invalid
+                        turn["phase"] = SHOW_MOVE_RANGE
 
                 self.remove_highlight(3) # remove movable tile
                 self.selected_unit = None
@@ -191,7 +194,9 @@ class Map:
             for col in range(self.grid.cols):
 
                 unit_type = self.grid.get_unit_type(col, row)
-                unit = self.get_unit_by_type(unit_type)
+                unit = None
+                if unit_type != 0:
+                    unit = self.get_unit_by_type(unit_type)
                 tile_type = self.grid.get_tile_type(col, row)
 
                 # Determine color of tiles
@@ -215,7 +220,7 @@ class Map:
                 # using tile's rect as reference
                 unit_color = colors.white
                 pointlist = None
-                if unit is not None:
+                if unit:
                     if unit.is_triangle():
                         # Green triangle
                         unit_color = colors.darkgreen
@@ -294,10 +299,16 @@ class Map:
 
     def get_unit_by_type(self, unit_type):
         target_unit = None
+
+        if unit_type == 0:
+            return None
+
         for unit in self.all_units:
             if unit.type == unit_type:
                 target_unit = unit
                 break
+        else:
+            print("[Error]: Could not get unit by type.")
 
         return target_unit
 
