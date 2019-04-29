@@ -38,26 +38,31 @@ class Unit:
         self.type = unit_type
 
         # Determine unit attributes
-        health, attack_power, speed = 0, 0, 0
+        health, attack_power, speed, attack_range = 0, 0, 0
 
         if self.is_triangle():
             health = 8
             attack_power = 1
+            attack_range = 3
             speed = 5
         elif self.is_diamond():
             health = 10
             attack_power = 3
+            attack_range = 1
             speed = 2
         elif self.is_circle():
             health = 6
             attack_power = 4
+            attack_range = 1
             speed = 3
 
         self.health = health
         self.health_max = health + 1
         self.attack_power = attack_power
+        self.attack_range = attack_range
         self.speed = speed
         self.is_alive = True
+        # pos = [col, row]
         self.pos = [None, None]
 
     def reduce_health(self, amount):
@@ -84,21 +89,32 @@ class Unit:
         if self.health > self.health_max:
             self.health = self.health_max
 
-    def get_move_range(self, max_col, max_row):
+    def get_range(self, range_type, max_col, max_row):
         """
         Returns a list of tiles the unit can move to.
 
         Arguments:
-            max_col {int} -- Number of columns
-            max_row {int} -- Number of rows
+            range_type {string} -- Range type to calculate (attack, move)
+            max_col {int}       -- Number of columns
+            max_row {int}       -- Number of rows
 
         """
+        #Determine range type based on input
+        if range_type == "attack":
+            unit_range = self.attack_range
+        elif range_type == "move":
+            unit_range = self.speed
+        else:
+            return []
+
         # Create list of tiles
         # Unit pos is [col, row]
         range_list = []
+        # Add current pos of unit to list
+        range_list.append(self.pos)
 
         # Loop for range of points within speed
-        for s in range(1, self.speed + 1):
+        for s in range(1, unit_range + 1):
             # Add speed to col i.e. right
             possible_pos = [self.pos[0] + s, self.pos[1]]
             if not possible_pos[0] >= max_col:
@@ -120,7 +136,7 @@ class Unit:
                 range_list.append(possible_pos)
 
             # Loop for corners and inbetweens
-            for i in range(1, self.speed + 1):
+            for i in range(1, unit_range + 1):
                 # Add speed to col and row i.e. bottom right
                 possible_pos = [self.pos[0] + s, self.pos[1] + i]
                 if not (possible_pos[0] >= max_col or possible_pos[1] >= max_row):
