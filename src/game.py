@@ -206,6 +206,7 @@ class Game:
         other client connects.
         """
         self.network.send_command("start")
+        reply = self.network.receive()
         self.gamestate = self.network.get_gamestate()
         while not self.gamestate.ready():
             events = pygame.event.get()

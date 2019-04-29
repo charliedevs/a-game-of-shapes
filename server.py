@@ -130,6 +130,7 @@ def client_thread(connection, player_num):
                 turn = gamestate.get_turn()
                 send_data(turn, connection)
             elif data == "start":
+                send_data("ok", connection)
                 gamestate.set_ready(player_num)
             elif data == "reset":
                 gamestate.reset()

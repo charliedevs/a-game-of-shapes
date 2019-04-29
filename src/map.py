@@ -93,7 +93,7 @@ class Map:
         # if clicked on unit:
         for unit in self.players_units:
             if unit.pos == [column, row]:
-                movable_list = unit.get_move_range(self.grid.cols, self.grid.rows)
+                movable_list = unit.get_range("move", self.grid.cols, self.grid.rows)
                 print(movable_list)
                 for position in movable_list:
                     col = position[0]
