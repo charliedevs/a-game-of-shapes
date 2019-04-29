@@ -181,6 +181,23 @@ class Game:
 
         self.gamestate = new_gamestate
 
+    def display_statistics(self):
+        # TODO: Player display/statistics
+        font = pygame.font.SysFont("Comic Sans MS", 25)
+
+        # Display player number
+        textsurface = font.render("Player: " + str(self.player_num), False, colors.white)
+        self.screen.blit(textsurface, [0, 0])
+
+        # Display unit statistics
+        location = [0, 0]
+        i = 0
+        for unit in self.map.players_units:
+            location[1] += 50
+            textsurface = font.render(str(unit.type) + ": " + str(unit.health), False, colors.white)
+            self.screen.blit(textsurface, location)
+            
+
 
     def draw(self):
         """
@@ -188,10 +205,8 @@ class Game:
         """
         self.screen.fill(colors.lightgray)
 
-        # TODO: Player display/statistics
-        font = pygame.font.SysFont("Comic Sans MS", 25)
-        textsurface = font.render("Player: " + str(self.player_num), False, colors.white)
-        self.screen.blit(textsurface, (0, 0))
+        # Display player statistics
+        self.display_statistics()
 
         # Display game board
         self.map.draw()

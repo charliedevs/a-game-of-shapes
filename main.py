@@ -87,8 +87,21 @@ def get_connection():
             except:
                 print("[Error]: Unable to connect to given address")
         
+    def enter(event):
+        '''
+        Handle enter key press.
+        Runs add_network().
+
+        '''
+        add_network()
+
+    # Bind enter key to function
+    root.bind("<Return>", enter)
+
     button = tkinter.Button(root, text="Connect", command=add_network)
     button.pack()
+    
+    
 
     root.mainloop()
 
