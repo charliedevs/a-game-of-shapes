@@ -118,20 +118,14 @@ def client_thread(connection, player_num):
         if data:
             if data == "get":
                 send_gamestate(gamestate, connection)
-            elif data == "move":
+            elif data == "turn":
                 send_data("ok", connection)
-                move = receive_pickle(connection)
-                print("Player {} move: {}".format(player_num, move))
-                gamestate.move(move)
-            elif data == "movelist":
-                send_data("ok", connection)
-                movelist = receive_pickle(connection)
-                for move in movelist:
-                    print("Player {} move: {}".format(player_num, move))
-                    gamestate.move(move)
-            elif data == "attack":
-                attack = receive_pickle(connection)
-                print(attack)
+                turn = receive_pickle(connection)
+                move = turn["move"]
+                gamestate.move_unit(move)
+                attack = turn["attack"]
+                if attack:
+                    gamestate.attack_unit(attack)
             elif data == "request_turn":
                 turn = gamestate.get_turn()
                 send_data(turn, connection)

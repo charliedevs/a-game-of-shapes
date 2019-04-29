@@ -22,6 +22,15 @@ WINDOW_WIDTH = 700
 WINDOW_HEIGHT = 500
 WINDOW_CENTER = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 
+# Move phases
+# TODO: if click on same unit, set phase back to show move range
+NOT_TURN = 0
+SHOW_MOVE_RANGE = 1
+MOVING = 2
+ATTACKING = 3
+END_TURN = 4
+
+
 #########################################################################
 
 
@@ -56,18 +65,23 @@ class Game:
             screen_res, flags=pygame.RESIZABLE)
 
         # Set up gameplay map
-        self.map = Map(self.screen, self.network, self.player_num)
+        self.map = Map(self.screen, self.player_num)
 
         # Represents the state of game
         # Modified by server and sent to clients
         self.gamestate = self.network.get_gamestate()
+        is_turn = self.gamestate.is_players_turn(self.player_num)
 
         # Effects of turn that are sent across network
         # If None, no move/attack was made
         self.turn = {
-            move : None,
-            attack : None
+            "move" : None,
+            "attack" : None,
+            "phase" : NOT_TURN
         }
+
+        if is_turn:
+            self.turn["phase"] = SHOW_MOVE_RANGE
 
         # List of buttons currently on screen
         self.buttons = []
@@ -80,7 +94,7 @@ class Game:
         self.mouse_position = pygame.mouse.get_pos()
 
         # Show waiting screen until other player connects
-        #self.waiting_screen()
+        self.waiting_screen()
         # Start the game
         self.game_loop()
 
@@ -118,29 +132,37 @@ class Game:
                 if self.map.get_rect().collidepoint(self.mouse_position):
                     self.map.handle_hover(self.mouse_position)
 
-            #TODO: just send click into map and check inside there
             # Only process clicks if it's this player's turn
             if self.gamestate.is_players_turn(self.player_num):
+                # User clicks button
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    for button in self.buttons:
-                        # Mouse clicks button
-                        if button.get_rect().collidepoint(self.mouse_position):
-                            button.handle_click(self.network)
-                    # Mouse clicks on game board
-                    self.turn = self.map.handle_click(self.mouse_position, self.turn)
+                    if self.turn["phase"] == SHOW_MOVE_RANGE:
+                        # show move range and stuff
+                        # Mouse clicks on game board
+                        self.turn = self.map.handle_click(self.mouse_position, self.turn)
+                    elif self.turn["phase"] == MOVING:
+                        # clicks will move unit
+                        self.turn = self.map.handle_click(self.mouse_position, self.turn)
+                    elif self.turn["phase"] == ATTACKING:
+                        # show attack range
+                        # and clicks will attack unit
+                        # if no enemy unit in attack range, end turn
+                        self.turn = self.map.handle_click(self.mouse_position, self.turn)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         #TODO: end turn on space key press
-                        pass
+                        self.turn["phase"] == END_TURN
             else: # Other player's turn
                 players_turn = self.network.request_turn()
                 if players_turn == self.player_num:
                     self.update_gamestate()
+                    self.turn["phase"] = SHOW_MOVE_RANGE
 
-        if finish_turn:
-            # self.network.send_turn(self.turn)
-            self.network.send_command("end_turn")
+        # End players turn
+        if self.turn["phase"] == END_TURN:
             self.gamestate.change_turns()
+            self.network.send_turn(self.turn)
+            self.turn["phase"] = NOT_TURN
 
     def update(self):
         """
