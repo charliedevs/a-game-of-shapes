@@ -65,6 +65,9 @@ class Map:
         self.tile_h = TILE_HEIGHT
         self.margin = TILE_MARGIN
 
+        # Keep track of unit that was last clicked on
+        self.selected_unit = None
+
         # Full map size in pixels (calculated from grid and tile sizes)
         map_w = (cols * (self.tile_w + self.margin)) + self.margin
         map_h = (rows * (self.tile_h + self.margin)) + self.margin
@@ -89,16 +92,22 @@ class Map:
         # highlights tile hovered over
         pass
 
-    def highlight_tiles(self, column, row, tile_type):
-        # if clicked on unit:
-        for unit in self.players_units:
-            if unit.pos == [column, row]:
-                movable_list = unit.get_range("move", self.grid.cols, self.grid.rows)
-                print(movable_list)
-                for position in movable_list:
-                    col = position[0]
-                    row = position[1]
-                    self.grid.set_tile_type(col, row, tile_type)
+    def highlight_tiles(self, unit, tile_type):
+        movable_list = unit.get_range("move", self.grid.cols, self.grid.rows)
+        print(movable_list)
+        for position in movable_list:
+            col = position[0]
+            row = position[1]
+            self.grid.set_tile_type(col, row, tile_type)
+
+
+    def remove_highlight(self, highlight_type):
+        for row in range(self.grid.rows):
+            for col in range(self.grid.cols):
+                tile_type = self.grid.get_tile_type(col, row)
+                if tile_type == highlight_type:
+                    self.grid.set_tile_type(col, row, 0)
+
 
     def handle_click(self, mouse_position, turn):
         """
@@ -115,24 +124,32 @@ class Map:
         column, row = self.determine_tile_from_mouse_position(mouse_position)
         print("[Debug]: Click", mouse_position, "Grid coords:", column, row)
 
+        clicked_unit = None
+        for unit in self.players_units:
+            if unit.pos == [column, row]:
+                clicked_unit = unit
+
         # If player hasn't moved yet
         if turn["phase"] == SHOW_MOVE_RANGE:
-            self.highlight_tiles(column, row, 3)
-            turn["phase"] == MOVING
-            # handle moving
+            if clicked_unit:
+                self.highlight_tiles(clicked_unit, 3)
+                self.selected_unit = clicked_unit
+                turn["phase"] = MOVING
+
+        # Player has clicked unit to move
         elif turn["phase"] == MOVING:
-            #TODO: once click on unit, this unit has to be moved. might need to change in future if possible
-            # process clicks as moves
             if self.grid.get_tile_type(column, row) == 3:# 3 == movable
-                movable_unit = self.get_movable_unit()
+                movable_unit = self.selected_unit
                 if movable_unit.pos == [column, row]:
                     turn["phase"] = SHOW_MOVE_RANGE
                 else:
                     move = self.move(movable_unit, column, row)
-                    turn["move"] = move
-                    turn["phase"] = ATTACKING
-                # remove highlight coloring
-                self.highlight_tiles(column, row, 0)
+                    if move:
+                        turn["move"] = move
+                        turn["phase"] = ATTACKING
+
+                self.remove_highlight(3) # remove movable tile
+                self.selected_unit = None
 
         elif turn["phase"] == ATTACKING:
             # show attackable range
@@ -160,15 +177,6 @@ class Map:
         row = (mouse_y - offset_y) // (self.tile_h + self.margin)
 
         return (col, row)
-
-    def get_movable_unit(self):
-        movable_unit = None
-        for unit in self.players_units:
-            # if tile of unit is in movable range
-            if self.grid.get_tile_type(unit.pos[0], unit.pos[1]) == 3:
-                movable_unit = unit
-
-        return movable_unit
 
 
     def draw(self):
@@ -269,7 +277,11 @@ class Map:
             col {int}   -- A column on the grid
             row {int}   -- A row on the grid
         """
+        move = None
         if self.grid.get_unit_type(col, row) == 0:
+            # Set old tile to tile_type of blank
+            self.grid.set_unit_type(unit.pos[0], unit.pos[1], 0) #TODO: abstract this into GameState class
+            # Update grid with new unit position
             self.grid.set_unit_type(col, row, unit.type)
             unit.pos = [col, row]
             move = [unit.type, col, row]

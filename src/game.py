@@ -12,7 +12,7 @@ import src.colors as colors
 from src.gamestate import GameState
 from src.network import Network
 from src.map import Map
-from src.button import Button
+from src.unit import Unit
 
 #########################################################################
 # CONSTANTS
@@ -151,7 +151,7 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         #TODO: end turn on space key press
-                        self.turn["phase"] == END_TURN
+                        self.turn["phase"] = END_TURN
             else: # Other player's turn
                 players_turn = self.network.request_turn()
                 if players_turn == self.player_num:
@@ -160,8 +160,9 @@ class Game:
 
         # End players turn
         if self.turn["phase"] == END_TURN:
-            self.gamestate.change_turns()
+            # Send moves and attacks made to server
             self.network.send_turn(self.turn)
+            self.gamestate.change_turns()
             self.turn["phase"] = NOT_TURN
 
     def update(self):
@@ -180,7 +181,8 @@ class Game:
             # Update map with any moved units
             for unit_type, location in self.gamestate.locations.items():
                     col, row = location
-                    self.map.move(unit_type, col, row)
+                    unit = self.map.get_unit_by_type(unit_type)
+                    self.map.move(unit, col, row)
 
 
     def draw(self):

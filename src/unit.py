@@ -61,6 +61,7 @@ class Unit:
         self.attack_power = attack_power
         self.attack_range = attack_range
         self.speed = speed
+        self.is_moving = False
         self.is_alive = True
         # pos = [col, row]
         self.pos = [None, None]
