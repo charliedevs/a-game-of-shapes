@@ -33,6 +33,7 @@ class Grid:
         1 is health
         2 is harm
         3 is movable
+        4 is attackable
 
     unit_type {int} --
         0 is empty

@@ -91,8 +91,12 @@ class Map:
         # highlights tile hovered over
         pass
 
-    def highlight_tiles(self, unit, tile_type):
-        movable_list = unit.get_range("move", self.grid.cols, self.grid.rows)
+    def highlight_tiles(self, unit, range_type):
+        if range_type == "move":
+            tile_type = 3
+        elif range_type == "attack":
+            tile_type = 4
+        movable_list = unit.get_range(range_type, self.grid.cols, self.grid.rows)
         print(movable_list)
         for position in movable_list:
             col = position[0]
@@ -131,7 +135,7 @@ class Map:
         # If player hasn't moved yet
         if turn["phase"] == SHOW_MOVE_RANGE:
             if clicked_unit:
-                self.highlight_tiles(clicked_unit, 3)
+                self.highlight_tiles(clicked_unit, "move")
                 self.selected_unit = clicked_unit
                 turn["phase"] = MOVING
 
@@ -147,6 +151,8 @@ class Map:
                     if move:
                         turn["move"] = move
                         turn["phase"] = ATTACKING
+                        # highlight attackable tiles
+                        self.highlight_tiles(movable_unit, "attack")
                     else:
                         # move is invalid
                         turn["phase"] = SHOW_MOVE_RANGE
@@ -157,6 +163,7 @@ class Map:
         elif turn["phase"] == ATTACKING:
             # show attackable range
             # if enemy in attackable range, process click in range as attack on enemy
+            self.remove_highlight(4)    # remove attack highlight
             turn["phase"] = END_TURN
 
         return turn
@@ -207,6 +214,8 @@ class Map:
                     tile_color = colors.red
                 elif tile_type == 3:
                     tile_color = colors.yellow
+                elif tile_type == 4:
+                    tile_color = colors.purple
 
                 # Display tiles
                 rect = pygame.draw.rect(self.surface,
