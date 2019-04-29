@@ -126,6 +126,8 @@ def client_thread(connection, player_num):
                 attack = turn["attack"]
                 if attack:
                     gamestate.attack_unit(attack)
+                # Change player turn
+                gamestate.change_turns()
             elif data == "request_turn":
                 turn = gamestate.get_turn()
                 send_data(turn, connection)
@@ -134,8 +136,6 @@ def client_thread(connection, player_num):
                 gamestate.set_ready(player_num)
             elif data == "reset":
                 gamestate.reset()
-            elif data == "end_turn":
-                gamestate.change_turns()
             elif data == "quit":
                 #TODO: fix this command
                 send_data("quit", connection)
