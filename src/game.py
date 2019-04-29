@@ -196,12 +196,6 @@ class Game:
         # Display game board
         self.map.draw()
 
-        # Show buttons
-        for button in self.buttons:
-            button.draw()
-        
-        # TODO: Draw other lables
-
         pygame.display.update()
 
     def waiting_screen(self):
