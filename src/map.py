@@ -84,8 +84,7 @@ class Map:
         self.all_units = []
         self.players_units = []
         self.initialize_units()
-
-
+        
 
     def handle_hover(self, mouse_position):
         # highlights tile hovered over
