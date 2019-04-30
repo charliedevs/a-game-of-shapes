@@ -90,6 +90,16 @@ class Unit:
         if self.health > self.health_max:
             self.health = self.health_max
 
+    def attack(self, enemy_unit):
+        """
+        Effects health of given unit.
+        
+        Arguments:
+            enemy_unit {Unit} -- The unit to attack
+        """
+        enemy_unit.reduce_health(self.attack_power)
+
+
     def get_range(self, range_type, max_col, max_row):
         """
         Returns a list of tiles the unit can move to.

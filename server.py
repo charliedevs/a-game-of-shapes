@@ -137,8 +137,6 @@ def client_thread(connection, player_num):
             elif data == "reset":
                 gamestate.reset()
             elif data == "quit":
-                #TODO: fix this command
-                send_data("quit", connection)
                 break  # Exit main client loop to close connection
             else:
                 print("Received invalid command from player", player_num)

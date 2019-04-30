@@ -106,4 +106,5 @@ class Network:
 
     def close(self):
         # Close CLIENT socket
+        self.send_command("quit")
         self.CLIENT.close()
