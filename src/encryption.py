@@ -15,11 +15,11 @@ f = Fernet(key)
 
 def encrypt(message):
     # Encrypt bytecode
-    # return f.encrypt(message)
-    return message
+    return f.encrypt(message)
+    #return message
 
 
 def decrypt(cipher):
     # Decrypt bytecode
-    # return f.decrypt(cipher)
-    return cipher
+    return f.decrypt(cipher)
+    #return cipher

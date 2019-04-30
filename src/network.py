@@ -55,6 +55,7 @@ class Network:
             self.CLIENT.sendall(encrypted_data)
         except socket.error as e:
             print(str(e))
+            
     def send_pickle(self, data):
         # Send move or attack to server
         data_pickle = pickle.dumps(data)
