@@ -88,33 +88,14 @@ class Map:
         
 
     def handle_hover(self, mouse_position):
-        # highlights tile hovered over
-        pass
-
-    def highlight_tiles(self, unit, range_type):
-        if range_type == "move":
-            tile_type = 3
-        elif range_type == "attack":
-            tile_type = 4
-        movable_list = unit.get_range(range_type, self.grid.cols, self.grid.rows)
-        print(movable_list)
-        for position in movable_list:
-            col = position[0]
-            row = position[1]
-            self.grid.set_tile_type(col, row, tile_type)
-
-
-    def remove_highlight(self, highlight_type):
-        for row in range(self.grid.rows):
-            for col in range(self.grid.cols):
-                tile_type = self.grid.get_tile_type(col, row)
-                if tile_type == highlight_type:
-                    self.grid.set_tile_type(col, row, 0)
-
+        #TODO: Indicate tiles hovered over with special outline or highlight
+        if not self.mouse_position_inside_map(mouse_position):
+            return
 
     def handle_click(self, mouse_position, turn):
         """
         Process user clicks on game tiles.
+        TODO: Separate different levels of abstraction into separate methods.
 
         Arguments:
             mouse_position {(float, float)} -- The (x, y) position of mouse on window
@@ -124,15 +105,15 @@ class Map:
         if not self.mouse_position_inside_map(mouse_position):
             return turn
 
-        column, row = self.determine_tile_from_mouse_position(mouse_position)
-        print("[Debug]: Click", mouse_position, "Grid coords:", column, row)
+        clicked_column, clicked_row = self.determine_tile_from_mouse_position(mouse_position)
+        print("[Debug]: Click", mouse_position, "Grid coords:", clicked_column, clicked_row)
 
         clicked_unit = None
         for unit in self.players_units:
-            if unit.pos == [column, row]:
+            if unit.pos == [clicked_column, clicked_row]:
                 clicked_unit = unit
 
-        # If player hasn't moved yet
+        # Player hasn't moved yet
         if turn["phase"] == SHOW_MOVE_RANGE:
             if clicked_unit:
                 self.highlight_tiles(clicked_unit, "move")
@@ -141,43 +122,70 @@ class Map:
 
         # Player has clicked unit to move
         elif turn["phase"] == MOVING:
-            if self.grid.get_tile_type(column, row) == 3:# 3 == movable
+            if self.grid.tile_in_move_range(clicked_column, clicked_row):
                 movable_unit = self.selected_unit
-                if movable_unit.pos == [column, row]:
-                    # Clicked on self
+                # Allow user to click on self to back out of moving
+                if movable_unit.pos == [clicked_column, clicked_row]:
                     turn["phase"] = SHOW_MOVE_RANGE
                 else:
-                    move = self.move(movable_unit, column, row)
+                    move = self.move(movable_unit, clicked_column, clicked_row)
                     if move:
                         turn["move"] = move
                         turn["phase"] = ATTACKING
-                        attack_range = self.selected_unit.get_range("attack", self.grid.cols, self.grid.rows)
-                        for enemy_unit in self.enemy_units:
-                            if enemy_unit.pos not in attack_range:
-                                self.selected_unit = None
-                                turn["phase"] = END_TURN
-                            else:
-                                # highlight attackable tiles
-                                self.highlight_tiles(movable_unit, "attack")
+                        # Highlight attackable tiles if enemy is in attack range
+                        if self.enemy_in_attack_range():
+                            self.highlight_tiles(movable_unit, "attack")
+                        else:
+                            self.selected_unit = None
+                            turn["phase"] = END_TURN
                     else:
-                        # move is invalid
+                        # Move is invalid, allow client to select another unit to move
                         turn["phase"] = SHOW_MOVE_RANGE
 
-                self.remove_highlight(3) # remove movable tile
+                self.remove_highlight("move")
                 
-
+        # Attack if possible
         elif turn["phase"] == ATTACKING:
-            # show attackable range
-            # if enemy in attackable range, process click in range as attack on enemy
-            if self.grid.get_tile_type(column, row) == 4:   # 4 == attackable:
-                    for enemy_unit in self.enemy_units:
-                        if enemy_unit.pos == [column, row]:
-                            self.attack(self.selected_unit, enemy_unit)
-            self.remove_highlight(4)    # remove attack highlight
+            # If user clicks on self, forfeit attack
+            if not self.selected_unit.pos == [clicked_column, clicked_row]:
+                turn["attack"] = self.attack(clicked_column, clicked_row)
+            self.remove_highlight("attack")
             self.selected_unit = None
             turn["phase"] = END_TURN
 
         return turn
+
+    def move(self, unit, col, row):
+        """
+        Move unit to given location if possible.
+
+        Arguments:
+            unit {Unit} -- The unit to move
+            col {int}   -- A column on the grid
+            row {int}   -- A row on the grid
+        """
+        move = None
+        if self.grid.get_unit_type(col, row) == 0:
+            # Set old tile to unit_type of blank
+            self.grid.set_unit_type(unit.col(), unit.row(), 0)
+            # Update grid with new unit position
+            self.grid.set_unit_type(col, row, unit.type)
+            unit.pos = [col, row]
+            move = [unit.type, col, row]
+
+        return move
+
+    def attack(self, col, row):
+        """
+        Attack another unit at given col, row.
+        """
+        attack = None
+        if self.grid.tile_in_attack_range(col, row):
+            for enemy_unit in self.enemy_units:
+                if enemy_unit.pos == [col, row]:
+                    self.selected_unit.attack(enemy_unit)
+                    attack = [enemy_unit.type, self.selected_unit.attack_power]
+        return attack
 
     def determine_tile_from_mouse_position(self, mouse_position):
         """
@@ -199,6 +207,28 @@ class Map:
 
         return (col, row)
 
+    def highlight_tiles(self, unit, range_type):
+        if range_type == "move":
+            tile_type = 3
+        elif range_type == "attack":
+            tile_type = 4
+        movable_list = unit.get_range(range_type, self.grid.cols, self.grid.rows)
+        print(movable_list)
+        for position in movable_list:
+            col = position[0]
+            row = position[1]
+            self.grid.set_tile_type(col, row, tile_type)
+
+    def remove_highlight(self, range_type):
+        if range_type == "move":
+            highlight_type = 3
+        elif range_type == "attack":
+            highlight_type = 4
+        for row in range(self.grid.rows):
+            for col in range(self.grid.cols):
+                tile_type = self.grid.get_tile_type(col, row)
+                if tile_type == highlight_type:
+                    self.grid.set_tile_type(col, row, 0)
 
     def draw(self):
         """
@@ -293,39 +323,6 @@ class Map:
         w, h = self.map_size
         return pygame.Rect(x, y, w, h)
 
-    def move(self, unit, col, row):
-        """
-        Move unit to given location if possible.
-
-        Arguments:
-            unit {Unit} -- The unit to move
-            col {int}   -- A column on the grid
-            row {int}   -- A row on the grid
-        """
-        move = None
-        if self.grid.get_unit_type(col, row) == 0:
-            # Set old tile to tile_type of blank
-            self.grid.set_unit_type(unit.pos[0], unit.pos[1], 0) #TODO: abstract this into GameState class
-            # Update grid with new unit position
-            self.grid.set_unit_type(col, row, unit.type)
-            unit.pos = [col, row]
-            move = [unit.type, col, row]
-
-        return move
-
-    def attack(self, unit, enemy):
-        """
-        Attack another unit.
-        """
-        attack = None
-        unit.attack(enemy)
-        attack = [unit.type, enemy.pos[0], enemy.pos[1]]
-        return attack
-
-    def attack(self, col, row, unit):
-        pass
-
-
     def get_unit_by_type(self, unit_type):
         target_unit = None
 
@@ -360,7 +357,7 @@ class Map:
 
         # Place units on grid
         left_column = 0
-        right_column = self.grid.cols -1
+        right_column = self.grid.cols - 1
         top_row = 0
         middle_row = self.grid.rows // 2
         bottom_row = self.grid.rows - 1
@@ -383,11 +380,22 @@ class Map:
         """
         return self.get_rect().collidepoint(mouse_position)
 
+    def enemy_in_attack_range(self):
+        """
+        Returns true if an enemy unit is in self.selected_unit's attack range.
+        """
+        is_in_range = False
+        attack_range = self.selected_unit.get_range("attack", self.grid.cols, self.grid.rows)
+        for enemy_unit in self.enemy_units:
+            if enemy_unit.pos in attack_range:
+                is_in_range = True
+
+        return is_in_range
+
     def clear(self):
         # Resets the map.
         #
         # Removes special tile_types and
-        # TODO: resets unit positions.
 
         for row in range(self.grid.rows):
             for col in range(self.grid.cols):

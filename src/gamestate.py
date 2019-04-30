@@ -5,6 +5,11 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 """
 import enum
 
+# Max. health values
+TRIANGLE_HEALTH = 8
+DIAMOND_HEALTH = 10
+CIRCLE_HEALTH = 6
+
 class GameState:
 
     def __init__(self):
@@ -25,6 +30,15 @@ class GameState:
             6 : None
         }
 
+        self.unit_health = {
+            1 : TRIANGLE_HEALTH,
+            2 : DIAMOND_HEALTH,
+            3 : CIRCLE_HEALTH,
+            4 : TRIANGLE_HEALTH,
+            5 : DIAMOND_HEALTH,
+            6 : CIRCLE_HEALTH
+        }
+
     def is_players_turn(self, player_num):
         return self.turn[player_num]
 
@@ -34,6 +48,9 @@ class GameState:
             if is_turn:
                 players_turn = player
         return players_turn
+
+    def get_unit_location_by_type(self, unit_type):
+        return self.locations[unit_type]
     
     def change_turns(self):
         self.turn[1] = not self.turn[1]
@@ -45,7 +62,11 @@ class GameState:
         self.locations[unit_type] = [col, row]
 
     def attack_unit(self, attack):
-        pass
+        # attack is [unit_type, attack_power] where unit_type is the unit being attacked
+        unit_type, attack_power = attack
+        self.unit_health[unit_type] -= attack_power
+        if self.unit_health[unit_type] < 0:
+            self.unit_health[unit_type] = 0
 
     def set_ready(self, player_num):
         self.ready_state[player_num] = True

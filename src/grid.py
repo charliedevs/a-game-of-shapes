@@ -58,6 +58,12 @@ class Grid:
         self.rows = GRID_ROWS
         self.grid = [[[0, 0] for j in range(self.cols)] for i in range(self.rows)]
 
+    def tile_in_move_range(self, col, row):
+        return self.get_tile_type(col, row) == 3
+
+    def tile_in_attack_range(self, col, row):
+        return self.get_tile_type(col, row) == 4
+
     def set_tile_type(self, col, row, tile_type=0):
         """
         Change the type of a given tile.

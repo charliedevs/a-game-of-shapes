@@ -175,6 +175,8 @@ class Unit:
                 possible_pos = [self.pos[0] - s, self.pos[1] + i]
                 if not (possible_pos[0] < 0 or possible_pos[1] >= max_row):
                     range_list.append(possible_pos)
+        
+        #range_list.remove([self.col(), self.row()])
 
         return range_list
 
@@ -195,3 +197,9 @@ class Unit:
             return True
 
         return False
+
+    def col(self):
+        return self.pos[0]
+    
+    def row(self):
+        return self.pos[1]
