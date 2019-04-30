@@ -4,3 +4,4 @@ src/__pycache__/*
 src/server/__pycache__/*
 src/client/__pycache__/*
 .vscode/launch.json
+src/__pycache__/encryption.cpython-37.pyc

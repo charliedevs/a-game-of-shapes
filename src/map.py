@@ -83,6 +83,7 @@ class Map:
         # Set up player units
         self.all_units = []
         self.players_units = []
+        self.enemy_units = []
         self.initialize_units()
         
 
@@ -150,19 +151,30 @@ class Map:
                     if move:
                         turn["move"] = move
                         turn["phase"] = ATTACKING
-                        # highlight attackable tiles
-                        self.highlight_tiles(movable_unit, "attack")
+                        attack_range = self.selected_unit.get_range("attack", self.grid.cols, self.grid.rows)
+                        for enemy_unit in self.enemy_units:
+                            if enemy_unit.pos not in attack_range:
+                                self.selected_unit = None
+                                turn["phase"] = END_TURN
+                            else:
+                                # highlight attackable tiles
+                                self.highlight_tiles(movable_unit, "attack")
                     else:
                         # move is invalid
                         turn["phase"] = SHOW_MOVE_RANGE
 
                 self.remove_highlight(3) # remove movable tile
-                self.selected_unit = None
+                
 
         elif turn["phase"] == ATTACKING:
             # show attackable range
             # if enemy in attackable range, process click in range as attack on enemy
+            if self.grid.get_tile_type(column, row) == 4:   # 4 == attackable:
+                    for enemy_unit in self.enemy_units:
+                        if enemy_unit.pos == [column, row]:
+                            self.attack(self.selected_unit, enemy_unit)
             self.remove_highlight(4)    # remove attack highlight
+            self.selected_unit = None
             turn["phase"] = END_TURN
 
         return turn
@@ -301,6 +313,15 @@ class Map:
 
         return move
 
+    def attack(self, unit, enemy):
+        """
+        Attack another unit.
+        """
+        attack = None
+        unit.attack(enemy)
+        attack = [unit.type, enemy.pos[0], enemy.pos[1]]
+        return attack
+
     def attack(self, col, row, unit):
         pass
 
@@ -334,6 +355,8 @@ class Map:
         for unit in self.all_units:
             if unit.is_players_unit(self.player_num):
                 self.players_units.append(unit)
+            else:
+                self.enemy_units.append(unit)
 
         # Place units on grid
         left_column = 0
