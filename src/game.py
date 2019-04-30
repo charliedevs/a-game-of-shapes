@@ -182,19 +182,30 @@ class Game:
         self.gamestate = new_gamestate
 
     def display_statistics(self):
+        '''
+        Display player information.
+        '''
+        # Font size is equal to line spacing 
+        SIZE = 20
+
         # TODO: Player display/statistics
-        font = pygame.font.SysFont("Comic Sans MS", 25)
+        font = pygame.font.SysFont("Comic Sans MS", SIZE)
 
         # Display player number
         textsurface = font.render("Player: " + str(self.player_num), False, colors.white)
         self.screen.blit(textsurface, [0, 0])
 
+        # Display "Unit Information"
+        location = [0, SIZE*3]  # Beginning of unit info.
+        textsurface = font.render("Unit Information", False, colors.white)
+        self.screen.blit(textsurface, location)
+
         # Display unit statistics
-        location = [0, 0]
-        i = 0
         for unit in self.map.players_units:
-            location[1] += 50
-            textsurface = font.render(str(unit.type) + ": " + str(unit.health), False, colors.white)
+            # Increment horizontal placement
+            location[1] += SIZE
+            health = str(unit.health) + "/" + str(unit.max_health)
+            textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
             self.screen.blit(textsurface, location)
             
 

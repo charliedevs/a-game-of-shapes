@@ -3,7 +3,7 @@ File: unit.py
 Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 """
 #import pygame
-
+import src.colors as colors
 
 
 #########################################################################
@@ -45,16 +45,22 @@ class Unit:
             attack_power = 1
             attack_range = 3
             speed = 5
+            color = colors.green
+            archetype = "triangle"
         elif self.is_diamond():
             max_health = 10
             attack_power = 3
             attack_range = 1
             speed = 2
+            color = colors.red
+            archetype = "diamond"
         elif self.is_circle():
             max_health = 6
             attack_power = 4
             attack_range = 1
             speed = 3
+            color = colors.blue
+            archetype = "circle"
 
         self.max_health = max_health
         self.health = max_health
@@ -65,6 +71,8 @@ class Unit:
         self.is_alive = True
         # pos = [col, row]
         self.pos = [None, None]
+        self.color = color
+        self.archetype = archetype
 
     def reduce_health(self, amount):
         """
