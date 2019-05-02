@@ -66,7 +66,7 @@ class Game:
         
         # Set up font
         pygame.font.init()
-        self.game_font = pygame.font.SysFont("Comic Sans MS", 60)
+        self.game_font = pygame.font.SysFont("Verdana", 60)
 
         # Set up gameplay map
         self.map = Map(self.screen, self.player_num)
@@ -193,6 +193,8 @@ class Game:
 
         self.gamestate = new_gamestate
 
+    # TODO: Create display function?
+
     def display_statistics(self):
         '''
         Display player information.
@@ -201,15 +203,21 @@ class Game:
         SIZE = 20
 
         # TODO: Player display/statistics
-        font = pygame.font.SysFont("Comic Sans MS", SIZE)
+        font = pygame.font.SysFont("Verdana", SIZE)
 
         # Display player number
         textsurface = font.render("Player: " + str(self.player_num), False, colors.white)
         self.screen.blit(textsurface, [0, 0])
 
+        # Display player turn
+        is_turn = self.gamestate.is_players_turn(self.player_num)
+        textsurface = font.render("Turn: " + str(is_turn), False, colors.white)
+        text_rect = textsurface.get_rect(center=[WINDOW_WIDTH/2, SIZE*3])
+        self.screen.blit(textsurface, text_rect)
+
         # Display "Unit Information"
-        location = [0, SIZE*3]  # Beginning of unit info.
-        textsurface = font.render("Unit Information", False, colors.white)
+        location = [0, SIZE*4]  # Beginning of unit info.
+        textsurface = font.render("Unit Info", False, colors.white)
         self.screen.blit(textsurface, location)
 
         # Display unit statistics
