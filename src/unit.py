@@ -41,22 +41,22 @@ class Unit:
         health, attack_power, speed, attack_range = 0, 0, 0, 0
 
         if self.is_triangle():
-            max_health = 8
+            max_health = 4
             attack_power = 1
             attack_range = 3
-            speed = 5
+            speed = 3
             archetype = "triangle"
         elif self.is_diamond():
-            max_health = 10
-            attack_power = 3
+            max_health = 5
+            attack_power = 2
             attack_range = 1
             speed = 2
             archetype = "diamond"
         elif self.is_circle():
-            max_health = 6
-            attack_power = 4
+            max_health = 3
+            attack_power = 3
             attack_range = 1
-            speed = 3
+            speed = 2
             archetype = "circle"
 
         self.max_health = max_health

@@ -6,9 +6,9 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 import enum
 
 # Max. health values
-TRIANGLE_HEALTH = 8
-DIAMOND_HEALTH = 10
-CIRCLE_HEALTH = 6
+TRIANGLE_HEALTH = 4
+DIAMOND_HEALTH = 5
+CIRCLE_HEALTH = 3
 
 class GameState:
 
