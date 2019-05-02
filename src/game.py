@@ -171,6 +171,15 @@ class Game:
     def update_gamestate(self):
         new_gamestate = self.network.get_gamestate()
 
+        if new_gamestate.unit_health != self.gamestate.unit_health:
+            # Update units with any health changes
+            for unit_type, health in new_gamestate.unit_health.items():
+                unit = self.map.get_unit_by_type(unit_type)
+                if unit:
+                    unit.change_health(health)
+                    if not unit.is_alive:
+                        self.map.kill_unit(unit)
+
         if new_gamestate.locations != self.gamestate.locations:
             # Update map with any moved units
             for unit_type, location in new_gamestate.locations.items():
@@ -179,13 +188,6 @@ class Game:
                     unit = self.map.get_unit_by_type(unit_type)
                     self.map.move(unit, col, row)
 
-        if new_gamestate.unit_health != self.gamestate.unit_health:
-            # Update units with any health changes
-            #TODO: if we want animations, we'll have to encapsulate this health change rather than accessing it directly
-            for unit_type, health in new_gamestate.unit_health.items():
-                unit = self.map.get_unit_by_type(unit_type)
-                unit.health = health
-                
         self.turn["attack"] = None
         self.turn["move"] = None
 
