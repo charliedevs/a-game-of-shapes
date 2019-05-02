@@ -45,21 +45,18 @@ class Unit:
             attack_power = 1
             attack_range = 3
             speed = 5
-            color = colors.green
             archetype = "triangle"
         elif self.is_diamond():
             max_health = 10
             attack_power = 3
             attack_range = 1
             speed = 2
-            color = colors.red
             archetype = "diamond"
         elif self.is_circle():
             max_health = 6
             attack_power = 4
             attack_range = 1
             speed = 3
-            color = colors.blue
             archetype = "circle"
 
         self.max_health = max_health
@@ -71,7 +68,7 @@ class Unit:
         self.is_alive = True
         # pos = [col, row]
         self.pos = [None, None]
-        self.color = color
+        self.color = self.determine_color()
         self.archetype = archetype
 
     def reduce_health(self, amount):
@@ -97,6 +94,14 @@ class Unit:
 
         if self.health > self.health_max:
             self.health = self.health_max
+
+    def change_health(self, health):
+        """
+        Change the health of the unit.
+        """
+        self.health = health
+        if self.health <= 0:
+            self.is_alive = False
 
     def attack(self, enemy_unit):
         """
@@ -197,6 +202,37 @@ class Unit:
             return True
 
         return False
+
+    def get_owning_player(self):
+        """
+        Returns the player who owns this unit.
+        """
+        player_num = 0
+        if self.type in range(1, 4):
+            player_num = 1
+        if self.type in range(4, 7):
+            player_num = 2
+        return player_num
+    
+    def determine_color(self):
+        player_num = self.get_owning_player()
+        if self.is_triangle():
+            if player_num == 1:
+                color = colors.orange
+            else:
+                color = colors.darkgreen
+        elif self.is_diamond():
+            if player_num == 1:
+                color = colors.darkred
+            else:
+                color = colors.red
+        elif self.is_circle():
+            if player_num == 1:
+                color = colors.darkblue
+            else:
+                color = colors.darkpurple
+
+        return color
 
     def col(self):
         return self.pos[0]

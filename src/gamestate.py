@@ -65,8 +65,9 @@ class GameState:
         # attack is [unit_type, attack_power] where unit_type is the unit being attacked
         unit_type, attack_power = attack
         self.unit_health[unit_type] -= attack_power
-        if self.unit_health[unit_type] < 0:
+        if self.unit_health[unit_type] <= 0:
             self.unit_health[unit_type] = 0
+            self.locations[unit_type] = None
 
     def set_ready(self, player_num):
         self.ready_state[player_num] = True

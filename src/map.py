@@ -165,13 +165,14 @@ class Map:
             row {int}   -- A row on the grid
         """
         move = None
-        if self.grid.get_unit_type(col, row) == 0:
-            # Set old tile to unit_type of blank
-            self.grid.set_unit_type(unit.col(), unit.row(), 0)
-            # Update grid with new unit position
-            self.grid.set_unit_type(col, row, unit.type)
-            unit.pos = [col, row]
-            move = [unit.type, col, row]
+        if unit:
+            if self.grid.get_unit_type(col, row) == 0:
+                # Set old tile to unit_type of blank
+                self.grid.set_unit_type(unit.col(), unit.row(), 0)
+                # Update grid with new unit position
+                self.grid.set_unit_type(col, row, unit.type)
+                unit.pos = [col, row]
+                move = [unit.type, col, row]
 
         return move
 
@@ -184,6 +185,8 @@ class Map:
             for enemy_unit in self.enemy_units:
                 if enemy_unit.pos == [col, row]:
                     self.selected_unit.attack(enemy_unit)
+                    if not enemy_unit.is_alive:
+                        self.kill_unit(enemy_unit)
                     attack = [enemy_unit.type, self.selected_unit.attack_power]
         return attack
 
@@ -268,12 +271,10 @@ class Map:
 
                 # Determine unit color and shape
                 # using tile's rect as reference
-                unit_color = colors.white
                 pointlist = None
                 if unit:
                     if unit.is_triangle():
                         # Green triangle
-                        unit_color = colors.darkgreen
                         pointlist = [
                             rect.midtop,
                             rect.bottomleft,
@@ -281,7 +282,6 @@ class Map:
                         ]
                     elif unit.is_diamond():
                         # Red diamond
-                        unit_color = colors.darkred
                         pointlist = [
                             rect.midtop,
                             rect.midleft,
@@ -290,23 +290,20 @@ class Map:
                         ]
                     elif unit.is_circle():
                         # Blue circle
-                        unit_color = colors.darkblue
                         pos = rect.center
                         radius = rect.width / 2
 
                     # Draw unit
-                    if unit_color == colors.white:
-                        continue # No unit in this tile
                     if pointlist is not None:
                         pygame.draw.polygon(
                             self.surface,
-                            unit_color,
+                            unit.color,
                             pointlist
                         )
                     else:
                         pygame.draw.circle(
                             self.surface,
-                            unit_color,
+                            unit.color,
                             pos,
                             int(radius)
                         )
@@ -391,6 +388,24 @@ class Map:
                 is_in_range = True
 
         return is_in_range
+
+    def kill_unit(self, unit):
+        column, row = unit.pos
+        self.grid.set_unit_type(column, row, 0)
+        if unit in self.all_units:
+            self.all_units.remove(unit)
+        if unit in self.players_units:
+            self.players_units.remove(unit)
+        if unit in self.enemy_units:
+            self.enemy_units.remove(unit)
+        print("############################################")
+        print("Inside kill_unit() (player {})\n".format(self.player_num))
+        print(self.all_units)
+        print("Player's units:")
+        print(self.players_units)
+        print("Enemy's units:")
+        print(self.enemy_units)
+        
 
     def clear(self):
         # Resets the map.
