@@ -1,6 +1,6 @@
 """
 File: SERVER.py
-Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
+Programmers: Fernando Rodriguez, Charles Davis
 
 
 Controls the connection between two clients.
@@ -12,8 +12,8 @@ import sys
 import threading
 import pickle
 
-from src.gamestate import GameState
 from src.encryption import encrypt, decrypt
+from src.gamestate import GameState
 
 # Number of clients connected
 client_count = 0

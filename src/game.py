@@ -8,31 +8,15 @@ Created by: Fernando Rodriguez, Charles Davis, Paul Rogers
 import sys
 import pygame
 
+# Constants
 import src.colors as colors
+from src.constants import *
+
+# Classes
 from src.gamestate import GameState
 from src.network import Network
 from src.map import Map
 from src.unit import Unit
-
-#########################################################################
-# CONSTANTS
-
-# Window Size
-WINDOW_WIDTH = 700
-WINDOW_HEIGHT = 500
-WINDOW_CENTER = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
-
-# Move phases
-NOT_TURN = 0
-PLACE_TILES = 1
-SHOW_MOVE_RANGE = 2
-MOVING = 3
-ATTACKING = 4
-END_TURN = 5
-GAME_OVER = 6
-
-#########################################################################
-
 
 class Game:
     """

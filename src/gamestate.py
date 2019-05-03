@@ -3,7 +3,6 @@ File: gamestate.py
 Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 
 """
-import enum
 
 # Max. health values
 TRIANGLE_HEALTH = 4

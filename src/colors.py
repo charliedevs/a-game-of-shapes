@@ -1,6 +1,6 @@
 """
 File: colors.py
-Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
+Programmers: Fernando Rodriguez, Charles Davis
 
 
 Defines custom colors used for GUI.

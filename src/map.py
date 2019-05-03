@@ -4,32 +4,13 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 """
 import pygame
 
+# Constants
 import src.colors as colors
-from src.unit import Unit
+from src.constants import *
+
+# Classes
 from src.grid import Grid
 from src.unit import Unit
-
-#########################################################################
-# CONSTANTS
-
-# Tile size
-TILE_WIDTH = 23
-TILE_HEIGHT = 23
-TILE_MARGIN = 2
-
-# Units per player
-MAX_UNITS = 3
-
-# Move phases
-NOT_TURN = 0
-PLACE_TILES = 1
-SHOW_MOVE_RANGE = 2
-MOVING = 3
-ATTACKING = 4
-END_TURN = 5
-GAME_OVER = 6
-
-#########################################################################
 
 class Map:
     """
