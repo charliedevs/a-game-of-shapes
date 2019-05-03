@@ -23,7 +23,6 @@ WINDOW_HEIGHT = 500
 WINDOW_CENTER = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 
 # Move phases
-# TODO: if click on same unit, set phase back to show move range
 NOT_TURN = 0
 SHOW_MOVE_RANGE = 1
 MOVING = 2
@@ -59,7 +58,7 @@ class Game:
         print("You are player", self.player_num)
 
         # Set up display window
-        pygame.display.set_caption("Strategy Game")     # NOTE: Display player num here?
+        pygame.display.set_caption("A Game of Shapes - Player " + str(self.player_num))     # NOTE: Display player num here?
         screen_res = (WINDOW_WIDTH, WINDOW_HEIGHT)
         self.screen = pygame.display.set_mode(
             screen_res, flags=pygame.RESIZABLE)
@@ -164,7 +163,7 @@ class Game:
         """
         Update variables that change every frame.
         """
-        self.ttime = self.clock.tick(30)
+        self.time = self.clock.tick(30)
         self.mouse_position = pygame.mouse.get_pos()
 
 
@@ -193,42 +192,97 @@ class Game:
 
         self.gamestate = new_gamestate
 
-    # TODO: Create display function?
-
     def display_statistics(self):
         '''
         Display player information.
         '''
+        #TODO:  Generalize the placement of text.
+        #       Create function for reused code.
+        #       Set alignment of text.
+
         # Font size is equal to line spacing 
         SIZE = 20
 
-        # TODO: Player display/statistics
         font = pygame.font.SysFont("Verdana", SIZE)
-
-        # Display player number
-        textsurface = font.render("Player: " + str(self.player_num), False, colors.white)
-        self.screen.blit(textsurface, [0, 0])
 
         # Display player turn
         is_turn = self.gamestate.is_players_turn(self.player_num)
-        textsurface = font.render("Turn: " + str(is_turn), False, colors.white)
+        turn_text = ""
+        text_color = ""
+        if is_turn:
+            turn_text = "Your Turn"
+            text_color = colors.darkgreen
+        else:
+            turn_text = "Enemy Turn"
+            text_color = colors.darkred
+        textsurface = font.render(turn_text, False, text_color)
         text_rect = textsurface.get_rect(center=[WINDOW_WIDTH/2, SIZE*3])
         self.screen.blit(textsurface, text_rect)
 
-        # Display "Unit Information"
-        location = [0, SIZE*4]  # Beginning of unit info.
-        textsurface = font.render("Unit Info", False, colors.white)
-        self.screen.blit(textsurface, location)
-
         # Display unit statistics
-        for unit in self.map.players_units:
-            # Increment horizontal placement
-            location[1] += SIZE
-            health = str(unit.health) + "/" + str(unit.max_health)
-            textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
+        if self.player_num == 1:
+            # Display "Unit Information"
+            location = [20, SIZE*5]  # Beginning of unit info.
+            textsurface = font.render("Unit Info", False, colors.white)
             self.screen.blit(textsurface, location)
-            
+            for unit in self.map.players_units:
+                # Increment horizontal placement
+                location[1] += SIZE
+                health = str(unit.health) + "/" + str(unit.max_health)
+                textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
+                self.screen.blit(textsurface, location)
 
+            # Display "Enemy Unit Information"
+            location = [self.screen.get_width() - 150, SIZE*5]  # Beginning of unit info.
+            textsurface = font.render("Enemy Info", False, colors.white)
+            self.screen.blit(textsurface, location)
+            for unit in self.map.enemy_units:
+                # Increment horizontal placement
+                location[1] += SIZE
+                health = str(unit.health) + "/" + str(unit.max_health)
+                textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
+                self.screen.blit(textsurface, location)
+
+        elif self.player_num == 2:
+             # Display "Unit Information"
+            location = [self.screen.get_width() - 150, SIZE*5]  # Beginning of unit info.
+            textsurface = font.render("Unit Info", False, colors.white)
+            self.screen.blit(textsurface, location)
+            for unit in self.map.players_units:
+                # Increment horizontal placement
+                location[1] += SIZE
+                health = str(unit.health) + "/" + str(unit.max_health)
+                textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
+                self.screen.blit(textsurface, location)
+
+            # Display "Enemy Information"
+            location = [20, SIZE*5]  # Beginning of unit info.
+            textsurface = font.render("Enemy Info", False, colors.white)
+            self.screen.blit(textsurface, location)
+            for unit in self.map.enemy_units:
+                # Increment horizontal placement
+                location[1] += SIZE
+                health = str(unit.health) + "/" + str(unit.max_health)
+                textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
+                self.screen.blit(textsurface, location)
+
+    def display_help(self, location):
+        """
+        Display help text.
+        """
+        SIZE = 18
+        font = pygame.font.SysFont("Verdana", SIZE)
+        phase_text = ""
+
+        #Display help text
+        if self.turn["phase"] == SHOW_MOVE_RANGE:
+            phase_text = "HELP: Select a unit by clicking on it with your mouse."
+        elif self.turn["phase"] == MOVING:
+            phase_text = "HELP: Choose a tile to move your unit to."
+        elif self.turn["phase"] == ATTACKING:
+            phase_text = "HELP: Attack by clicking an emeny unit"
+        textsurface = font.render(phase_text, False, colors.white)
+        self.screen.blit(textsurface, location)
 
     def draw(self):
         """
@@ -238,6 +292,7 @@ class Game:
 
         # Display player statistics
         self.display_statistics()
+        self.display_help([0,WINDOW_HEIGHT-30])
 
         # Display game board
         self.map.draw()
