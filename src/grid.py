@@ -5,20 +5,8 @@ Programmers: Fernando Rodriguez, Charles Davis
 import pygame
 
 import src.colors as colors
+from src.constants import *
 from src.unit import Unit
-
-#########################################################################
-# CONSTANTS
-
-# Grid size
-GRID_COLUMNS = 14
-GRID_ROWS = 12
-
-# Units per player
-MAX_UNITS = 3
-
-#########################################################################
-
 
 class Grid:
     """

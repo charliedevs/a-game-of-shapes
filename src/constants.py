@@ -19,13 +19,34 @@ TILE_MARGIN = 2
 # Units per player
 MAX_UNITS = 3
 
+# Unit_types
+NO_UNIT = 0
+P1_TRIANGLE = 1
+P1_DIAMOND = 2
+P1_CIRCLE = 3
+P2_TRIANGLE = 4
+P2_DIAMOND = 5
+P2_CIRCLE = 6
+
+# Tile_types
+BLANK = 0
+HEALTH = 1
+HARM = 2
+MOVABLE = 3
+ATTACKABLE = 4
+
+
 # Move phases
 NOT_TURN = 0
 PLACE_TILES = 1
-SHOW_MOVE_RANGE = 2
+SELECT_UNIT_TO_MOVE = 2
 MOVING = 3
 ATTACKING = 4
 END_TURN = 5
 GAME_OVER = 6
+
+# Grid size
+GRID_COLUMNS = 14
+GRID_ROWS = 12
 
 #########################################################################

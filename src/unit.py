@@ -4,22 +4,8 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 """
 #import pygame
 import src.colors as colors
+from src.constants import *
 
-
-#########################################################################
-# CONSTANTS
-
-NO_UNIT = 0
-
-P1_TRIANGLE = 1
-P1_DIAMOND = 2
-P1_CIRCLE = 3
-
-P2_TRIANGLE = 4
-P2_DIAMOND = 5
-P2_CIRCLE = 6
-
-#########################################################################
 
 class Unit:
     """

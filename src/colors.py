@@ -27,3 +27,28 @@ darkblue = (55, 122, 183)
 darkgreen = (118, 186, 120)
 darkpurple = (190, 124, 190)
 darkorange = (251, 105, 9)
+
+def get_hover_color(color):
+    """
+    Used for highlighting hovered tiles.
+    
+    Arguments:
+        color {(int, int, int)} -- The RGB value of the tile
+    
+    Returns:
+        (int, int, int) -- The new RGB value
+    """
+    new_color = None
+
+    if color == darkgray:
+        # Regular tiles get lighter
+        new_color = lightgray
+    else:
+        # Other tile colors get darkened
+        R, G, B = color
+        R -= 20
+        G -= 20
+        B -= 20
+        new_color = (R, G, B)
+
+    return new_color

@@ -2,6 +2,8 @@
 File: map.py
 Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 """
+# TODO: Abstract tiles into a class holding tile_type and if the tile is hovered over
+
 import pygame
 
 # Constants
@@ -47,9 +49,6 @@ class Map:
         self.tile_h = TILE_HEIGHT
         self.margin = TILE_MARGIN
 
-        # Keep track of unit that was last clicked on
-        self.selected_unit = None
-
         # Full map size in pixels (calculated from grid and tile sizes)
         map_w = (cols * (self.tile_w + self.margin)) + self.margin
         map_h = (rows * (self.tile_h + self.margin)) + self.margin
@@ -63,6 +62,11 @@ class Map:
         # Create map surface
         self.surface = self.screen.subsurface(map_rect)
 
+        # Keep track of unit that was last clicked on
+        # and last tile hovered over
+        self.selected_unit = None
+        self.hover_location = None
+
         # Set up player units
         self.all_units = []
         self.players_units = []
@@ -71,9 +75,16 @@ class Map:
         
 
     def handle_hover(self, mouse_position):
-        #TODO: Indicate tiles hovered over with special outline or highlight
-        if not self.mouse_position_inside_map(mouse_position):
-            return
+        """
+        Highlight tile hovered over by user.
+        """
+        if self.mouse_position_inside_map(mouse_position):
+            # Record position of hovered tile
+            tile_col, tile_row = self.determine_tile_from_mouse_position(mouse_position)
+            self.hover_location = (tile_col, tile_row)
+        else:
+            # Remove hover if off map
+            self.hover_location = None
 
     def handle_click(self, mouse_position, turn):
         """
@@ -97,7 +108,7 @@ class Map:
                 clicked_unit = unit
 
         # Player hasn't moved yet
-        if turn["phase"] == SHOW_MOVE_RANGE:
+        if turn["phase"] == SELECT_UNIT_TO_MOVE:
             if clicked_unit:
                 self.highlight_tiles(clicked_unit, "move")
                 self.selected_unit = clicked_unit
@@ -109,7 +120,7 @@ class Map:
                 movable_unit = self.selected_unit
                 # Allow user to click on self to back out of moving
                 if movable_unit.pos == [clicked_column, clicked_row]:
-                    turn["phase"] = SHOW_MOVE_RANGE
+                    turn["phase"] = SELECT_UNIT_TO_MOVE
                 else:
                     move = self.move(movable_unit, clicked_column, clicked_row)
                     if move:
@@ -123,7 +134,7 @@ class Map:
                             turn["phase"] = END_TURN
                     else:
                         # Move is invalid, allow client to select another unit to move
-                        turn["phase"] = SHOW_MOVE_RANGE
+                        turn["phase"] = SELECT_UNIT_TO_MOVE
 
                 self.remove_highlight("move")
                 
@@ -227,6 +238,7 @@ class Map:
         for row in range(self.grid.rows):
             for col in range(self.grid.cols):
 
+                # Get current unit and tile
                 unit_type = self.grid.get_unit_type(col, row)
                 unit = None
                 if unit_type != 0:
@@ -235,23 +247,32 @@ class Map:
 
                 # Determine color of tiles
                 tile_color = colors.darkgray
-                if tile_type == 1:
+                if tile_type == HEALTH:
                     tile_color = colors.green
-                elif tile_type == 2:
+                elif tile_type == HARM:
                     tile_color = colors.red
-                elif tile_type == 3:
+                elif tile_type == MOVABLE:
                     tile_color = colors.yellow
-                elif tile_type == 4:
+                elif tile_type == ATTACKABLE:
                     tile_color = colors.purple
 
                 # Display tiles
-                rect = pygame.draw.rect(self.surface,
+                tile_rect = pygame.draw.rect(self.surface,
                                         tile_color,
                                         [(self.margin + self.tile_w) * col + self.margin,
                                          (self.margin + self.tile_h) * row + self.margin,
                                          self.tile_w,
                                          self.tile_h])
 
+                # Highlight hovered tile
+                if self.hover_location:
+                    if self.hover_location == (col, row):
+                        pygame.draw.rect(self.surface,
+                                     colors.get_hover_color(tile_color),
+                                     tile_rect)
+
+
+                # TODO: Draw units inside Unit class. Pass in tile_rect
                 # Determine unit color and shape
                 # using tile's rect as reference
                 pointlist = None
@@ -259,22 +280,22 @@ class Map:
                     if unit.is_triangle():
                         # Green triangle
                         pointlist = [
-                            rect.midtop,
-                            rect.bottomleft,
-                            rect.bottomright
+                            tile_rect.midtop,
+                            tile_rect.bottomleft,
+                            tile_rect.bottomright
                         ]
                     elif unit.is_diamond():
                         # Red diamond
                         pointlist = [
-                            rect.midtop,
-                            rect.midleft,
-                            rect.midbottom,
-                            rect.midright
+                            tile_rect.midtop,
+                            tile_rect.midleft,
+                            tile_rect.midbottom,
+                            tile_rect.midright
                         ]
                     elif unit.is_circle():
                         # Blue circle
-                        pos = rect.center
-                        radius = rect.width / 2
+                        pos = tile_rect.center
+                        radius = tile_rect.width / 2
 
                     # Draw unit
                     if pointlist is not None:

@@ -60,9 +60,6 @@ class Game:
         self.gamestate = self.network.get_gamestate()
         is_turn = self.gamestate.is_players_turn(self.player_num)
 
-        # The gamephase determines whether game is started, over, etc.
-        self.gamephase = "start_screen"
-
         # Effects of turn that are sent across network
         self.turn = {
             "move" : None,
@@ -70,8 +67,9 @@ class Game:
             "phase" : NOT_TURN
         }
 
+        # Let the starting player begin moving units
         if is_turn:
-            self.turn["phase"] = SHOW_MOVE_RANGE
+            self.turn["phase"] = SELECT_UNIT_TO_MOVE
 
         # Clock tracks time from beginning of game
         self.clock = pygame.time.Clock()
@@ -103,12 +101,10 @@ class Game:
         """
         events = pygame.event.get()
         for event in events:
+
             # Client closes window
             if event.type == pygame.QUIT:
-                print("Exiting game...")
-                self.network.close()
-                pygame.quit()
-                sys.exit(0)
+                self.exit_game()
 
             # User hovers over tile
             if event.type == pygame.MOUSEMOTION:
@@ -116,9 +112,8 @@ class Game:
 
             # Only process clicks if it's this player's turn
             if self.gamestate.is_players_turn(self.player_num):
+                # User is placing tiles
                 if self.turn["phase"] == PLACE_TILES:
-                    pass
-                elif self.turn["phase"] == GAME_OVER:
                     pass
                 else: # Attack!
                     # User clicks button
@@ -127,12 +122,14 @@ class Game:
                     # User presses a key
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
-                            self.turn["phase"] == SHOW_MOVE_RANGE
-            else: # Other player's turn
+                            self.turn["phase"] == ATTACKING
+
+            # Other player's turn
+            else:
                 players_turn = self.network.request_turn()
                 if players_turn == self.player_num:
                     self.update_gamestate()
-                    self.turn["phase"] = SHOW_MOVE_RANGE
+                    self.turn["phase"] = SELECT_UNIT_TO_MOVE
 
         # End players turn
         if self.turn["phase"] == END_TURN:
@@ -140,6 +137,10 @@ class Game:
             self.network.send_turn(self.turn)
             self.gamestate.change_turns()
             self.turn["phase"] = NOT_TURN
+
+        # End of game
+        if self.turn["phase"] == GAME_OVER:
+            self.gameover()
 
     def update(self):
         """
@@ -162,8 +163,6 @@ class Game:
         self.turn["move"] = None
 
         self.gamestate = new_gamestate
-
-    # TODO: Create display function?
 
     def update_health(self, new_gamestate):
         """
@@ -198,7 +197,6 @@ class Game:
         # Display player statistics
         self.display_statistics()
         self.display_help()
-
 
         # Display game board
         self.map.draw()
@@ -236,7 +234,7 @@ class Game:
         if self.player_num == 1:
             # Display "Unit Information"
             location = [20, SIZE*5]  # Beginning of unit info.
-            textsurface = font.render("Unit Info", False, colors.white)
+            textsurface = font.render("Your Units", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.players_units:
                 # Increment horizontal placement
@@ -247,7 +245,7 @@ class Game:
 
             # Display "Enemy Unit Information"
             location = [self.screen.get_width() - 150, SIZE*5]  # Beginning of unit info.
-            textsurface = font.render("Enemy Info", False, colors.white)
+            textsurface = font.render("Enemy Units", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.enemy_units:
                 # Increment horizontal placement
@@ -259,7 +257,7 @@ class Game:
         elif self.player_num == 2:
              # Display "Unit Information"
             location = [self.screen.get_width() - 150, SIZE*5]  # Beginning of unit info.
-            textsurface = font.render("Unit Info", False, colors.white)
+            textsurface = font.render("Player Units", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.players_units:
                 # Increment horizontal placement
@@ -270,7 +268,7 @@ class Game:
 
             # Display "Enemy Information"
             location = [20, SIZE*5]  # Beginning of unit info.
-            textsurface = font.render("Enemy Info", False, colors.white)
+            textsurface = font.render("Enemy Units", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.enemy_units:
                 # Increment horizontal placement
@@ -289,7 +287,7 @@ class Game:
         phase_text = ""
         
         # Change help text based on phase
-        if self.turn["phase"] == SHOW_MOVE_RANGE:
+        if self.turn["phase"] == SELECT_UNIT_TO_MOVE:
             phase_text = "HELP: Select a unit by clicking on it with your mouse."
         elif self.turn["phase"] == MOVING:
             phase_text = "HELP: Choose a tile to move your unit to."
@@ -312,10 +310,7 @@ class Game:
             events = pygame.event.get()
             for event in events:
                 if event.type == pygame.QUIT:
-                    print("Exiting game...")
-                    self.network.close()
-                    pygame.quit()
-                    sys.exit(0)
+                    self.exit_game()
 
             # Display waiting text
             self.screen.fill(colors.darkgray)
@@ -326,3 +321,12 @@ class Game:
 
             # Update gamestate to check if other player is connected
             self.gamestate = self.network.get_gamestate()
+
+    def gameover(self):
+        pass
+
+    def exit_game(self):
+        print("Exiting game...")
+        self.network.close()
+        pygame.quit()
+        sys.exit(0)
