@@ -23,13 +23,13 @@ WINDOW_HEIGHT = 500
 WINDOW_CENTER = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 
 # Move phases
-# TODO: if click on same unit, set phase back to show move range
 NOT_TURN = 0
-SHOW_MOVE_RANGE = 1
-MOVING = 2
-ATTACKING = 3
-END_TURN = 4
-
+PLACE_TILES = 1
+SHOW_MOVE_RANGE = 2
+MOVING = 3
+ATTACKING = 4
+END_TURN = 5
+GAME_OVER = 6
 
 #########################################################################
 
@@ -46,7 +46,7 @@ class Game:
 
     def __init__(self, network):
         """
-        Set up display and game map
+        Set up display and game map.
         
         Arguments:
             network {Network} -- Connection to server
@@ -76,6 +76,9 @@ class Game:
         self.gamestate = self.network.get_gamestate()
         is_turn = self.gamestate.is_players_turn(self.player_num)
 
+        # The gamephase determines whether game is started, over, etc.
+        self.gamephase = "start_screen"
+
         # Effects of turn that are sent across network
         self.turn = {
             "move" : None,
@@ -89,6 +92,7 @@ class Game:
         # Clock tracks time from beginning of game
         self.clock = pygame.time.Clock()
 
+        # Keep track of user's cursor. Updates every frame
         self.mouse_position = pygame.mouse.get_pos()
 
         # Show waiting screen until other player connects
@@ -98,7 +102,7 @@ class Game:
 
     def game_loop(self):
         """
-        Loops until window is closed.
+        Loop until window is closed.
         """
         while True:
             self.event_loop()
@@ -108,7 +112,7 @@ class Game:
 
     def event_loop(self):
         """
-        Handles user input.
+        Handle user input.
 
         Events include mouse clicks
         and keyboard presses.
@@ -124,29 +128,22 @@ class Game:
 
             # User hovers over tile
             if event.type == pygame.MOUSEMOTION:
-                if self.map.get_rect().collidepoint(self.mouse_position):
-                    self.map.handle_hover(self.mouse_position)
+                self.map.handle_hover(self.mouse_position)
 
             # Only process clicks if it's this player's turn
             if self.gamestate.is_players_turn(self.player_num):
-                # User clicks button
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.turn["phase"] == SHOW_MOVE_RANGE:
-                        # show move range and stuff
-                        # Mouse clicks on game board
+                if self.turn["phase"] == PLACE_TILES:
+                    pass
+                elif self.turn["phase"] == GAME_OVER:
+                    pass
+                else: # Attack!
+                    # User clicks button
+                    if event.type == pygame.MOUSEBUTTONDOWN:
                         self.turn = self.map.handle_click(self.mouse_position, self.turn)
-                    elif self.turn["phase"] == MOVING:
-                        # clicks will move unit
-                        self.turn = self.map.handle_click(self.mouse_position, self.turn)
-                    elif self.turn["phase"] == ATTACKING:
-                        # show attack range
-                        # and clicks will attack unit
-                        # if no enemy unit in attack range, end turn
-                        self.turn = self.map.handle_click(self.mouse_position, self.turn)
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        #TODO: end turn on space key press
-                        self.turn["phase"] = END_TURN
+                    # User presses a key
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            self.turn["phase"] == SHOW_MOVE_RANGE
             else: # Other player's turn
                 players_turn = self.network.request_turn()
                 if players_turn == self.player_num:
@@ -169,24 +166,13 @@ class Game:
 
 
     def update_gamestate(self):
+        """
+        Pull in new information from server and apply changes.
+        """
         new_gamestate = self.network.get_gamestate()
 
-        if new_gamestate.unit_health != self.gamestate.unit_health:
-            # Update units with any health changes
-            for unit_type, health in new_gamestate.unit_health.items():
-                unit = self.map.get_unit_by_type(unit_type)
-                if unit:
-                    unit.change_health(health)
-                    if not unit.is_alive:
-                        self.map.kill_unit(unit)
-
-        if new_gamestate.locations != self.gamestate.locations:
-            # Update map with any moved units
-            for unit_type, location in new_gamestate.locations.items():
-                if location:
-                    col, row = location
-                    unit = self.map.get_unit_by_type(unit_type)
-                    self.map.move(unit, col, row)
+        self.update_health(new_gamestate)
+        self.update_positions(new_gamestate)
 
         self.turn["attack"] = None
         self.turn["move"] = None
@@ -195,10 +181,48 @@ class Game:
 
     # TODO: Create display function?
 
+    def update_health(self, new_gamestate):
+        """
+        Update units with any health changes.
+        """
+        if new_gamestate.unit_health != self.gamestate.unit_health:
+            for unit_type, health in new_gamestate.unit_health.items():
+                unit = self.map.get_unit_by_type(unit_type)
+                if unit:
+                    unit.change_health(health)
+                    if not unit.is_alive:
+                        self.map.kill_unit(unit)
+
+    def update_positions(self, new_gamestate):
+        """
+        Update units with changes in position.
+        """
+        if new_gamestate.unit_locations != self.gamestate.unit_locations:
+            # Update map with any moved units
+            for unit_type, location in new_gamestate.unit_locations.items():
+                if location:
+                    col, row = location
+                    unit = self.map.get_unit_by_type(unit_type)
+                    self.map.move(unit, col, row)
+
+    def draw(self):
+        """
+        Draw graphics and display on screen.
+        """
+        self.screen.fill(colors.lightgray)
+
+        # Display player statistics
+        self.display_statistics()
+
+        # Display game board
+        self.map.draw()
+
+        pygame.display.update()
+
     def display_statistics(self):
-        '''
+        """
         Display player information.
-        '''
+        """
         # Font size is equal to line spacing 
         SIZE = 20
 
@@ -228,33 +252,18 @@ class Game:
             textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
             self.screen.blit(textsurface, location)
             
-
-
-    def draw(self):
-        """
-        Draw graphics and display on screen.
-        """
-        self.screen.fill(colors.lightgray)
-
-        # Display player statistics
-        self.display_statistics()
-
-        # Display game board
-        self.map.draw()
-
-        pygame.display.update()
-
     def waiting_screen(self):
         """
-        Displays a waiting message until
+        Display a waiting message until
         other client connects.
         """
         self.network.send_command("start")
         reply = self.network.receive()
         self.gamestate = self.network.get_gamestate()
-        while not self.gamestate.ready():
-            events = pygame.event.get()
 
+        while not self.gamestate.ready():
+            # Update events so window can be closed
+            events = pygame.event.get()
             for event in events:
                 if event.type == pygame.QUIT:
                     print("Exiting game...")
@@ -262,12 +271,12 @@ class Game:
                     pygame.quit()
                     sys.exit(0)
 
-            self.screen.fill(colors.purple)
-
-            # Add text "waiting"
+            # Display waiting text
+            self.screen.fill(colors.darkgray)
             textsurface = self.game_font.render("Waiting...", False, colors.white)
             text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
             self.screen.blit(textsurface, text_rect)
-
-            self.gamestate = self.network.get_gamestate()
             pygame.display.update()
+
+            # Update gamestate to check if other player is connected
+            self.gamestate = self.network.get_gamestate()

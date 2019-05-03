@@ -22,10 +22,12 @@ MAX_UNITS = 3
 
 # Move phases
 NOT_TURN = 0
-SHOW_MOVE_RANGE = 1
-MOVING = 2
-ATTACKING = 3
-END_TURN = 4
+PLACE_TILES = 1
+SHOW_MOVE_RANGE = 2
+MOVING = 3
+ATTACKING = 4
+END_TURN = 5
+GAME_OVER = 6
 
 #########################################################################
 
