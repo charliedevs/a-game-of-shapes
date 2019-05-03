@@ -3,7 +3,6 @@ File: gamestate.py
 Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 
 """
-import enum
 
 # Max. health values
 TRIANGLE_HEALTH = 4
@@ -19,9 +18,9 @@ class GameState:
         # Keeps track of player turn
         self.turn = {1 : True, 2 : False}
 
-        # Holds unit locations
+        # Holds locations of all units
         # 1-3 are player 1's, 4-6 are player 2's
-        self.locations = {
+        self.unit_locations = {
             1 : None,
             2 : None,
             3 : None,
@@ -50,7 +49,7 @@ class GameState:
         return players_turn
 
     def get_unit_location_by_type(self, unit_type):
-        return self.locations[unit_type]
+        return self.unit_locations[unit_type]
     
     def change_turns(self):
         self.turn[1] = not self.turn[1]
@@ -59,7 +58,7 @@ class GameState:
     def move_unit(self, move):
         # move is [unit_type, col, row]
         unit_type, col, row = move
-        self.locations[unit_type] = [col, row]
+        self.unit_locations[unit_type] = [col, row]
 
     def attack_unit(self, attack):
         # attack is [unit_type, attack_power] where unit_type is the unit being attacked
@@ -67,7 +66,7 @@ class GameState:
         self.unit_health[unit_type] -= attack_power
         if self.unit_health[unit_type] <= 0:
             self.unit_health[unit_type] = 0
-            self.locations[unit_type] = None
+            self.unit_locations[unit_type] = None
 
     def set_ready(self, player_num):
         self.ready_state[player_num] = True
