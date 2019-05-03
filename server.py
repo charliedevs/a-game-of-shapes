@@ -126,6 +126,7 @@ def client_thread(connection, player_num):
                 attack = turn["attack"]
                 if attack:
                     gamestate.attack_unit(attack)
+                    gamestate.determine_if_game_over()
                 # Change player turn
                 gamestate.change_turns()
             elif data == "request_turn":

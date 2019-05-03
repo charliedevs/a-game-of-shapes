@@ -411,11 +411,13 @@ class Map:
         print(self.enemy_units)
         
 
-    def clear(self):
-        # Resets the map.
-        #
-        # Removes special tile_types and
+    def reset(self):
+        """
+        Initialize the map.
 
+        Removes special tile_types and
+        resets unit health and positions.
+        """
         for row in range(self.grid.rows):
             for col in range(self.grid.cols):
                 self.grid.set_tile_type(col, row, 0)

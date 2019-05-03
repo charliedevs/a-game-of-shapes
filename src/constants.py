@@ -28,13 +28,17 @@ P2_TRIANGLE = 4
 P2_DIAMOND = 5
 P2_CIRCLE = 6
 
+# Max. health values
+TRIANGLE_HEALTH = 4
+DIAMOND_HEALTH = 5
+CIRCLE_HEALTH = 3
+
 # Tile_types
 BLANK = 0
 HEALTH = 1
 HARM = 2
 MOVABLE = 3
 ATTACKABLE = 4
-
 
 # Move phases
 NOT_TURN = 0

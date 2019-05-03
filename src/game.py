@@ -138,15 +138,11 @@ class Game:
             self.gamestate.change_turns()
             self.turn["phase"] = NOT_TURN
 
-        # End of game
-        if self.turn["phase"] == GAME_OVER:
-            self.gameover()
-
     def update(self):
         """
         Update variables that change every frame.
         """
-        self.time = self.clock.tick(30)
+        self.time = self.clock.tick(60)
         self.mouse_position = pygame.mouse.get_pos()
 
 
@@ -161,6 +157,9 @@ class Game:
 
         self.turn["attack"] = None
         self.turn["move"] = None
+
+        if self.gamestate.game_is_over:
+            self.gameover()
 
         self.gamestate = new_gamestate
 
@@ -257,7 +256,7 @@ class Game:
         elif self.player_num == 2:
              # Display "Unit Information"
             location = [self.screen.get_width() - 150, SIZE*5]  # Beginning of unit info.
-            textsurface = font.render("Player Units", False, colors.white)
+            textsurface = font.render("Your Units", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.players_units:
                 # Increment horizontal placement
@@ -323,7 +322,53 @@ class Game:
             self.gamestate = self.network.get_gamestate()
 
     def gameover(self):
-        pass
+        # Clear the map
+        self.map.reset()    
+        self.gamestate = self.network.get_gamestate()
+
+        # Loop until player resets or quits
+        while not self.gamestate.ready():
+
+            # Show text and how to reset
+            self.display_endgame_results()
+
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    self.exit_game()
+
+                # Press space to restart or esc to exit
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        # Tell server that you're ready
+                        self.network.send_command("start")
+                    elif event.key == pygame.K_ESCAPE:
+                        self.exit_game()
+
+            # Update gamestate to check if other player is ready
+            self.gamestate = self.network.get_gamestate()
+
+        # Determine turn to start back with
+        is_turn = self.gamestate.is_players_turn(self.player_num)
+        if is_turn:
+            turn["phase"] = SELECT_UNIT_TO_MOVE
+
+    def display_endgame_results(self):
+        """
+        Display winning/losing text.
+        """
+        self.screen.fill(colors.lightgray)
+
+        # Show results
+        if self.gamestate.winner == self.player_num:
+            textsurface = self.game_font.render("You won!", False, colors.darkgreen)
+        else:
+            textsurface = self.game_font.render("You lost...", False, colors.darkred)
+        text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
+        self.screen.blit(textsurface, text_rect)
+        self.display_statistics()
+
+        pygame.display.update()
 
     def exit_game(self):
         print("Exiting game...")

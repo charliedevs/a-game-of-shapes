@@ -4,10 +4,7 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 
 """
 
-# Max. health values
-TRIANGLE_HEALTH = 4
-DIAMOND_HEALTH = 5
-CIRCLE_HEALTH = 3
+from src.constants import *
 
 class GameState:
 
@@ -20,23 +17,13 @@ class GameState:
 
         # Holds locations of all units
         # 1-3 are player 1's, 4-6 are player 2's
-        self.unit_locations = {
-            1 : None,
-            2 : None,
-            3 : None,
-            4 : None,
-            5 : None,
-            6 : None
-        }
+        self.unit_locations = self.initialize_locations()
 
-        self.unit_health = {
-            1 : TRIANGLE_HEALTH,
-            2 : DIAMOND_HEALTH,
-            3 : CIRCLE_HEALTH,
-            4 : TRIANGLE_HEALTH,
-            5 : DIAMOND_HEALTH,
-            6 : CIRCLE_HEALTH
-        }
+        # Server keeps track of unit health
+        self.unit_health = self.initialize_health()
+
+        self.game_is_over = False
+        self.winner = None
 
     def is_players_turn(self, player_num):
         return self.turn[player_num]
@@ -74,9 +61,57 @@ class GameState:
     def ready(self):
         return all(ready for ready in self.ready_state.values())
 
-    def winner(self):
-        pass
+    def determine_if_game_over(self):
+        #TODO: Make sure these dicts are correct. Maybe use for loops
+        # Use dictionary comprehensions to separate player units
+        player_1_health = {unit: self.unit_health[unit] for unit in self.unit_health.keys() & {1, 2, 3}}
+        player_2_health = {unit: self.unit_health[unit] for unit in self.unit_health.keys() & {4, 5, 6}}
+
+        # Game is over if either player has no health left
+        game_is_over = False
+        if all(health == 0 for health in player_1_health.values()):
+            # Player 1 died, Player 2 wins
+            self.winner = 2
+            game_is_over = True
+        if all(health == 0 for health in player_2_health.values()):
+            # Player 2 died, Player 1 wins
+            self.winner = 1
+            game_is_over = True
+
+        if game_is_over:
+            self.game_is_over = True
+            self.change_turns()
+            self.reset()
 
     def reset(self):
-        for player_moved in self.turn_completed:
-            player_moved = False
+        self.unit_locations = self.initialize_locations()
+        self.unit_health = self.initialize_health()
+
+        # Set both players to not ready
+        for player in self.ready_state.keys():
+            self.ready_state[player] = False
+
+
+    def initialize_locations(self):
+        unit_locations = {
+            1 : None,
+            2 : None,
+            3 : None,
+            4 : None,
+            5 : None,
+            6 : None
+        }
+
+        return unit_locations
+
+    def initialize_health(self):
+        unit_health = {
+            1 : TRIANGLE_HEALTH,
+            2 : DIAMOND_HEALTH,
+            3 : CIRCLE_HEALTH,
+            4 : TRIANGLE_HEALTH,
+            5 : DIAMOND_HEALTH,
+            6 : CIRCLE_HEALTH
+        }
+
+        return unit_health

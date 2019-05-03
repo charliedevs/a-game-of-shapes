@@ -27,19 +27,19 @@ class Unit:
         health, attack_power, speed, attack_range = 0, 0, 0, 0
 
         if self.is_triangle():
-            max_health = 4
+            max_health = TRIANGLE_HEALTH
             attack_power = 1
             attack_range = 3
             speed = 3
             archetype = "triangle"
         elif self.is_diamond():
-            max_health = 5
+            max_health = DIAMOND_HEALTH
             attack_power = 2
-            attack_range = 1
+            attack_range = 2
             speed = 2
             archetype = "diamond"
         elif self.is_circle():
-            max_health = 3
+            max_health = CIRCLE_HEALTH
             attack_power = 3
             attack_range = 1
             speed = 2
@@ -204,17 +204,17 @@ class Unit:
         player_num = self.get_owning_player()
         if self.is_triangle():
             if player_num == 1:
-                color = colors.orange
+                color = colors.red
             else:
                 color = colors.darkgreen
         elif self.is_diamond():
             if player_num == 1:
-                color = colors.darkred
+                color = colors.orange
             else:
-                color = colors.red
+                color = colors.blue
         elif self.is_circle():
             if player_num == 1:
-                color = colors.darkblue
+                color = colors.darkred
             else:
                 color = colors.darkpurple
 
