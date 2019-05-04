@@ -49,12 +49,11 @@ def get_connection():
     port_textbox.pack()
 
     #Console out
-    # TODO: Fix console out by deleting previous content also make unwritable?
     T = tkinter.Text(root, height=2, width=50)
     T.pack(side = tkinter.BOTTOM)
+    T.bindtags((str(T), str(root), "all"))
     port_label = tkinter.Label(root, text="Console:")
     port_label.pack(side = tkinter.BOTTOM)
-    T.insert(tkinter.END, "Errors are displayed here.")
     
 
     def add_network():
@@ -72,6 +71,7 @@ def get_connection():
             network = Network(host, int(port))
         except:
             print("[Error]: Invalid ip address or port number")
+            T.delete(1.0, tkinter.END)
             T.insert(tkinter.END, "[Error]: Invalid ip address or port number")
 
         connection.append(network)
@@ -96,6 +96,7 @@ def get_connection():
                 root.destroy()
             except:
                 print("[Error]: Unable to connect to given address")
+                T.delete(1.0, tkinter.END)
                 T.insert(tkinter.END, "[Error]: Unable to connect to given address")
         
     def enter(event):

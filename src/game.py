@@ -120,6 +120,7 @@ class Game:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         self.turn = self.map.handle_click(self.mouse_position, self.turn)
                     # User presses a key
+                    # TODO: Delete or implement keydown
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
                             self.turn["phase"] == ATTACKING
@@ -280,8 +281,8 @@ class Game:
         """
         Display help text.
         """
-        LOCATION = [0,WINDOW_HEIGHT-30]
-        SIZE = 18
+        LOCATION = [0,WINDOW_HEIGHT-25]
+        SIZE = 16
         font = pygame.font.SysFont("Verdana", SIZE)
         phase_text = ""
         
@@ -289,7 +290,7 @@ class Game:
         if self.turn["phase"] == SELECT_UNIT_TO_MOVE:
             phase_text = "HELP: Select a unit by clicking on it with your mouse."
         elif self.turn["phase"] == MOVING:
-            phase_text = "HELP: Choose a tile to move your unit to."
+            phase_text = "HELP: Choose a tile to move your unit or click on the unit to deselect."
         elif self.turn["phase"] == ATTACKING:
             phase_text = "HELP: Attack by clicking an emeny unit"
         textsurface = font.render(phase_text, False, colors.white)
@@ -313,7 +314,7 @@ class Game:
 
             # Display waiting text
             self.screen.fill(colors.darkgray)
-            textsurface = self.game_font.render("Waiting...", False, colors.white)
+            textsurface = self.game_font.render("Waiting for player 2...", False, colors.white)
             text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
             self.screen.blit(textsurface, text_rect)
             pygame.display.update()
