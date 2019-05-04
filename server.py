@@ -39,8 +39,8 @@ def start_server():
     SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Use localhost and grab port from commandline arg
-    HOST = socket.gethostbyname(socket.gethostname())
-    PORT = int(sys.argv[1])
+    HOST = sys.argv[1]
+    PORT = int(sys.argv[2])
 
     # Attempt bind to (host, port) pair
     try:
@@ -200,10 +200,11 @@ def receive_pickle(connection):
         print(str(e))
         return None
 
+
 if __name__ == "__main__":
     # Check for correct number of arguments
-    if len(sys.argv) < 2:
-        print("Usage: python server.py <port>")
+    if len(sys.argv) < 3:
+        print("Usage: python server.py <ip> <port>")
         sys.exit()
     # Enter server loop
     start_server()
