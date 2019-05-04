@@ -67,6 +67,7 @@ class Unit:
         self.health = self.health - amount
 
         if self.health <= 0:
+            self.health = 0
             self.is_alive = False
 
     def add_health(self, amount):
@@ -78,8 +79,8 @@ class Unit:
         """
         self.health = self.health + amount
 
-        if self.health > self.health_max:
-            self.health = self.health_max
+        if self.health > self.max_health:
+            self.health = self.max_health
 
     def change_health(self, health):
         """
@@ -87,6 +88,7 @@ class Unit:
         """
         self.health = health
         if self.health <= 0:
+            self.health = 0
             self.is_alive = False
 
     def attack(self, enemy_unit):

@@ -80,8 +80,6 @@ class GameState:
 
         if game_is_over:
             self.game_is_over = True
-            self.change_turns()
-            self.reset()
 
     def reset(self):
         self.unit_locations = self.initialize_locations()

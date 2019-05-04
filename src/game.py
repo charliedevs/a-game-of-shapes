@@ -124,20 +124,6 @@ class Game:
                         if event.key == pygame.K_SPACE:
                             self.turn["phase"] == ATTACKING
 
-            # Other player's turn
-            else:
-                players_turn = self.network.request_turn()
-                if players_turn == self.player_num:
-                    self.update_gamestate()
-                    self.turn["phase"] = SELECT_UNIT_TO_MOVE
-
-        # End players turn
-        if self.turn["phase"] == END_TURN:
-            # Send moves and attacks made to server
-            self.network.send_turn(self.turn)
-            self.gamestate.change_turns()
-            self.turn["phase"] = NOT_TURN
-
     def update(self):
         """
         Update variables that change every frame.
@@ -145,6 +131,23 @@ class Game:
         self.time = self.clock.tick(60)
         self.mouse_position = pygame.mouse.get_pos()
 
+        # Other player's turn
+        if self.turn["phase"] == NOT_TURN:
+            players_turn = self.network.request_turn()
+            if players_turn == self.player_num:
+                self.update_gamestate()
+                self.turn["phase"] = SELECT_UNIT_TO_MOVE
+
+        # Check if turn ended
+        if self.turn["phase"] == END_TURN:
+            # Send moves and attacks made to server
+            self.network.send_turn(self.turn)
+            self.gamestate.change_turns()
+            self.turn["phase"] = NOT_TURN
+
+        # Check if someone has won
+        if self.gamestate.game_is_over:
+            self.gameover()
 
     def update_gamestate(self):
         """
@@ -157,9 +160,6 @@ class Game:
 
         self.turn["attack"] = None
         self.turn["move"] = None
-
-        if self.gamestate.game_is_over:
-            self.gameover()
 
         self.gamestate = new_gamestate
 
@@ -322,12 +322,10 @@ class Game:
             self.gamestate = self.network.get_gamestate()
 
     def gameover(self):
-        # Clear the map
-        self.map.reset()    
-        self.gamestate = self.network.get_gamestate()
-
+        self.network.send_turn(self.turn)
         # Loop until player resets or quits
-        while not self.gamestate.ready():
+        # while not self.gamestate.ready():
+        while True:
 
             # Show text and how to reset
             self.display_endgame_results()
@@ -348,10 +346,13 @@ class Game:
             # Update gamestate to check if other player is ready
             self.gamestate = self.network.get_gamestate()
 
+        # Clear the map
+        self.map.reset()    
+
         # Determine turn to start back with
         is_turn = self.gamestate.is_players_turn(self.player_num)
         if is_turn:
-            turn["phase"] = SELECT_UNIT_TO_MOVE
+            self.turn["phase"] = SELECT_UNIT_TO_MOVE
 
     def display_endgame_results(self):
         """
@@ -366,6 +367,8 @@ class Game:
             textsurface = self.game_font.render("You lost...", False, colors.darkred)
         text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
         self.screen.blit(textsurface, text_rect)
+
+        #TODO: display endgame statistics slightly differently
         self.display_statistics()
 
         pygame.display.update()

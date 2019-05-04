@@ -122,8 +122,9 @@ def client_thread(connection, player_num):
                 send_data("ok", connection)
                 turn = receive_pickle(connection)
                 move = turn["move"]
-                gamestate.move_unit(move)
                 attack = turn["attack"]
+                if move:
+                    gamestate.move_unit(move)
                 if attack:
                     gamestate.attack_unit(attack)
                     gamestate.determine_if_game_over()

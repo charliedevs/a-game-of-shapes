@@ -138,14 +138,14 @@ class Map:
 
                 self.remove_highlight("move")
                 
-        # Attack if possible
+        # Player is attacking
         elif turn["phase"] == ATTACKING:
             # If user clicks on self, forfeit attack
             if not self.selected_unit.pos == [clicked_column, clicked_row]:
                 turn["attack"] = self.attack(clicked_column, clicked_row)
+            turn["phase"] = END_TURN
             self.remove_highlight("attack")
             self.selected_unit = None
-            turn["phase"] = END_TURN
 
         return turn
 
@@ -402,14 +402,6 @@ class Map:
             self.players_units.remove(unit)
         if unit in self.enemy_units:
             self.enemy_units.remove(unit)
-        print("############################################")
-        print("Inside kill_unit() (player {})\n".format(self.player_num))
-        print(self.all_units)
-        print("Player's units:")
-        print(self.players_units)
-        print("Enemy's units:")
-        print(self.enemy_units)
-        
 
     def reset(self):
         """
