@@ -7,6 +7,7 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 import pygame
 import sys
 import time
+import random
 from itertools import repeat
 
 # Constants
@@ -155,6 +156,8 @@ class Map:
                 # If user clicks on self, forfeit attack
                 if winner == self.player_num:
                     turn["attack"] = self.attack(enemy_unit)
+                # else:
+                #     self.display_attack_result("block")
 
                 self.remove_highlight("attack")
                 turn["phase"] = END_TURN
@@ -190,6 +193,9 @@ class Map:
         self.selected_unit.attack(enemy_unit)
         if not enemy_unit.is_alive:
             self.kill_unit(enemy_unit)
+        #     self.display_attack_result("kill")
+        # else:
+        #     self.display_attack_result("hit")
         attack = [enemy_unit.type, self.selected_unit.attack_power]
         return attack
 
@@ -333,6 +339,60 @@ class Map:
                             int(radius)
                         )
 
+    def display_attack_result(self, result):
+        """
+        Result is either "hit", "block", or "kill"
+        TODO: Integrate this into game in a clean way. Currently makes game hangup.
+        """
+        font = pygame.font.Font(GAME_FONT, 26)
+        text = ""
+        color = colors.darkgray
+        # Determine font based on result
+        if result == "hit":
+            text = "Attack landed!"
+        elif result == "block":
+            text = "Blocked attack!"
+            color = colors.blue
+        elif result == "kill":
+            text = self.get_random_kill_text()
+            color = colors.darkred
+
+        # Set up popup window
+        text_surface = font.render(text, True, colors.lightergrey, color)
+        text_rect = text_surface.get_rect()
+        text_rect.center = WINDOW_CENTER
+
+        # Display popup for 2 seconds
+        self.screen.blit(text_surface, text_rect)
+        pygame.display.update()
+        time.sleep(2)
+
+    def get_random_kill_text(self):
+        kill_text = ""
+        random_num = random.randint(1, 11)
+        if random_num == 1:
+            kill_text = "Fatal blow!"
+        elif random_num == 2:
+            kill_text = "Brutally slain!"
+        elif random_num == 3:
+            kill_text = "The gift of death!"
+        elif random_num == 4:
+            kill_text = "Man down!"
+        elif random_num == 5:
+            kill_text = "What a kill!"
+        elif random_num == 6:
+            kill_text = "Say goodbye!"
+        elif random_num == 7:
+            kill_text = "Adiós, muchacho!"
+        elif random_num == 8:
+            kill_text = "Unit killed!"
+        elif random_num == 9:
+            kill_text = "No shape is safe!"
+        elif random_num == 10:
+            kill_text = "Death!"
+
+        return kill_text
+        
     def get_rect(self):
         """
         Return rect with (x, y) relative to window.

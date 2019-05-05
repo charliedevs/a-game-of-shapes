@@ -1,6 +1,8 @@
 import pygame
-from src.constants import *
 import os
+
+import src.colors as colors
+from src.constants import *
 
 class RPS:
     """
@@ -18,9 +20,9 @@ class RPS:
         self.scissors_rect = self.get_scissors_rect()
 
         # Scaled images of Rock, Paper, Scissors #TODO: Place images in separate folder
-        self.rock_image = self.scale(pygame.image.load("rock.jpg"))
-        self.paper_image = self.scale(pygame.image.load("paper.jpg"))
-        self.scissors_image = self.scale(pygame.image.load("scissors.jpg"))
+        self.rock_image = self.scale(pygame.image.load("rock.png"))
+        self.paper_image = self.scale(pygame.image.load("paper.png"))
+        self.scissors_image = self.scale(pygame.image.load("scissors.png"))
 
         # The choice picked by client
         self.hand = None
@@ -54,6 +56,13 @@ class RPS:
         self.screen.blit(self.rock_image, self.rock_rect)
         self.screen.blit(self.paper_image, self.paper_rect)
         self.screen.blit(self.scissors_image, self.scissors_rect)
+
+        # Display help text
+        LOCATION = [0,WINDOW_HEIGHT-25]
+        font = pygame.font.Font(GAME_FONT, 14)
+        help_text = "HELP: Rock, Paper, Scissors! Take damage if attacker wins."
+        textsurface = font.render(help_text, False, colors.white)
+        self.screen.blit(textsurface, LOCATION)
 
     def scale(self, image):
         """

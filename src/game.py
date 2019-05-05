@@ -135,8 +135,9 @@ class Game:
         if not self.gamestate.is_players_turn(self.player_num):
             rps_in_session = self.network.check_for_rps()
             if rps_in_session:
-                self.map.rps_loop()
-                # self.network.finish_rps()
+                winner = self.map.rps_loop()
+                # if winner == self.player_num:
+                #     self.map.display_attack_result("block")
             players_turn = self.network.request_turn()
             if players_turn == self.player_num:
                 self.update_gamestate()
@@ -178,6 +179,9 @@ class Game:
                     unit.change_health(health)
                     if not unit.is_alive:
                         self.map.kill_unit(unit)
+                    #     self.map.display_attack_result("kill")
+                    #  else:
+                    #     self.map.display_attack_result("hit")
 
     def update_positions(self, new_gamestate):
         """
