@@ -46,11 +46,18 @@ PLACE_TILES = 1
 SELECT_UNIT_TO_MOVE = 2
 MOVING = 3
 ATTACKING = 4
-END_TURN = 5
-GAME_OVER = 6
+CHOOSE_RPS = 5
+WAIT_FOR_RPS = 6
+END_TURN = 7
+GAME_OVER = 8
 
 # Grid size
 GRID_COLUMNS = 14
 GRID_ROWS = 12
+
+# RPS constants
+ROCK = 0
+PAPER = 1
+SCISSORS = 2
 
 #########################################################################

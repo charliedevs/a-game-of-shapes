@@ -53,7 +53,7 @@ class Game:
         self.game_font = pygame.font.SysFont("Verdana", 60)
 
         # Set up gameplay map
-        self.map = Map(self.screen, self.player_num)
+        self.map = Map(self.screen, self.player_num, self.network)
 
         # Represents the state of game
         # Modified by server and sent to clients
@@ -114,7 +114,7 @@ class Game:
             if self.gamestate.is_players_turn(self.player_num):
                 # User is placing tiles
                 if self.turn["phase"] == PLACE_TILES:
-                    pass
+                    pass # TODO: Add tile placement
                 else: # Attack!
                     # User clicks button
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -123,7 +123,7 @@ class Game:
                     # TODO: Delete or implement keydown
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
-                            self.turn["phase"] == ATTACKING
+                            self.turn["phase"] == END_TURN
 
     def update(self):
         """
@@ -133,7 +133,11 @@ class Game:
         self.mouse_position = pygame.mouse.get_pos()
 
         # Other player's turn
-        if self.turn["phase"] == NOT_TURN:
+        if not self.gamestate.is_players_turn(self.player_num):
+            rps_in_session = self.network.check_for_rps()
+            if rps_in_session:
+                self.map.rps_loop()
+                self.network.finish_rps()
             players_turn = self.network.request_turn()
             if players_turn == self.player_num:
                 self.update_gamestate()

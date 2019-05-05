@@ -5,6 +5,7 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 # TODO: Abstract tiles into a class holding tile_type and if the tile is hovered over
 
 import pygame
+import sys
 
 # Constants
 import src.colors as colors
@@ -13,6 +14,7 @@ from src.constants import *
 # Classes
 from src.grid import Grid
 from src.unit import Unit
+from src.rockpaperscissors import RPS
 
 class Map:
     """
@@ -24,7 +26,7 @@ class Map:
 
     """
 
-    def __init__(self, screen, player_num):
+    def __init__(self, screen, player_num, network):
         """
         Set up tile grid and units.
 
@@ -32,17 +34,17 @@ class Map:
         Arguments:
             screen {pygame.Surface} -- The main display window
             player_num {int} -- The player identifier; 1 or 2
+            network {Network} -- Connection to the server
         """
 
         self.screen = screen
         self.player_num = player_num
+        self.network = network
 
         # The grid is a 2D array with columns and rows
         self.grid = Grid()
         cols = self.grid.cols
         rows = self.grid.rows
-
-        # TODO: create function to return a tile, and one to get tile based on mouse_position
 
         # The dimensions of each tile
         self.tile_w = TILE_WIDTH
@@ -72,6 +74,9 @@ class Map:
         self.players_units = []
         self.enemy_units = []
         self.initialize_units()
+
+        # The rock paper scissors class
+        self.rps = RPS(self.screen)
         
 
     def handle_hover(self, mouse_position):
@@ -140,11 +145,15 @@ class Map:
                 
         # Player is attacking
         elif turn["phase"] == ATTACKING:
+            # Rock paper scissors!
+            winner = self.rps_loop()
+            self.network.finish_rps()
             # If user clicks on self, forfeit attack
-            if not self.selected_unit.pos == [clicked_column, clicked_row]:
+            if winner == self.player_num:
                 turn["attack"] = self.attack(clicked_column, clicked_row)
-            turn["phase"] = END_TURN
+
             self.remove_highlight("attack")
+            turn["phase"] = END_TURN
             self.selected_unit = None
 
         return turn
@@ -402,6 +411,56 @@ class Map:
             self.players_units.remove(unit)
         if unit in self.enemy_units:
             self.enemy_units.remove(unit)
+
+    def rps_loop(self):
+        """
+        Play rock paper scissors to see if attack lands.
+        """
+        player_has_picked = False
+        hand_sent = False
+        winner = None
+
+        while winner is None:
+            # Loop until rps is over
+            mouse_position = pygame.mouse.get_pos()
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    print("Exiting game...")
+                    self.network.close()
+                    pygame.quit()
+                    sys.exit(0)
+
+                # Only check for mouse clicks if player hasn't made a choice
+                if not player_has_picked:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        self.rps.handle_click(mouse_position)
+                        if self.rps.hand:
+                            player_has_picked = True
+            
+            if not hand_sent and player_has_picked:
+                self.network.send_hand(self.rps.hand)
+                hand_sent = True
+            else:
+                winner = self.network.get_rps_winner()
+
+            # Draw RPS graphics
+            self.screen.fill(colors.darkgray)
+            if not player_has_picked:
+                # Draw RPS graphics
+                self.rps.draw()
+            else:
+                self.display_rps_waiting()
+            pygame.display.update()
+
+        return winner
+        
+
+    def display_rps_waiting(self):
+        font = pygame.font.SysFont("Verdana", 30)
+        textsurface = font.render("Waiting for other player's choice...", False, colors.white)
+        text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
+        self.screen.blit(textsurface, text_rect)
 
     def reset(self):
         """
