@@ -6,6 +6,8 @@ Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
 
 import pygame
 import sys
+import time
+from itertools import repeat
 
 # Constants
 import src.colors as colors
@@ -272,7 +274,7 @@ class Map:
                 elif tile_type == HARM:
                     tile_color = colors.red
                 elif tile_type == MOVABLE:
-                    tile_color = colors.yellow
+                    tile_color = colors.lightergrey
                 elif tile_type == ATTACKABLE:
                     tile_color = colors.purple
 
@@ -468,10 +470,9 @@ class Map:
             pygame.display.update()
 
         return winner
-        
 
     def display_rps_waiting(self):
-        font = pygame.font.SysFont("Verdana", 30)
+        font = pygame.font.Font("FFFFORWA.ttf", 24)
         textsurface = font.render("Waiting for other player's choice...", False, colors.white)
         text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
         self.screen.blit(textsurface, text_rect)

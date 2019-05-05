@@ -10,6 +10,7 @@ Defines custom colors used for GUI.
 white = (213, 213, 213)
 black = (59, 59, 59)
 
+lightergrey = (169, 169, 169)
 lightgray = (100, 100, 100)
 lightgrey = (100, 100, 100)
 darkgray = (73, 73, 73)
@@ -21,6 +22,7 @@ yellow = (255, 212, 121)
 green = (168, 211, 169)
 blue = (120, 170, 214)
 purple = (214, 172, 214)
+aqua = (118, 212, 214)
 
 darkred = (218, 75, 75)
 darkblue = (55, 122, 183)

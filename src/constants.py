@@ -52,8 +52,8 @@ END_TURN = 7
 GAME_OVER = 8
 
 # Grid size
-GRID_COLUMNS = 14
-GRID_ROWS = 12
+GRID_COLUMNS = 12
+GRID_ROWS = 11
 
 # RPS constants
 ROCK = 1

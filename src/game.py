@@ -50,7 +50,7 @@ class Game:
         
         # Set up font
         pygame.font.init()
-        self.game_font = pygame.font.SysFont("Verdana", 60)
+        self.game_font = pygame.font.Font("FFFFORWA.ttf", 40)
 
         # Set up gameplay map
         self.map = Map(self.screen, self.player_num, self.network)
@@ -215,9 +215,10 @@ class Game:
         #       Set alignment of text.
 
         # Font size is equal to line spacing 
-        SIZE = 20
+        SIZE = 16
 
-        font = pygame.font.SysFont("Verdana", SIZE)
+        font = pygame.font.Font("FFFFORWA.ttf", SIZE)
+        turn_font = pygame.font.Font("FFFFORWA.ttf", SIZE+10)
 
         # Display player turn
         is_turn = self.gamestate.is_players_turn(self.player_num)
@@ -229,7 +230,7 @@ class Game:
         else:
             turn_text = "Enemy Turn"
             text_color = colors.darkred
-        textsurface = font.render(turn_text, False, text_color)
+        textsurface = turn_font.render(turn_text, False, text_color)
         text_rect = textsurface.get_rect(center=[WINDOW_WIDTH/2, SIZE*3])
         self.screen.blit(textsurface, text_rect)
 
@@ -237,22 +238,22 @@ class Game:
         if self.player_num == 1:
             # Display "Unit Information"
             location = [20, SIZE*5]  # Beginning of unit info.
-            textsurface = font.render("Your Units", False, colors.white)
+            textsurface = font.render("Your Health", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.players_units:
                 # Increment horizontal placement
-                location[1] += SIZE
+                location[1] += SIZE + 8
                 health = str(unit.health) + "/" + str(unit.max_health)
                 textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
                 self.screen.blit(textsurface, location)
 
             # Display "Enemy Unit Information"
             location = [self.screen.get_width() - 150, SIZE*5]  # Beginning of unit info.
-            textsurface = font.render("Enemy Units", False, colors.white)
+            textsurface = font.render("Enemy Health", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.enemy_units:
                 # Increment horizontal placement
-                location[1] += SIZE
+                location[1] += SIZE + 8
                 health = str(unit.health) + "/" + str(unit.max_health)
                 textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
                 self.screen.blit(textsurface, location)
@@ -260,22 +261,22 @@ class Game:
         elif self.player_num == 2:
              # Display "Unit Information"
             location = [self.screen.get_width() - 150, SIZE*5]  # Beginning of unit info.
-            textsurface = font.render("Your Units", False, colors.white)
+            textsurface = font.render("Your Health", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.players_units:
                 # Increment horizontal placement
-                location[1] += SIZE
+                location[1] += SIZE + 8
                 health = str(unit.health) + "/" + str(unit.max_health)
                 textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
                 self.screen.blit(textsurface, location)
 
             # Display "Enemy Information"
             location = [20, SIZE*5]  # Beginning of unit info.
-            textsurface = font.render("Enemy Units", False, colors.white)
+            textsurface = font.render("Enemy Health", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.enemy_units:
                 # Increment horizontal placement
-                location[1] += SIZE
+                location[1] += SIZE + 8
                 health = str(unit.health) + "/" + str(unit.max_health)
                 textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
                 self.screen.blit(textsurface, location)
@@ -285,8 +286,8 @@ class Game:
         Display help text.
         """
         LOCATION = [0,WINDOW_HEIGHT-25]
-        SIZE = 16
-        font = pygame.font.SysFont("Verdana", SIZE)
+        SIZE = 12
+        font = pygame.font.Font("FFFFORWA.ttf", SIZE)
         phase_text = ""
         
         # Change help text based on phase
@@ -296,6 +297,9 @@ class Game:
             phase_text = "HELP: Click a tile to move your unit, or click same unit to deselect."
         elif self.turn["phase"] == ATTACKING:
             phase_text = "HELP: Attack by clicking an enemy unit. (Must attack if enemy is in range)"
+        elif self.turn["phase"] == NOT_TURN:
+            phase_text = "HELP: Wait for your enemy to make their move."
+
         textsurface = font.render(phase_text, False, colors.white)
         self.screen.blit(textsurface, LOCATION)
         
