@@ -39,14 +39,49 @@ class Network:
         self.send_pickle(movelist)
 
     def send_turn(self, turn):
-        self.send_command("turn")
-        reply = self.receive() # Check for reply?
-        self.send_pickle(turn)
+        reply = None
+        while reply != "ok":
+            self.send_command("turn")
+            reply = self.receive()
+        reply = None
+        while reply != "ok":
+            self.send_pickle(turn)
+            reply = self.receive()
 
     def request_turn(self):
         self.send_command("request_turn")
         turn = self.receive_integer()
         return turn
+
+    def send_hand(self, hand):
+        reply = None
+        while reply != "ok":
+            self.send_command("hand")
+            reply = self.receive()
+        reply = None
+        while reply != "ok":
+            self.send_pickle(hand)
+            reply = self.receive()
+
+    def get_rps_winner(self):
+        winner = None
+        while not winner:
+            self.send_command("rps_winner")
+            winner = self.receive_integer()
+        return winner
+
+    # def finish_rps(self):
+    #     self.send_command("finish_rps")
+    #     reply = self.receive()
+
+    def check_for_rps(self):
+        self.send_command("check_rps")
+        rps_in_session = self.receive_integer()
+        if rps_in_session == 1:
+            rps_in_session = True
+        else:
+            rps_in_session = False
+        return rps_in_session
 
     def send_command(self, data):
         # Send data to server
@@ -90,8 +125,8 @@ class Network:
 
     def receive_integer(self):
         try:
-            player_num = int(self.receive())
-            return player_num
+            integer = int(self.receive())
+            return integer
         except ValueError as e:
             print(str(e))
             return None

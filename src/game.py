@@ -53,7 +53,7 @@ class Game:
         self.game_font = pygame.font.SysFont("Verdana", 60)
 
         # Set up gameplay map
-        self.map = Map(self.screen, self.player_num)
+        self.map = Map(self.screen, self.player_num, self.network)
 
         # Represents the state of game
         # Modified by server and sent to clients
@@ -106,15 +106,14 @@ class Game:
             if event.type == pygame.QUIT:
                 self.exit_game()
 
-            # User hovers over tile
-            if event.type == pygame.MOUSEMOTION:
-                self.map.handle_hover(self.mouse_position)
-
-            # Only process clicks if it's this player's turn
+            # Only process events if it's your turn
             if self.gamestate.is_players_turn(self.player_num):
+                # User hovers over tile
+                if event.type == pygame.MOUSEMOTION:
+                    self.map.handle_hover(self.mouse_position)
                 # User is placing tiles
                 if self.turn["phase"] == PLACE_TILES:
-                    pass
+                    pass # TODO: Add tile placement
                 else: # Attack!
                     # User clicks button
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -123,7 +122,7 @@ class Game:
                     # TODO: Delete or implement keydown
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
-                            self.turn["phase"] == ATTACKING
+                            self.turn["phase"] == END_TURN
 
     def update(self):
         """
@@ -133,7 +132,11 @@ class Game:
         self.mouse_position = pygame.mouse.get_pos()
 
         # Other player's turn
-        if self.turn["phase"] == NOT_TURN:
+        if not self.gamestate.is_players_turn(self.player_num):
+            rps_in_session = self.network.check_for_rps()
+            if rps_in_session:
+                self.map.rps_loop()
+                # self.network.finish_rps()
             players_turn = self.network.request_turn()
             if players_turn == self.player_num:
                 self.update_gamestate()
@@ -288,11 +291,11 @@ class Game:
         
         # Change help text based on phase
         if self.turn["phase"] == SELECT_UNIT_TO_MOVE:
-            phase_text = "HELP: Select a unit by clicking on it with your mouse."
+            phase_text = "HELP: Select a unit to move by clicking on it with your mouse."
         elif self.turn["phase"] == MOVING:
-            phase_text = "HELP: Choose a tile to move your unit or click on the unit to deselect."
+            phase_text = "HELP: Click a tile to move your unit, or click same unit to deselect."
         elif self.turn["phase"] == ATTACKING:
-            phase_text = "HELP: Attack by clicking an emeny unit"
+            phase_text = "HELP: Attack by clicking an enemy unit. (Must attack if enemy is in range)"
         textsurface = font.render(phase_text, False, colors.white)
         self.screen.blit(textsurface, LOCATION)
         
@@ -323,9 +326,12 @@ class Game:
             self.gamestate = self.network.get_gamestate()
 
     def gameover(self):
+        """
+        Gameover loop. 
+        TODO: Allow clients to restart game.
+        """
         self.network.send_turn(self.turn)
         # Loop until player resets or quits
-        # while not self.gamestate.ready():
         while True:
 
             # Show text and how to reset
@@ -368,9 +374,6 @@ class Game:
             textsurface = self.game_font.render("You lost...", False, colors.darkred)
         text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
         self.screen.blit(textsurface, text_rect)
-
-        #TODO: display endgame statistics slightly differently
-        self.display_statistics()
 
         pygame.display.update()
 
