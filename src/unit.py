@@ -206,9 +206,9 @@ class Unit:
         player_num = self.get_owning_player()
         if self.is_triangle():
             if player_num == 1:
-                color = colors.red
+                color = colors.yellow
             else:
-                color = colors.darkgreen
+                color = colors.green
         elif self.is_diamond():
             if player_num == 1:
                 color = colors.orange
@@ -218,7 +218,7 @@ class Unit:
             if player_num == 1:
                 color = colors.darkred
             else:
-                color = colors.darkpurple
+                color = colors.aqua
 
         return color
 
