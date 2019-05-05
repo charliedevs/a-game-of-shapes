@@ -50,7 +50,7 @@ class Game:
         
         # Set up font
         pygame.font.init()
-        self.game_font = pygame.font.Font("FFFFORWA.ttf", 40)
+        self.game_font = pygame.font.Font(GAME_FONT, 40)
 
         # Set up gameplay map
         self.map = Map(self.screen, self.player_num, self.network)
@@ -217,8 +217,8 @@ class Game:
         # Font size is equal to line spacing 
         SIZE = 16
 
-        font = pygame.font.Font("FFFFORWA.ttf", SIZE)
-        turn_font = pygame.font.Font("FFFFORWA.ttf", SIZE+10)
+        font = pygame.font.Font(GAME_FONT, SIZE)
+        turn_font = pygame.font.Font(GAME_FONT, SIZE+10)
 
         # Display player turn
         is_turn = self.gamestate.is_players_turn(self.player_num)
@@ -287,7 +287,7 @@ class Game:
         """
         LOCATION = [0,WINDOW_HEIGHT-25]
         SIZE = 12
-        font = pygame.font.Font("FFFFORWA.ttf", SIZE)
+        font = pygame.font.Font(GAME_FONT, SIZE)
         phase_text = ""
         
         # Change help text based on phase

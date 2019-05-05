@@ -169,8 +169,6 @@ class Unit:
                 if not (possible_pos[0] < 0 or possible_pos[1] >= max_row):
                     range_list.append(possible_pos)
         
-        #range_list.remove([self.col(), self.row()])
-
         return range_list
 
 

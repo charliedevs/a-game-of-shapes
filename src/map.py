@@ -232,7 +232,6 @@ class Map:
         elif range_type == "attack":
             tile_type = 4
         movable_list = unit.get_range(range_type, self.grid.cols, self.grid.rows)
-        print(movable_list)
         for position in movable_list:
             col = position[0]
             row = position[1]
@@ -272,11 +271,11 @@ class Map:
                 if tile_type == HEALTH:
                     tile_color = colors.green
                 elif tile_type == HARM:
-                    tile_color = colors.red
+                    tile_color = colors.purple
                 elif tile_type == MOVABLE:
                     tile_color = colors.lightergrey
                 elif tile_type == ATTACKABLE:
-                    tile_color = colors.purple
+                    tile_color = colors.red
 
                 # Display tiles
                 tile_rect = pygame.draw.rect(self.surface,
@@ -472,7 +471,7 @@ class Map:
         return winner
 
     def display_rps_waiting(self):
-        font = pygame.font.Font("FFFFORWA.ttf", 24)
+        font = pygame.font.Font(GAME_FONT, 24)
         textsurface = font.render("Waiting for other player's choice...", False, colors.white)
         text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
         self.screen.blit(textsurface, text_rect)
