@@ -532,7 +532,7 @@ class Map:
 
     def display_rps_waiting(self):
         font = pygame.font.Font(GAME_FONT, 24)
-        textsurface = font.render("Waiting for other player's choice...", False, colors.white)
+        textsurface = font.render("Waiting for other player's choice...", True, colors.white)
         text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
         self.screen.blit(textsurface, text_rect)
 

@@ -61,7 +61,7 @@ class RPS:
         LOCATION = [0,WINDOW_HEIGHT-25]
         font = pygame.font.Font(GAME_FONT, 14)
         help_text = "HELP: Rock, Paper, Scissors! Take damage if attacker wins."
-        textsurface = font.render(help_text, False, colors.white)
+        textsurface = font.render(help_text, True, colors.white)
         self.screen.blit(textsurface, LOCATION)
 
     def scale(self, image):
