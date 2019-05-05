@@ -145,16 +145,18 @@ class Map:
                 
         # Player is attacking
         elif turn["phase"] == ATTACKING:
-            # Rock paper scissors!
-            winner = self.rps_loop()
-            # self.network.finish_rps()
-            # If user clicks on self, forfeit attack
-            if winner == self.player_num:
-                turn["attack"] = self.attack(clicked_column, clicked_row)
+            enemy_unit = self.get_clicked_enemy(clicked_column, clicked_row)
+            if enemy_unit:
+                # Rock paper scissors!
+                winner = self.rps_loop()
+                # self.network.finish_rps()
+                # If user clicks on self, forfeit attack
+                if winner == self.player_num:
+                    turn["attack"] = self.attack(enemy_unit)
 
-            self.remove_highlight("attack")
-            turn["phase"] = END_TURN
-            self.selected_unit = None
+                self.remove_highlight("attack")
+                turn["phase"] = END_TURN
+                self.selected_unit = None
 
         return turn
 
@@ -179,19 +181,28 @@ class Map:
 
         return move
 
-    def attack(self, col, row):
+    def attack(self, enemy_unit):
         """
-        Attack another unit at given col, row.
+        Attack an enemy unit.
         """
-        attack = None
+        self.selected_unit.attack(enemy_unit)
+        if not enemy_unit.is_alive:
+            self.kill_unit(enemy_unit)
+        attack = [enemy_unit.type, self.selected_unit.attack_power]
+        return attack
+
+    def get_clicked_enemy(self, col, row):
+        """
+        Return the enemy if one exists at col, row.
+        """
+        clicked_enemy = None
         if self.grid.tile_in_attack_range(col, row):
             for enemy_unit in self.enemy_units:
                 if enemy_unit.pos == [col, row]:
-                    self.selected_unit.attack(enemy_unit)
-                    if not enemy_unit.is_alive:
-                        self.kill_unit(enemy_unit)
-                    attack = [enemy_unit.type, self.selected_unit.attack_power]
-        return attack
+                    clicked_enemy = enemy_unit
+                    break
+
+        return clicked_enemy
 
     def determine_tile_from_mouse_position(self, mouse_position):
         """
