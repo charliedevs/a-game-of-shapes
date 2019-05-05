@@ -22,8 +22,20 @@ class GameState:
         # Server keeps track of unit health
         self.unit_health = self.initialize_health()
 
+        # Keep track of rock paper scissors moves
+        self.hands = {
+            1 : None,
+            2 : None
+        }
+
+        self.rps_finished = {
+            1 : False,
+            2 : False
+        }
+
         self.game_is_over = False
         self.winner = None
+        self.playing_rps = False
 
     def is_players_turn(self, player_num):
         return self.turn[player_num]
@@ -58,6 +70,17 @@ class GameState:
     def set_ready(self, player_num):
         self.ready_state[player_num] = True
 
+    def finish_rps(self, player_num):
+        self.rps_finished[player_num] = True
+        all_finished = True
+        for finished in self.rps_finished.values():
+            if not finished:
+                all_finished = False
+
+        if all_finished:
+            self.hands[1] = None
+            self.hands[2] = None
+
     def ready(self):
         return all(ready for ready in self.ready_state.values())
 
@@ -80,6 +103,56 @@ class GameState:
 
         if game_is_over:
             self.game_is_over = True
+
+    def set_hand(self, player_num, hand):
+        self.hands[player_num] = hand
+
+    def determine_rps_winner(self):
+        """
+        See who won the game of rock paper scissors!
+
+        If it returns 0, both haven't played yet.
+        If it returns 3, it's a tie!
+        """
+        both_have_played = True
+        for hand in self.hands.values():
+            if not hand:
+                both_have_played = False
+
+        winner = 0
+        if both_have_played:
+            # Winning conditions
+            if self.hands[1] == self.hands[2]:
+                winner = 3
+            elif self.hands[1] == ROCK:
+                if self.hands[2] == PAPER:
+                    winner = 2
+                elif self.hands[2] == SCISSORS:
+                    winner = 1
+            elif self.hands[1] == PAPER:
+                if self.hands[2] == SCISSORS:
+                    winner = 2
+                elif self.hands[2] == ROCK:
+                    winner = 1
+            elif self.hands[1] == SCISSORS:
+                if self.hands[2] == ROCK:
+                    winner = 2
+                elif self.hands[2] == PAPER:
+                    winner = 1 
+
+        return winner
+
+    def rps_in_session(self):
+        in_session = 0
+        for hand in self.hands.values():
+            if hand:
+                in_session = 1
+
+        return in_session
+
+    def clear_rps_hands(self):
+        self.hands[1] = None
+        self.hands[2] = None
 
     def reset(self):
         self.unit_locations = self.initialize_locations()

@@ -133,6 +133,20 @@ def client_thread(connection, player_num):
             elif data == "request_turn":
                 turn = gamestate.get_turn()
                 send_data(turn, connection)
+            elif data == "hand":
+                send_data("ok", connection)
+                hand = receive_pickle(connection)
+                gamestate.set_hand(player_num, hand)
+            elif data == "rps_winner":
+                winner = gamestate.determine_rps_winner()
+                send_data(winner, connection)
+                print("Winner:", winner)
+            elif data == "check_rps":
+                in_session = gamestate.rps_in_session()
+                send_data(in_session, connection)
+            elif data == "finish_rps":
+                send_data("ok", connection)
+                gamestate.finish_rps[player_num] = True
             elif data == "start":
                 send_data("ok", connection)
                 gamestate.set_ready(player_num)
