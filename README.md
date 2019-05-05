@@ -1,9 +1,9 @@
-# As of Yet Unamed Strategy Game
+# A Game of Shapes
 
 <table>
 <tr>
 <td>
-    A simple online two-player strategy game created with pygame. Developed by Charlie Davis, Fernando Rodriguez, and Paul Rogers for the Computer Science Department at Stephen F. Austin State University.
+    A simple online two-player strategy game created with pygame. Developed by Charlie Davis and Fernando Rodriguez for the Computer Science Department at Stephen F. Austin State University.
 </td>
 </tr>
 </table>
@@ -20,6 +20,7 @@ Start game by running `main.py`.
 
 **Requires the following external modules:** 
 * [pygame](https://pypi.org/project/pygame/)
+* [tkinter](https://pypi.org/user/Tkinter/)
 * [cryptography](https://pypi.org/project/cryptography/)
 
 ### Development
