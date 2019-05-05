@@ -106,12 +106,11 @@ class Game:
             if event.type == pygame.QUIT:
                 self.exit_game()
 
-            # User hovers over tile
-            if event.type == pygame.MOUSEMOTION:
-                self.map.handle_hover(self.mouse_position)
-
-            # Only process clicks if it's this player's turn
+            # Only process events if it's your turn
             if self.gamestate.is_players_turn(self.player_num):
+                # User hovers over tile
+                if event.type == pygame.MOUSEMOTION:
+                    self.map.handle_hover(self.mouse_position)
                 # User is placing tiles
                 if self.turn["phase"] == PLACE_TILES:
                     pass # TODO: Add tile placement
@@ -292,11 +291,11 @@ class Game:
         
         # Change help text based on phase
         if self.turn["phase"] == SELECT_UNIT_TO_MOVE:
-            phase_text = "HELP: Select a unit by clicking on it with your mouse."
+            phase_text = "HELP: Select a unit to move by clicking on it with your mouse."
         elif self.turn["phase"] == MOVING:
-            phase_text = "HELP: Choose a tile to move your unit or click on the unit to deselect."
+            phase_text = "HELP: Click a tile to move your unit, or click same unit to deselect."
         elif self.turn["phase"] == ATTACKING:
-            phase_text = "HELP: Attack by clicking an emeny unit"
+            phase_text = "HELP: Attack by clicking an enemy unit. (Must attack if enemy is in range)"
         textsurface = font.render(phase_text, False, colors.white)
         self.screen.blit(textsurface, LOCATION)
         
@@ -327,9 +326,12 @@ class Game:
             self.gamestate = self.network.get_gamestate()
 
     def gameover(self):
+        """
+        Gameover loop. 
+        TODO: Allow clients to restart game.
+        """
         self.network.send_turn(self.turn)
         # Loop until player resets or quits
-        # while not self.gamestate.ready():
         while True:
 
             # Show text and how to reset
@@ -372,9 +374,6 @@ class Game:
             textsurface = self.game_font.render("You lost...", False, colors.darkred)
         text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
         self.screen.blit(textsurface, text_rect)
-
-        #TODO: display endgame statistics slightly differently
-        self.display_statistics()
 
         pygame.display.update()
 
