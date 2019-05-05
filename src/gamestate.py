@@ -28,10 +28,12 @@ class GameState:
             2 : None
         }
 
-        self.rps_finished = {
-            1 : False,
-            2 : False
-        }
+        # self.rps_finished = {
+        #     1 : False,
+        #     2 : False
+        # }
+
+        self.rps_winner = 0
 
         self.game_is_over = False
         self.winner = None
@@ -70,16 +72,16 @@ class GameState:
     def set_ready(self, player_num):
         self.ready_state[player_num] = True
 
-    def finish_rps(self, player_num):
-        self.rps_finished[player_num] = True
-        all_finished = True
-        for finished in self.rps_finished.values():
-            if not finished:
-                all_finished = False
+    # def finish_rps(self, player_num):
+    #     self.rps_finished[player_num] = True
+    #     all_finished = True
+    #     for finished in self.rps_finished.values():
+    #         if not finished:
+    #             all_finished = False
 
-        if all_finished:
-            self.hands[1] = None
-            self.hands[2] = None
+    #     if all_finished:
+    #         self.hands[1] = None
+    #         self.hands[2] = None
 
     def ready(self):
         return all(ready for ready in self.ready_state.values())
@@ -107,13 +109,15 @@ class GameState:
     def set_hand(self, player_num, hand):
         self.hands[player_num] = hand
 
-    def determine_rps_winner(self):
+    def determine_rps_winner(self, winner_cache=[]):
         """
         See who won the game of rock paper scissors!
 
         If it returns 0, both haven't played yet.
         If it returns 3, it's a tie!
         """
+
+        # If both haven't played, there's no winner yet
         both_have_played = True
         for hand in self.hands.values():
             if not hand:
@@ -121,8 +125,16 @@ class GameState:
 
         winner = 0
         if both_have_played:
+            # Check if winner has already been calculated
+            if winner_cache:
+                # Both have played, so remove their plays
+                self.hands[1] = None
+                self.hands[2] = None
+                return winner_cache.pop()
+
             # Winning conditions
             if self.hands[1] == self.hands[2]:
+                # Tie
                 winner = 3
             elif self.hands[1] == ROCK:
                 if self.hands[2] == PAPER:
@@ -139,6 +151,8 @@ class GameState:
                     winner = 2
                 elif self.hands[2] == PAPER:
                     winner = 1 
+
+            winner_cache.append(winner)
 
         return winner
 

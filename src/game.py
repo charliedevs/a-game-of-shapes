@@ -137,7 +137,7 @@ class Game:
             rps_in_session = self.network.check_for_rps()
             if rps_in_session:
                 self.map.rps_loop()
-                self.network.finish_rps()
+                # self.network.finish_rps()
             players_turn = self.network.request_turn()
             if players_turn == self.player_num:
                 self.update_gamestate()

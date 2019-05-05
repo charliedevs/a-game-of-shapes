@@ -147,7 +147,7 @@ class Map:
         elif turn["phase"] == ATTACKING:
             # Rock paper scissors!
             winner = self.rps_loop()
-            self.network.finish_rps()
+            # self.network.finish_rps()
             # If user clicks on self, forfeit attack
             if winner == self.player_num:
                 turn["attack"] = self.attack(clicked_column, clicked_row)
@@ -418,9 +418,11 @@ class Map:
         """
         player_has_picked = False
         hand_sent = False
-        winner = None
+        winner = 0
 
-        while winner is None:
+        print("Entered RPS loop")
+
+        while winner == 0:
             # Loop until rps is over
             mouse_position = pygame.mouse.get_pos()
             events = pygame.event.get()
@@ -434,14 +436,15 @@ class Map:
                 # Only check for mouse clicks if player hasn't made a choice
                 if not player_has_picked:
                     if event.type == pygame.MOUSEBUTTONDOWN:
+                        print("Mouse clicked inside RPS")
                         self.rps.handle_click(mouse_position)
                         if self.rps.hand:
                             player_has_picked = True
             
-            if not hand_sent and player_has_picked:
+            if (not hand_sent) and player_has_picked:
                 self.network.send_hand(self.rps.hand)
                 hand_sent = True
-            else:
+            elif player_has_picked:
                 winner = self.network.get_rps_winner()
 
             # Draw RPS graphics

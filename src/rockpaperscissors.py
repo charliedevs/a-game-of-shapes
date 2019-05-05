@@ -12,15 +12,15 @@ class RPS:
         self.rps_rect = self.get_rps_rect()
 
         # Determine size of each image
-        self.block_width = self.rps_rect.w / 3
+        self.block_width = self.rps_rect.w // 3
         self.rock_rect = self.get_rock_rect()
         self.paper_rect = self.get_paper_rect()
         self.scissors_rect = self.get_scissors_rect()
 
-        # Images of Rock, Paper, Scissors #TODO: Place images in separate folder
-        self.rock_image = pygame.image.load("rock.jpg")
-        self.paper_image = pygame.image.load("paper.jpg")
-        self.scissors_image = pygame.image.load("scissors.jpg")
+        # Scaled images of Rock, Paper, Scissors #TODO: Place images in separate folder
+        self.rock_image = self.scale(pygame.image.load("rock.jpg"))
+        self.paper_image = self.scale(pygame.image.load("paper.jpg"))
+        self.scissors_image = self.scale(pygame.image.load("scissors.jpg"))
 
         # The choice picked by client
         self.hand = None
@@ -29,7 +29,6 @@ class RPS:
     def handle_click(self, mouse_position):
         """
         Check if player clicked rock, paper, or scissors.
-
         """
         if not self.mouse_position_inside_rps(mouse_position):
             return
@@ -56,27 +55,21 @@ class RPS:
         self.screen.blit(self.paper_image, self.paper_rect)
         self.screen.blit(self.scissors_image, self.scissors_rect)
 
+    def scale(self, image):
+        """
+        Returns a properly scaled version of image.
+        """
+        return pygame.transform.scale(image, (self.block_width, self.rps_rect.h))
 
     def get_rps_rect(self):
         """
         Returns the size of the rps surface.
-
         """
-
-        screen_rect = self.screen.get_rect()
-        x = screen_rect.x
-        y = screen_rect.y + 10
-        w = screen_rect.w
-        h = screen_rect.h -10
-
-        rps_rect = pygame.Rect(x, y, w, h)
-        
-        return rps_rect
+        return self.screen.get_rect()
 
     def get_rock_rect(self):
         """
         Returns the size of the rock surface.
-
         """
 
         x = self.rps_rect.x
@@ -91,7 +84,6 @@ class RPS:
     def get_paper_rect(self):
         """
         Returns the size of the paper surface.
-
         """
 
         x = self.rps_rect.x + self.block_width
@@ -106,7 +98,6 @@ class RPS:
     def get_scissors_rect(self):
         """
         Returns the size of the scissors surface.
-
         """
 
         x = self.rps_rect.x + (2 * self.block_width)

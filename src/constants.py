@@ -56,8 +56,8 @@ GRID_COLUMNS = 14
 GRID_ROWS = 12
 
 # RPS constants
-ROCK = 0
-PAPER = 1
-SCISSORS = 2
+ROCK = 1
+PAPER = 2
+SCISSORS = 3
 
 #########################################################################

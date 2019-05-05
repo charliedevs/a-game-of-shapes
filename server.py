@@ -119,8 +119,13 @@ def client_thread(connection, player_num):
             if data == "get":
                 send_gamestate(gamestate, connection)
             elif data == "turn":
+                # Recieve a turn from client
                 send_data("ok", connection)
-                turn = receive_pickle(connection)
+                turn = None
+                while not turn:
+                    turn = receive_pickle(connection)
+                send_data("ok", connection)
+                # Turn consists of a move and an attack
                 move = turn["move"]
                 attack = turn["attack"]
                 if move:
@@ -136,17 +141,22 @@ def client_thread(connection, player_num):
             elif data == "hand":
                 send_data("ok", connection)
                 hand = receive_pickle(connection)
+                while not isinstance(hand, int):
+                    hand = receive_pickle(connection)
+                send_data("ok", connection)
                 gamestate.set_hand(player_num, hand)
             elif data == "rps_winner":
                 winner = gamestate.determine_rps_winner()
                 send_data(winner, connection)
-                print("Winner:", winner)
+                # DEBUG 
+                if winner != 0:
+                    print("Player {} requesting winner ({})".format(player_num, winner))
             elif data == "check_rps":
                 in_session = gamestate.rps_in_session()
                 send_data(in_session, connection)
-            elif data == "finish_rps":
-                send_data("ok", connection)
-                gamestate.finish_rps[player_num] = True
+            # elif data == "finish_rps":
+            #     send_data("ok", connection)
+            #     gamestate.rps_finished[player_num] = True
             elif data == "start":
                 send_data("ok", connection)
                 gamestate.set_ready(player_num)
