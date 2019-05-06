@@ -52,7 +52,7 @@ def get_connection():
     port_textbox = tkinter.Entry(root, bd=5)
     port_textbox.pack()
 
-    #Console out
+    # Display box for error messages
     T = tkinter.Text(root, height=2, width=50)
     T.pack(side = tkinter.BOTTOM)
     T.bindtags((str(T), str(root), "all"))
@@ -113,8 +113,6 @@ def get_connection():
     button = tkinter.Button(root, text="Connect", command=add_network)
     button.pack()
     
-    
-
     root.mainloop()
 
     if connection:

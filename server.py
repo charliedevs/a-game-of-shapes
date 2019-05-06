@@ -46,13 +46,13 @@ def start_server():
     try:
         SERVER.bind((HOST, PORT))
     except socket.error:
-        print("Binding to " + HOST + ":" + str(PORT) + "failed.")
+        print("Binding to " + HOST + ":" + str(PORT) + " failed.")
         SERVER.close()
         sys.exit()
 
     # Start listeing for connections, max of two
     SERVER.listen(2)
-    print("SERVER listening on " + HOST + ":" + str(PORT))
+    print("Server listening on " + HOST + ":" + str(PORT))
 
     # Main server loop
     while True:

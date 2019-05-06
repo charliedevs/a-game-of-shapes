@@ -1,4 +1,4 @@
-""" 
+"""
 Strategy Game
 
 Created by: Fernando Rodriguez, Charles Davis
@@ -43,7 +43,7 @@ class Game:
         print("You are player", self.player_num)
 
         # Set up display window
-        pygame.display.set_caption("A Game of Shapes - Player " + str(self.player_num))     # NOTE: Display player num here?
+        pygame.display.set_caption("A Game of Shapes - Player " + str(self.player_num))
         screen_res = (WINDOW_WIDTH, WINDOW_HEIGHT)
         self.screen = pygame.display.set_mode(
             screen_res, flags=pygame.RESIZABLE)

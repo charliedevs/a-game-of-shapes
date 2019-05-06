@@ -9,7 +9,6 @@ import pygame
 import sys
 import time
 import random
-from itertools import repeat
 
 # Constants
 import src.colors as colors
@@ -98,6 +97,8 @@ class Map:
     def handle_click(self, mouse_position, turn):
         """
         Process user clicks on game tiles.
+        Modifies turn and returns back to Game class.
+
         TODO: Separate different levels of abstraction into separate methods.
 
         Arguments:
@@ -133,11 +134,13 @@ class Map:
                     move = self.move(movable_unit, clicked_column, clicked_row)
                     if move:
                         turn["move"] = move
-                        turn["phase"] = ATTACKING
-                        # Highlight attackable tiles if enemy is in attack range
+
+                        # Go into attack phase if enemy is within range
                         if self.enemy_in_attack_range():
+                            turn["phase"] = ATTACKING
                             self.highlight_tiles(movable_unit, "attack")
                         else:
+                            # No enemy in range, so turn is over
                             self.selected_unit = None
                             turn["phase"] = END_TURN
                     else:
@@ -152,13 +155,12 @@ class Map:
             if enemy_unit:
                 # Rock paper scissors!
                 winner = self.rps_loop("attacker")
-                # self.network.finish_rps()
-                # If user clicks on self, forfeit attack
+
+                # If this player wins (or ties), apply attack
                 if winner == self.player_num:
                     turn["attack"] = self.attack(enemy_unit)
-                # else:
-                #     self.display_attack_result("block")
 
+                # End attack
                 self.remove_highlight("attack")
                 turn["phase"] = END_TURN
                 self.selected_unit = None
@@ -176,9 +178,9 @@ class Map:
         """
         move = None
         if unit:
-            if self.grid.get_unit_type(col, row) == 0:
+            if self.grid.get_unit_type(col, row) == BLANK:
                 # Set old tile to unit_type of blank
-                self.grid.set_unit_type(unit.col(), unit.row(), 0)
+                self.grid.set_unit_type(unit.col(), unit.row(), BLANK)
                 # Update grid with new unit position
                 self.grid.set_unit_type(col, row, unit.type)
                 unit.pos = [col, row]
@@ -193,9 +195,6 @@ class Map:
         self.selected_unit.attack(enemy_unit)
         if not enemy_unit.is_alive:
             self.kill_unit(enemy_unit)
-        #     self.display_attack_result("kill")
-        # else:
-        #     self.display_attack_result("hit")
         attack = [enemy_unit.type, self.selected_unit.attack_power]
         return attack
 
@@ -237,9 +236,9 @@ class Map:
         Highlights movable or attackable tiles around given unit.
         """
         if range_type == "move":
-            tile_type = 3
+            tile_type = MOVABLE
         elif range_type == "attack":
-            tile_type = 4
+            tile_type = ATTACKABLE
         movable_list = unit.get_range(range_type, self.grid.cols, self.grid.rows)
         for position in movable_list:
             col = position[0]
@@ -527,7 +526,7 @@ class Map:
                 winner = self.network.get_rps_winner()
 
             # Draw RPS graphics
-            self.screen.fill(colors.darkgray)
+            self.screen.fill(colors.lightgray)
             if not player_has_picked:
                 # Draw RPS graphics
                 self.rps.draw(role)
