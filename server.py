@@ -148,8 +148,6 @@ def client_thread(connection, player_num):
             elif data == "rps_winner":
                 winner = gamestate.determine_rps_winner()
                 send_data(winner, connection)
-                # DEBUG 
-                if winner != 0:
             elif data == "check_rps":
                 in_session = gamestate.rps_in_session()
                 send_data(in_session, connection)

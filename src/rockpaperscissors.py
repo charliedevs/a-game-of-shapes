@@ -66,13 +66,11 @@ class RPS:
         title_text = ""
         help_text = ""
         if role == "attacker":
-            title_color = colors.orange
-            title_text = "ATTACKER"
+            title_text = "DESTROY YOUR ENEMIES!"
             help_text = "HELP: Rock, paper, scissors! Win or tie to damage your enemy."
         elif role == "defender":
-            title_color = colors.purple
-            title_text = "DEFENDER"
-            help_text = "HELP: You've been attacked! You must win to avoid damage."
+            title_text = "YOU'VE BEEN ATTACKED!"
+            help_text = "HELP: Rock, paper, scissors! You must win to avoid damage."
 
         # Display title
         title_font = pygame.font.Font(GAME_FONT, 20)
