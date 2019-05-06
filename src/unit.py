@@ -1,8 +1,8 @@
 """
 File: unit.py
-Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
+Programmers: Fernando Rodriguez, Charles Davis
+
 """
-#import pygame
 import src.colors as colors
 from src.constants import *
 
@@ -10,8 +10,6 @@ from src.constants import *
 class Unit:
     """
     A player's unit on the gameboard.
-
-    Has attributes: health, speed, attack_power
     """
 
     def __init__(self, unit_type):
@@ -52,8 +50,7 @@ class Unit:
         self.speed = speed
         self.is_moving = False
         self.is_alive = True
-        # pos = [col, row]
-        self.pos = [None, None]
+        self.pos = [None, None] # [col, row]
         self.color = self.determine_color()
         self.archetype = archetype
 
@@ -111,7 +108,7 @@ class Unit:
             max_row {int}       -- Number of rows
 
         """
-        #Determine range type based on input
+        # Determine range type based on input
         if range_type == "attack":
             unit_range = self.attack_range
         elif range_type == "move":
@@ -201,6 +198,9 @@ class Unit:
         return player_num
     
     def determine_color(self):
+        """
+        Returns a color based on unit_type and player_num.
+        """
         player_num = self.get_owning_player()
         if self.is_triangle():
             if player_num == 1:

@@ -72,7 +72,7 @@ Name constant values using ALL_CAPS, with underscores between words. Example:  `
 
 ## Copyright Information
 
-Copyright (C) 2019  Charles Davis, Fernando Rodriguez, Paul Rogers
+Copyright (C) 2019  Charles Davis, Fernando Rodriguez
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

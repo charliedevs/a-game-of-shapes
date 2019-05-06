@@ -1,5 +1,5 @@
 """
-File: SERVER.py
+File: server.py
 Programmers: Fernando Rodriguez, Charles Davis
 
 

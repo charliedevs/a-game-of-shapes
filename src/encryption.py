@@ -1,6 +1,6 @@
 """
 File: encryption.py
-Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
+Programmers: Fernando Rodriguez, Charles Davis
 
 
 Encrypts and decrypts binary data.

@@ -1,3 +1,8 @@
+"""
+File: rockpaperscissors.py
+Programmers: Fernando Rodriguez, Charles Davis
+
+"""
 import pygame
 import os
 

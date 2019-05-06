@@ -1,3 +1,8 @@
+"""
+File: main.py
+Programmers: Fernando Rodriguez, Charles Davis
+
+"""
 import sys
 import tkinter
 
@@ -96,11 +101,10 @@ def get_connection():
                 T.insert(tkinter.END, "[Error]: Unable to connect to given address")
         
     def enter(event):
-        '''
+        """
         Handle enter key press.
         Runs add_network().
-
-        '''
+        """
         add_network()
 
     # Bind enter key to function

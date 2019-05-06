@@ -1,7 +1,7 @@
 """ 
 Strategy Game
 
-Created by: Fernando Rodriguez, Charles Davis, Paul Rogers
+Created by: Fernando Rodriguez, Charles Davis
 
 """
 
@@ -91,7 +91,6 @@ class Game:
             self.update()
             self.draw()
 
-
     def event_loop(self):
         """
         Handle user input.
@@ -179,9 +178,6 @@ class Game:
                     unit.change_health(health)
                     if not unit.is_alive:
                         self.map.kill_unit(unit)
-                    #     self.map.display_attack_result("kill")
-                    #  else:
-                    #     self.map.display_attack_result("hit")
 
     def update_positions(self, new_gamestate):
         """
@@ -386,6 +382,9 @@ class Game:
         pygame.display.update()
 
     def exit_game(self):
+        """
+        Safely shuts down network connection and pygame.
+        """
         print("Exiting game...")
         self.network.close()
         pygame.quit()

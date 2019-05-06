@@ -1,8 +1,9 @@
 """
 File: map.py
-Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
+Programmers: Fernando Rodriguez, Charles Davis
+
 """
-# TODO: Abstract tiles into a class holding tile_type and if the tile is hovered over
+# TODO: Abstract tiles into a class holding tile_type and whether the tile is hovered over
 
 import pygame
 import sys
@@ -232,6 +233,9 @@ class Map:
         return (col, row)
 
     def highlight_tiles(self, unit, range_type):
+        """
+        Highlights movable or attackable tiles around given unit.
+        """
         if range_type == "move":
             tile_type = 3
         elif range_type == "attack":
@@ -243,6 +247,9 @@ class Map:
             self.grid.set_tile_type(col, row, tile_type)
 
     def remove_highlight(self, range_type):
+        """
+        Changes highlighted tile types back to blank.
+        """
         if range_type == "move":
             highlight_type = 3
         elif range_type == "attack":
@@ -474,6 +481,9 @@ class Map:
         return is_in_range
 
     def kill_unit(self, unit):
+        """
+        Removes given unit from unit lists.
+        """
         column, row = unit.pos
         self.grid.set_unit_type(column, row, 0)
         if unit in self.all_units:
@@ -486,7 +496,7 @@ class Map:
     def rps_loop(self, role):
         """
         Play rock paper scissors to see if attack lands.
-        Role is "attacker" or "defender".
+        Parameter role can be "attacker" or "defender".
         """
         player_has_picked = False
         hand_sent = False
@@ -532,6 +542,9 @@ class Map:
         return winner
 
     def display_rps_waiting(self):
+        """
+        Draws waiting text for rock, paper, scissors.
+        """
         font = pygame.font.Font(GAME_FONT, 24)
         textsurface = font.render("Waiting for other player's choice...", False, colors.white)
         text_rect = textsurface.get_rect(center=(WINDOW_CENTER))

@@ -1,6 +1,6 @@
 """
 File: gamestate.py
-Programmers: Fernando Rodriguez, Charles Davis, Paul Rogers
+Programmers: Fernando Rodriguez, Charles Davis
 
 """
 
@@ -27,13 +27,6 @@ class GameState:
             1 : None,
             2 : None
         }
-
-        # self.rps_finished = {
-        #     1 : False,
-        #     2 : False
-        # }
-
-        self.rps_winner = 0
 
         self.game_is_over = False
         self.winner = None
@@ -72,22 +65,17 @@ class GameState:
     def set_ready(self, player_num):
         self.ready_state[player_num] = True
 
-    # def finish_rps(self, player_num):
-    #     self.rps_finished[player_num] = True
-    #     all_finished = True
-    #     for finished in self.rps_finished.values():
-    #         if not finished:
-    #             all_finished = False
-
-    #     if all_finished:
-    #         self.hands[1] = None
-    #         self.hands[2] = None
-
     def ready(self):
+        """
+        Returns true if both clients are connected.
+        """
         return all(ready for ready in self.ready_state.values())
 
     def determine_if_game_over(self):
-        #TODO: Make sure these dicts are correct. Maybe use for loops
+        """
+        Checks both players' health to determine if
+        game is over and who won.
+        """
         # Use dictionary comprehensions to separate player units
         player_1_health = {unit: self.unit_health[unit] for unit in self.unit_health.keys() & {1, 2, 3}}
         player_2_health = {unit: self.unit_health[unit] for unit in self.unit_health.keys() & {4, 5, 6}}
@@ -157,6 +145,10 @@ class GameState:
         return winner
 
     def rps_in_session(self):
+        """
+        Returns true if rock paper scissors game
+        is in session.
+        """
         in_session = 0
         for hand in self.hands.values():
             if hand:

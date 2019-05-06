@@ -1,6 +1,7 @@
 """
 File: grid.py
 Programmers: Fernando Rodriguez, Charles Davis
+
 """
 import pygame
 
