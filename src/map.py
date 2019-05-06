@@ -428,8 +428,6 @@ class Map:
             if unit.type == unit_type:
                 target_unit = unit
                 break
-        else:
-            print("[Error]: Could not get unit by type.")
 
         return target_unit
 
