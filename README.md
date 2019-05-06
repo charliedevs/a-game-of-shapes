@@ -1,8 +1,11 @@
 # A Game of Shapes
 
+![Game of Shapes](https://i.ibb.co/prxxvh6/Game-Of-Shapes.png)
+
 <table>
 <tr>
 <td>
+    
     A simple online two-player strategy game created with pygame. Developed by Charlie Davis and Fernando Rodriguez for the Computer Science Department at Stephen F. Austin State University.
 </td>
 </tr>
@@ -10,24 +13,26 @@
 
 ## Description
 
-Placeholder.
+The object of the game is to destroy all of your enemy's shapes before they destroy yours. The game is played online between two players. Take turns moving your shapes across the gameboard, and once you're in range of an enemy, attack! To successfully land an attack, you must best your opponent in a game of rock, paper, scissors (or at least tie). If your opponent beats you at rock, paper, scissors, they effectively block your attack. Chip away at each other, and see who's left standing in the end. Because in A Game of Shapes, you either win, or you die.
 
 ## Usage
 
-Start game by running `main.py`.
+Start game by running `main.py`, then enter the IP address and port of the server, which handles the connections between clients.
+
+To start the server, run the `server.py` file, including the IP address and port you wish to run it on as commandline arguments.
 
 **Requires** [Python 3](https://www.python.org/downloads/). 
 
-**Requires the following external modules:** 
+**The following external modules are required:** 
 * [pygame](https://pypi.org/project/pygame/)
 * [tkinter](https://pypi.org/user/Tkinter/)
 * [cryptography](https://pypi.org/project/cryptography/)
 
-### Development
+### Contribution
 Contribute changes to this project by following these steps:
 
 #### Clone the project to your machine
-Before you can contribute, you need to have a local copy of the code on your machine. This means you must **fork** this repository.
+Before you can contribute, you need to have a local copy of the code on your machine. Cloning is the first step, but in order to have any changes reflected on this repository, you must **fork** this repository.
 
 1. First, you'll need to set up Git on your machine. For Windows, I recommend installing [Git BASH](https://gitforwindows.org/).
 
@@ -37,7 +42,7 @@ Before you can contribute, you need to have a local copy of the code on your mac
 
 #### Use git to track your changes
 
-1. Use the `git status` command to see what files are tracked.
+1. Use the `git status` command to see what files are tracked. This will show you any tracked files that have changes.
 
 2. Use `git add <filename>` for each file you've made changes to that you want git to track.
 
@@ -60,7 +65,7 @@ Your fork will not automatically be updated when others make changs to this main
 
 ### Style Guide
 
-Keep commenting short and simple; only comment if code is unclear, but prefer to make code more clear.
+Keep commenting short and simple; only comment if code is unclear, but prefer to make code more clear. (Comments have been added judiciously throughout the code since we turned this in as a school project)
 
 Use default [pylint](https://www.pylint.org/) configuration for pip8 style guidelines.
 
