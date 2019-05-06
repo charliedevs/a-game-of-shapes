@@ -15,7 +15,7 @@
 
 The object of the game is to destroy all of your enemy's shapes before they destroy yours. The game is played online between two players. Take turns moving your shapes across the gameboard, and once you're in range of an enemy, attack! 
 
-To successfully land an attack, you must best your opponent in a game of rock, paper, scissors (or at least tie). If your opponent beats you at rock, paper, scissors, they effectively block your attack. Chip away at each other, and see who's left standing in the end. Because in A Game of Shapes, you either win, or you die.
+To successfully land an attack, you must best your opponent in a game of rock, paper, scissors (or at least tie). If your opponent beats you at rock, paper, scissors, they effectively block your attack. Chip away at each other, and see who's left standing in the end. Because when you play A Game of Shapes, you either win, or... you don't win.
 
 Uses FFF Forward Font, a free font available from [this website.](https://www.1001fonts.com/fff-forward-font.html)
 
