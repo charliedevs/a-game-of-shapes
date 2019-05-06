@@ -176,6 +176,7 @@ class Game:
                 unit = self.map.get_unit_by_type(unit_type)
                 if unit:
                     unit.change_health(health)
+                    self.map.flash_red()
                     if not unit.is_alive:
                         self.map.kill_unit(unit)
 
@@ -210,9 +211,9 @@ class Game:
         """
         Display player information.
         """
-        #TODO:  Generalize the placement of text.
-        #       Create function for reused code.
-        #       Set alignment of text.
+        # TODO:  Generalize the placement of text.
+        #        Create function for reused code.
+        #        Set alignment of text.
 
         # Font size is equal to line spacing 
         SIZE = 16
@@ -241,9 +242,9 @@ class Game:
             textsurface = font.render("Your Health", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.players_units:
-                # Increment horizontal placement
+                # Increment vertical placement
                 location[1] += SIZE + 8
-                health = str(unit.health) + "/" + str(unit.max_health)
+                health = str(unit.health)
                 textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
                 self.screen.blit(textsurface, location)
 
@@ -252,9 +253,9 @@ class Game:
             textsurface = font.render("Enemy Health", False, colors.white)
             self.screen.blit(textsurface, location)
             for unit in self.map.enemy_units:
-                # Increment horizontal placement
+                # Increment vertical placement
                 location[1] += SIZE + 8
-                health = str(unit.health) + "/" + str(unit.max_health)
+                health = str(unit.health)
                 textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
                 self.screen.blit(textsurface, location)
 
@@ -266,7 +267,7 @@ class Game:
             for unit in self.map.players_units:
                 # Increment horizontal placement
                 location[1] += SIZE + 8
-                health = str(unit.health) + "/" + str(unit.max_health)
+                health = str(unit.health)
                 textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
                 self.screen.blit(textsurface, location)
 
@@ -277,7 +278,7 @@ class Game:
             for unit in self.map.enemy_units:
                 # Increment horizontal placement
                 location[1] += SIZE + 8
-                health = str(unit.health) + "/" + str(unit.max_health)
+                health = str(unit.health)
                 textsurface = font.render(unit.archetype + ": " + health, False, unit.color)
                 self.screen.blit(textsurface, location)
 

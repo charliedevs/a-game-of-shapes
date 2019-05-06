@@ -344,6 +344,14 @@ class Map:
                             int(radius)
                         )
 
+    def flash_red(self):
+        """
+        Makes screen red for a moment.
+        """
+        self.screen.fill(colors.darkred)
+        pygame.display.update()
+        pygame.time.delay(18)
+
     def display_attack_result(self, result):
         """
         Result is either "hit", "block", or "kill"
