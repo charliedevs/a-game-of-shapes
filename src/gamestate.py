@@ -114,7 +114,7 @@ class GameState:
         See who won the game of rock paper scissors!
 
         If it returns 0, both haven't played yet.
-        If it returns 3, it's a tie!
+        Ties go to the winner.
         """
 
         # If both haven't played, there's no winner yet

@@ -150,7 +150,6 @@ def client_thread(connection, player_num):
                 send_data(winner, connection)
                 # DEBUG 
                 if winner != 0:
-                    print("Player {} requesting winner ({})".format(player_num, winner))
             elif data == "check_rps":
                 in_session = gamestate.rps_in_session()
                 send_data(in_session, connection)
@@ -165,7 +164,7 @@ def client_thread(connection, player_num):
             elif data == "quit":
                 break  # Exit main client loop to close connection
             else:
-                print("Received invalid command from player", player_num)
+                print("[Error]: Received invalid command from player", player_num)
         else:
             # Data wasn't received; exit loop
             break
@@ -228,7 +227,7 @@ def receive_pickle(connection):
 if __name__ == "__main__":
     # Check for correct number of arguments
     if len(sys.argv) < 3:
-        print("Usage: python server.py <ip> <port>")
+        print("Usage: python server.py <ip_address> <port>")
         sys.exit()
     # Enter server loop
     start_server()

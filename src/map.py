@@ -108,7 +108,6 @@ class Map:
             return turn
 
         clicked_column, clicked_row = self.determine_tile_from_mouse_position(mouse_position)
-        print("[Debug]: Click", mouse_position, "Grid coords:", clicked_column, clicked_row)
 
         clicked_unit = None
         for unit in self.players_units:
@@ -151,7 +150,7 @@ class Map:
             enemy_unit = self.get_clicked_enemy(clicked_column, clicked_row)
             if enemy_unit:
                 # Rock paper scissors!
-                winner = self.rps_loop()
+                winner = self.rps_loop("attacker")
                 # self.network.finish_rps()
                 # If user clicks on self, forfeit attack
                 if winner == self.player_num:
@@ -358,7 +357,7 @@ class Map:
             color = colors.darkred
 
         # Set up popup window
-        text_surface = font.render(text, True, colors.lightergrey, color)
+        text_surface = font.render(text, False, colors.lightergrey, color)
         text_rect = text_surface.get_rect()
         text_rect.center = WINDOW_CENTER
 
@@ -484,15 +483,14 @@ class Map:
         if unit in self.enemy_units:
             self.enemy_units.remove(unit)
 
-    def rps_loop(self):
+    def rps_loop(self, role):
         """
         Play rock paper scissors to see if attack lands.
+        Role is "attacker" or "defender".
         """
         player_has_picked = False
         hand_sent = False
         winner = 0
-
-        print("Entered RPS loop")
 
         while winner == 0:
             # Loop until rps is over
@@ -508,7 +506,6 @@ class Map:
                 # Only check for mouse clicks if player hasn't made a choice
                 if not player_has_picked:
                     if event.type == pygame.MOUSEBUTTONDOWN:
-                        print("Mouse clicked inside RPS")
                         self.rps.handle_click(mouse_position)
                         if self.rps.hand:
                             player_has_picked = True
@@ -523,16 +520,20 @@ class Map:
             self.screen.fill(colors.darkgray)
             if not player_has_picked:
                 # Draw RPS graphics
-                self.rps.draw()
+                self.rps.draw(role)
             else:
                 self.display_rps_waiting()
             pygame.display.update()
+
+        # Make tie go to attacker
+        if role == "attacker" and winner == 3:
+            winner = self.player_num
 
         return winner
 
     def display_rps_waiting(self):
         font = pygame.font.Font(GAME_FONT, 24)
-        textsurface = font.render("Waiting for other player's choice...", True, colors.white)
+        textsurface = font.render("Waiting for other player's choice...", False, colors.white)
         text_rect = textsurface.get_rect(center=(WINDOW_CENTER))
         self.screen.blit(textsurface, text_rect)
 

@@ -52,17 +52,39 @@ class RPS:
         """
         return self.rps_rect.collidepoint(mouse_position)
 
-    def draw(self):
+    def draw(self, role):
+        """
+        Draws Rock, Paper, Scissors game.
+        Role is "attacker" or "defender".
+        """
         self.screen.blit(self.rock_image, self.rock_rect)
         self.screen.blit(self.paper_image, self.paper_rect)
         self.screen.blit(self.scissors_image, self.scissors_rect)
 
+        # Change text based on role
+        title_color = colors.white
+        title_text = ""
+        help_text = ""
+        if role == "attacker":
+            title_color = colors.orange
+            title_text = "ATTACKER"
+            help_text = "HELP: Rock, paper, scissors! Win or tie to damage your enemy."
+        elif role == "defender":
+            title_color = colors.purple
+            title_text = "DEFENDER"
+            help_text = "HELP: You've been attacked! You must win to avoid damage."
+
+        # Display title
+        title_font = pygame.font.Font(GAME_FONT, 20)
+        text_surface = title_font.render(title_text, False, title_color)
+        location = [(WINDOW_WIDTH // 2) - (text_surface.get_width() // 2), 10] 
+        self.screen.blit(text_surface, location)
+
         # Display help text
-        LOCATION = [0,WINDOW_HEIGHT-25]
-        font = pygame.font.Font(GAME_FONT, 14)
-        help_text = "HELP: Rock, Paper, Scissors! Take damage if attacker wins."
-        textsurface = font.render(help_text, True, colors.white)
-        self.screen.blit(textsurface, LOCATION)
+        location = [0, WINDOW_HEIGHT-25]
+        font = pygame.font.Font(GAME_FONT, 12)
+        text_surface = font.render(help_text, False, colors.white)
+        self.screen.blit(text_surface, location)
 
     def scale(self, image):
         """

@@ -4,7 +4,6 @@ import tkinter
 from src.game import Game
 from src.network import Network
 
-#TODO: Change errors from printing to console to printing on GUI
 def main():
 
     # Get server info using tkinter GUI
@@ -33,11 +32,11 @@ def get_connection():
 
     # Greate GUI
     root = tkinter.Tk()
-    root.title("A Game of Shapes")
-    root.geometry("500x500")
+    root.title("Launcher - A Game of Shapes")
+    root.geometry("300x300")
 
     # Textbox to get server host
-    host_label = tkinter.Label(root, text="Host IP:")
+    host_label = tkinter.Label(root, text="Server IP:")
     host_label.pack()
     host_textbox = tkinter.Entry(root, bd=5)
     host_textbox.pack()
@@ -52,9 +51,6 @@ def get_connection():
     T = tkinter.Text(root, height=2, width=50)
     T.pack(side = tkinter.BOTTOM)
     T.bindtags((str(T), str(root), "all"))
-    port_label = tkinter.Label(root, text="Console:")
-    port_label.pack(side = tkinter.BOTTOM)
-    
 
     def add_network():
         """

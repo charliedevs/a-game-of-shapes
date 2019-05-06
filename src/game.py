@@ -135,7 +135,7 @@ class Game:
         if not self.gamestate.is_players_turn(self.player_num):
             rps_in_session = self.network.check_for_rps()
             if rps_in_session:
-                winner = self.map.rps_loop()
+                winner = self.map.rps_loop("defender")
                 # if winner == self.player_num:
                 #     self.map.display_attack_result("block")
             players_turn = self.network.request_turn()
