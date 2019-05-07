@@ -3,7 +3,6 @@ File: gamestate.py
 Programmers: Fernando Rodriguez, Charles Davis
 
 """
-
 from src.constants import *
 
 class GameState:
@@ -167,7 +166,6 @@ class GameState:
         # Set both players to not ready
         for player in self.ready_state.keys():
             self.ready_state[player] = False
-
 
     def initialize_locations(self):
         unit_locations = {

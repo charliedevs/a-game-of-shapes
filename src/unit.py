@@ -6,7 +6,6 @@ Programmers: Fernando Rodriguez, Charles Davis
 import src.colors as colors
 from src.constants import *
 
-
 class Unit:
     """
     A player's unit on the gameboard.
@@ -167,7 +166,6 @@ class Unit:
                     range_list.append(possible_pos)
         
         return range_list
-
 
     def is_triangle(self):
         return self.type == P1_TRIANGLE or self.type == P2_TRIANGLE

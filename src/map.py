@@ -81,7 +81,6 @@ class Map:
         # The rock paper scissors class
         self.rps = RPS(self.screen)
         
-
     def handle_hover(self, mouse_position):
         """
         Highlight tile hovered over by user.
@@ -253,9 +252,9 @@ class Map:
         Changes highlighted tile types back to blank.
         """
         if range_type == "move":
-            highlight_type = 3
+            highlight_type = MOVABLE
         elif range_type == "attack":
-            highlight_type = 4
+            highlight_type = ATTACKABLE
         for row in range(self.grid.rows):
             for col in range(self.grid.cols):
                 tile_type = self.grid.get_tile_type(col, row)
@@ -305,7 +304,6 @@ class Map:
                         pygame.draw.rect(self.surface,
                                      colors.get_hover_color(tile_color),
                                      tile_rect)
-
 
                 # TODO: Draw units inside Unit class. Pass in tile_rect
                 # Determine unit color and shape
@@ -357,27 +355,26 @@ class Map:
 
     def display_attack_result(self, result):
         """
-        Result is either "hit", "block", or "kill"
-        TODO: Integrate this into game in a clean way. Currently makes game hangup.
+        Parameter result is either "hit", "block", "damage", or "kill".
         """
         font = pygame.font.Font(GAME_FONT, 26)
         text = ""
         color = colors.white
-        time = 740
+        display_time = 740
         # Determine display attributes based on result
         if result == "hit":
             text = "Attack landed!"
         elif result == "damage":
             text = "You were attacked!"
             color = colors.red
-            time = 850
+            display_time = 850
         elif result == "block":
             text = "Blocked attack!"
             color = colors.blue
         elif result == "kill":
             text = self.get_random_kill_text()
             color = colors.darkred
-            time = 1200
+            display_time = 1200
 
         # Set up popup window
         text_surface = font.render(text, False, color)
@@ -387,7 +384,7 @@ class Map:
         # Display popup
         self.screen.blit(text_surface, text_rect)
         pygame.display.update()
-        pygame.time.delay(time)
+        pygame.time.delay(display_time)
 
     def get_random_kill_text(self):
         kill_text = ""

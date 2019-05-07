@@ -32,7 +32,6 @@ class RPS:
         # The choice picked by client
         self.hand = None
 
-
     def handle_click(self, mouse_position):
         """
         Check if player clicked rock, paper, or scissors.
@@ -50,7 +49,6 @@ class RPS:
 
         self.hand = hand
         
-
     def mouse_position_inside_rps(self, mouse_position):
         """
         Returns true if mouse is positioned over rps rect.

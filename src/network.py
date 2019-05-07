@@ -5,7 +5,6 @@ Programmers: Fernando Rodriguez, Charles Davis
 Contains the Network class which adds connectivity to a client.
 
 """
-
 import socket
 import pickle
 
@@ -18,7 +17,6 @@ class Network:
     Allows sending and receiving encrypted data.
     """
 
-    # Initilization
     def __init__(self, server_host, server_port):
         self.CLIENT = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.HOST = server_host
@@ -117,7 +115,7 @@ class Network:
 
     def receive_pickle(self):
         """
-        Retrieve pickle from server.
+        Retrieves pickle from server.
         
         Returns:
             {object} -- An object loaded from pickle

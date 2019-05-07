@@ -2,11 +2,9 @@
 File: server.py
 Programmers: Fernando Rodriguez, Charles Davis
 
-
 Controls the connection between two clients.
 
 """
-
 import socket
 import sys
 import threading
@@ -17,8 +15,6 @@ from src.gamestate import GameState
 
 # Number of clients connected
 client_count = 0
-
-lock = threading.Lock()
 
 # Global gamestate object holding
 # positions of player units and
@@ -151,9 +147,6 @@ def client_thread(connection, player_num):
             elif data == "check_rps":
                 in_session = gamestate.rps_in_session()
                 send_data(in_session, connection)
-            # elif data == "finish_rps":
-            #     send_data("ok", connection)
-            #     gamestate.rps_finished[player_num] = True
             elif data == "start":
                 send_data("ok", connection)
                 gamestate.set_ready(player_num)
@@ -220,7 +213,6 @@ def receive_pickle(connection):
     except socket.error as e:
         print(str(e))
         return None
-
 
 if __name__ == "__main__":
     # Check for correct number of arguments

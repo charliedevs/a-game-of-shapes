@@ -1,10 +1,8 @@
 """
-Strategy Game
-
-Created by: Fernando Rodriguez, Charles Davis
+File: game.py
+Programmers: Fernando Rodriguez, Charles Davis
 
 """
-
 import sys
 import pygame
 

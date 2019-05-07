@@ -1,5 +1,5 @@
 """
-File: colors.py
+File: constants.py
 Programmers: Fernando Rodriguez, Charles Davis
 
 """
