@@ -73,7 +73,7 @@ def get_connection():
         except:
             print("[Error]: Invalid ip address or port number")
             T.delete(1.0, tkinter.END)
-            T.insert(tkinter.END, "[Error]: Invalid ip address or port number")
+            T.insert(tkinter.END, "Invalid ip address or port number")
 
         connection.append(network)
 
@@ -98,7 +98,7 @@ def get_connection():
             except:
                 print("[Error]: Unable to connect to given address")
                 T.delete(1.0, tkinter.END)
-                T.insert(tkinter.END, "[Error]: Unable to connect to given address")
+                T.insert(tkinter.END, "Unable to connect to given address")
         
     def enter(event):
         """

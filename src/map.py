@@ -362,29 +362,32 @@ class Map:
         """
         font = pygame.font.Font(GAME_FONT, 26)
         text = ""
-        color = colors.darkgray
-        # Determine font based on result
+        color = colors.white
+        time = 700
+        # Determine display attributes based on result
         if result == "hit":
             text = "Attack landed!"
         elif result == "damage":
             text = "You were attacked!"
-            color = colors.darkred
+            color = colors.red
+            time = 800
         elif result == "block":
             text = "Blocked attack!"
-            color = colors.blue
+            color = colors.darkblue
         elif result == "kill":
             text = self.get_random_kill_text()
             color = colors.darkred
+            time = 900
 
         # Set up popup window
-        text_surface = font.render(text, False, colors.white, color)
+        text_surface = font.render(text, False, color)
         text_rect = text_surface.get_rect()
-        text_rect.center = WINDOW_CENTER
+        text_rect.center = (WINDOW_CENTER[0], WINDOW_CENTER[1] + self.get_rect().h // 2 + 30)
 
         # Display popup
         self.screen.blit(text_surface, text_rect)
         pygame.display.update()
-        pygame.time.delay(800)
+        pygame.time.delay(time)
 
     def get_random_kill_text(self):
         kill_text = ""

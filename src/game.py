@@ -131,11 +131,6 @@ class Game:
         self.time = self.clock.tick(60)
         self.mouse_position = pygame.mouse.get_pos()
 
-        # Display attack result
-        if self.turn["result"] and self.turn["phase"] != END_TURN:
-            self.map.display_attack_result(self.turn["result"])
-            self.turn["result"] = None
-
         # Other player's turn
         if not self.gamestate.is_players_turn(self.player_num):
             rps_in_session = self.network.check_for_rps()
@@ -208,7 +203,7 @@ class Game:
         """
         self.screen.fill(colors.lightgray)
 
-        # Display player statistics
+        # Display player statistics and help
         self.display_statistics()
         self.display_help()
 
@@ -216,6 +211,11 @@ class Game:
         self.map.draw()
 
         pygame.display.update()
+
+        # Display attack result
+        if self.turn["result"] and self.turn["phase"] != END_TURN:
+            self.map.display_attack_result(self.turn["result"])
+            self.turn["result"] = None
 
     def display_statistics(self):
         """
