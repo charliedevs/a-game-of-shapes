@@ -373,7 +373,7 @@ class Map:
             time = 800
         elif result == "block":
             text = "Blocked attack!"
-            color = colors.darkblue
+            color = colors.blue
         elif result == "kill":
             text = self.get_random_kill_text()
             color = colors.darkred
