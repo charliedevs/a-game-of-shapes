@@ -159,6 +159,9 @@ class Map:
                 # If this player wins (or ties), apply attack
                 if winner == self.player_num:
                     turn["attack"] = self.attack(enemy_unit)
+                    turn["result"] = "hit"
+                else:
+                    turn["result"] = "block"
 
                 # End attack
                 self.remove_highlight("attack")
@@ -363,6 +366,9 @@ class Map:
         # Determine font based on result
         if result == "hit":
             text = "Attack landed!"
+        elif result == "damage":
+            text = "You were attacked!"
+            color = colors.darkred
         elif result == "block":
             text = "Blocked attack!"
             color = colors.blue
@@ -371,14 +377,14 @@ class Map:
             color = colors.darkred
 
         # Set up popup window
-        text_surface = font.render(text, False, colors.lightergrey, color)
+        text_surface = font.render(text, False, colors.white, color)
         text_rect = text_surface.get_rect()
         text_rect.center = WINDOW_CENTER
 
-        # Display popup for 2 seconds
+        # Display popup
         self.screen.blit(text_surface, text_rect)
         pygame.display.update()
-        time.sleep(2)
+        pygame.time.delay(800)
 
     def get_random_kill_text(self):
         kill_text = ""

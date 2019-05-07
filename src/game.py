@@ -64,7 +64,8 @@ class Game:
         self.turn = {
             "move" : None,
             "attack" : None,
-            "phase" : NOT_TURN
+            "phase" : NOT_TURN,
+            "result": None
         }
 
         # Let the starting player begin moving units
@@ -130,13 +131,19 @@ class Game:
         self.time = self.clock.tick(60)
         self.mouse_position = pygame.mouse.get_pos()
 
+        # Display attack result
+        if self.turn["result"] and self.turn["phase"] != END_TURN:
+            self.map.display_attack_result(self.turn["result"])
+            self.turn["result"] = None
+
         # Other player's turn
         if not self.gamestate.is_players_turn(self.player_num):
             rps_in_session = self.network.check_for_rps()
             if rps_in_session:
                 winner = self.map.rps_loop("defender")
-                # if winner == self.player_num:
-                #     self.map.display_attack_result("block")
+                # Block attack
+                if winner == self.player_num:
+                    self.turn["result"] = "block"
             players_turn = self.network.request_turn()
             if players_turn == self.player_num:
                 self.update_gamestate()
@@ -175,10 +182,13 @@ class Game:
             for unit_type, health in new_gamestate.unit_health.items():
                 unit = self.map.get_unit_by_type(unit_type)
                 if unit:
-                    unit.change_health(health)
-                    self.map.flash_red()
-                    if not unit.is_alive:
-                        self.map.kill_unit(unit)
+                    if unit.health != health:
+                        unit.change_health(health)
+                        if not unit.is_alive:
+                            self.map.kill_unit(unit)
+                            self.turn["result"] = "kill"
+                        else:
+                            self.turn["result"] = "damage"
 
     def update_positions(self, new_gamestate):
         """
