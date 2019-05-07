@@ -363,21 +363,21 @@ class Map:
         font = pygame.font.Font(GAME_FONT, 26)
         text = ""
         color = colors.white
-        time = 700
+        time = 740
         # Determine display attributes based on result
         if result == "hit":
             text = "Attack landed!"
         elif result == "damage":
             text = "You were attacked!"
             color = colors.red
-            time = 800
+            time = 850
         elif result == "block":
             text = "Blocked attack!"
             color = colors.blue
         elif result == "kill":
             text = self.get_random_kill_text()
             color = colors.darkred
-            time = 900
+            time = 1200
 
         # Set up popup window
         text_surface = font.render(text, False, color)
