@@ -365,7 +365,7 @@ class Map:
         if result == "hit":
             text = "Attack landed!"
         elif result == "damage":
-            text = "You were attacked!"
+            text = "You took damage!"
             color = colors.red
             display_time = 850
         elif result == "block":
@@ -388,7 +388,7 @@ class Map:
 
     def get_random_kill_text(self):
         kill_text = ""
-        random_num = random.randint(1, 11)
+        random_num = random.randint(1, 10)
         if random_num == 1:
             kill_text = "Fatal blow!"
         elif random_num == 2:
