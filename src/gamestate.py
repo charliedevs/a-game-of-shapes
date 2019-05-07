@@ -171,24 +171,24 @@ class GameState:
 
     def initialize_locations(self):
         unit_locations = {
-            1 : None,
-            2 : None,
-            3 : None,
-            4 : None,
-            5 : None,
-            6 : None
+            P1_TRIANGLE : None,
+            P1_DIAMOND : None,
+            P1_CIRCLE : None,
+            P2_TRIANGLE : None,
+            P2_DIAMOND : None,
+            P2_CIRCLE : None
         }
 
         return unit_locations
 
     def initialize_health(self):
         unit_health = {
-            1 : TRIANGLE_HEALTH,
-            2 : DIAMOND_HEALTH,
-            3 : CIRCLE_HEALTH,
-            4 : TRIANGLE_HEALTH,
-            5 : DIAMOND_HEALTH,
-            6 : CIRCLE_HEALTH
+            P1_TRIANGLE : TRIANGLE_HEALTH,
+            P1_DIAMOND : DIAMOND_HEALTH,
+            P1_CIRCLE : CIRCLE_HEALTH,
+            P2_TRIANGLE : TRIANGLE_HEALTH,
+            P2_DIAMOND : DIAMOND_HEALTH,
+            P2_CIRCLE : CIRCLE_HEALTH
         }
 
         return unit_health
