@@ -45,8 +45,7 @@ class Game:
         # Set up display window
         pygame.display.set_caption("A Game of Shapes - Player " + str(self.player_num))
         screen_res = (WINDOW_WIDTH, WINDOW_HEIGHT)
-        self.screen = pygame.display.set_mode(
-            screen_res, flags=pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode(screen_res)
         
         # Set up font
         pygame.font.init()
